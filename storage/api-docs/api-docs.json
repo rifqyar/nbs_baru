@@ -1,0 +1,1398 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "NBS API",
+        "description": "This is the API documentation for NBS version 1.",
+        "contact": {
+            "email": "support@mti.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/v1/api"
+        }
+    ],
+    "paths": {
+        "/voyages": {
+            "get": {
+                "tags": [
+                    "Voyages"
+                ],
+                "summary": "Retrieve a list of voyages",
+                "operationId": "34634cf6ed513cf23edc758bb512270a",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "TML_CD": {
+                                                "type": "string",
+                                                "example": "PNK"
+                                            },
+                                            "VESSEL": {
+                                                "type": "string",
+                                                "example": "SPIL RENATA"
+                                            },
+                                            "VOYAGE_IN": {
+                                                "type": "string",
+                                                "example": "28/2024"
+                                            },
+                                            "VOYAGE_OUT": {
+                                                "type": "string",
+                                                "example": "28/2024"
+                                            },
+                                            "CALL_SIGN": {
+                                                "type": "string",
+                                                "example": "YDDF2"
+                                            },
+                                            "OPERATOR_ID": {
+                                                "type": "string",
+                                                "example": "SPL"
+                                            },
+                                            "OPERATOR_NAME": {
+                                                "type": "string",
+                                                "example": "SALAM PACIFIC INDONESIA LINES"
+                                            },
+                                            "ETA": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T07:00:00Z"
+                                            },
+                                            "ETB": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T18:00:00Z"
+                                            },
+                                            "ETD": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-16T17:16:00Z"
+                                            },
+                                            "ATA": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T17:00:00Z"
+                                            },
+                                            "ATB": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T18:00:00Z"
+                                            },
+                                            "ATD": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-16T17:33:00Z"
+                                            },
+                                            "ID_POD": {
+                                                "type": "string",
+                                                "example": "IDPNK"
+                                            },
+                                            "POD": {
+                                                "type": "string",
+                                                "example": "PONTIANAK"
+                                            },
+                                            "ID_POL": {
+                                                "type": "string",
+                                                "example": "IDPNK"
+                                            },
+                                            "POL": {
+                                                "type": "string",
+                                                "example": "PONTIANAK"
+                                            },
+                                            "OPEN_STACK": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-12T10:00:00Z"
+                                            },
+                                            "CLOSSING_TIME": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T18:00:00Z"
+                                            },
+                                            "CLOSSING_DOC": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "BERTHING_TIME": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T18:00:00Z"
+                                            },
+                                            "START_WORK": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-15T18:37:00Z"
+                                            },
+                                            "END_WORK": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-16T17:03:00Z"
+                                            },
+                                            "DATE_SEND": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-12T09:46:50Z"
+                                            },
+                                            "FLAG_SEND": {
+                                                "type": "string",
+                                                "example": "1"
+                                            },
+                                            "ID_VSB_VOYAGE": {
+                                                "type": "string",
+                                                "example": "202410120946504941"
+                                            },
+                                            "VESSEL_CODE": {
+                                                "type": "string",
+                                                "example": "SPRE"
+                                            },
+                                            "VOYAGE": {
+                                                "type": "string",
+                                                "example": "SPRE-0031"
+                                            },
+                                            "FIRST_ETD": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "RBM_DLD": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "UPD_USER": {
+                                                "type": "string",
+                                                "example": "0304002"
+                                            },
+                                            "UPD_DATE": {
+                                                "type": "string",
+                                                "format": "date-time",
+                                                "example": "2024-10-17T07:01:28Z"
+                                            },
+                                            "DLT_FLG": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "CONTAINER_LIMIT": {
+                                                "type": "string",
+                                                "example": "402"
+                                            },
+                                            "BERTH": {
+                                                "type": "string",
+                                                "example": "402"
+                                            },
+                                            "NO_PKK": {
+                                                "type": "string",
+                                                "example": "08"
+                                            },
+                                            "ORIGIN_PORT": {
+                                                "type": "string",
+                                                "example": "IDPNK"
+                                            },
+                                            "LAST_PORT": {
+                                                "type": "string",
+                                                "example": "IDJK1"
+                                            },
+                                            "NEXT_PORT": {
+                                                "type": "string",
+                                                "example": "IDJKT"
+                                            },
+                                            "ACTIVE": {
+                                                "type": "string",
+                                                "example": "N"
+                                            },
+                                            "VESSEL_CLOSE": {
+                                                "type": "string",
+                                                "example": "N"
+                                            },
+                                            "ACTWKSL_DATE": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "20241016"
+                                            },
+                                            "ACTWKCL_DATE": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "20241016"
+                                            },
+                                            "ACTWKS_DATE": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "20241015"
+                                            },
+                                            "ACTWKC_DATE": {
+                                                "type": "string",
+                                                "format": "date",
+                                                "example": "20241016"
+                                            },
+                                            "ACTWKSL_TIME": {
+                                                "type": "string",
+                                                "example": "011600"
+                                            },
+                                            "ACTWKCL_TIME": {
+                                                "type": "string",
+                                                "example": "170300"
+                                            },
+                                            "ACTWKS_TIME": {
+                                                "type": "string",
+                                                "example": "183700"
+                                            },
+                                            "ACTWKC_TIME": {
+                                                "type": "string",
+                                                "example": "150000"
+                                            },
+                                            "NOBC11": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "TGBC11": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            },
+                                            "EARLY_STACK": {
+                                                "type": "string",
+                                                "example": "20241012100000"
+                                            },
+                                            "SERVICE_LANE_IN": {
+                                                "type": "string",
+                                                "example": "SPLJKT"
+                                            },
+                                            "SERVICE_LANE_OUT": {
+                                                "type": "string",
+                                                "example": "SPLJKT"
+                                            },
+                                            "VESEL_TYPE_CD": {
+                                                "type": "string",
+                                                "example": "UCC"
+                                            },
+                                            "SERVICE_TYPE": {
+                                                "type": "string",
+                                                "example": "DOMESTIC"
+                                            },
+                                            "CANCEL_FLAG": {
+                                                "type": "string",
+                                                "example": null,
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error retrieving voyages",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error retrieving voyages"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Exception message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Voyages"
+                ],
+                "summary": "Create a new voyage",
+                "operationId": "9c85ad2ea022a3fbbc4e18ff9fdffa2e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "TML_CD": {
+                                        "type": "string",
+                                        "example": "PNK"
+                                    },
+                                    "VESSEL": {
+                                        "type": "string",
+                                        "example": "SPIL RENATA"
+                                    },
+                                    "VOYAGE_IN": {
+                                        "type": "string",
+                                        "example": "28/2024"
+                                    },
+                                    "VOYAGE_OUT": {
+                                        "type": "string",
+                                        "example": "28/2024"
+                                    },
+                                    "CALL_SIGN": {
+                                        "type": "string",
+                                        "example": "YDDF2"
+                                    },
+                                    "OPERATOR_ID": {
+                                        "type": "string",
+                                        "example": "SPL"
+                                    },
+                                    "OPERATOR_NAME": {
+                                        "type": "string",
+                                        "example": "SALAM PACIFIC INDONESIA LINES"
+                                    },
+                                    "ETA": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T07:00:00Z"
+                                    },
+                                    "ETB": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "ETD": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:16:00Z"
+                                    },
+                                    "ATA": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T17:00:00Z"
+                                    },
+                                    "ATB": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "ATD": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:33:00Z"
+                                    },
+                                    "ID_POD": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "POD": {
+                                        "type": "string",
+                                        "example": "PONTIANAK"
+                                    },
+                                    "ID_POL": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "POL": {
+                                        "type": "string",
+                                        "example": "PONTIANAK"
+                                    },
+                                    "OPEN_STACK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-12T10:00:00Z"
+                                    },
+                                    "CLOSSING_TIME": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "CLOSSING_DOC": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "BERTHING_TIME": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "START_WORK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:37:00Z"
+                                    },
+                                    "END_WORK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:03:00Z"
+                                    },
+                                    "DATE_SEND": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-12T09:46:50Z"
+                                    },
+                                    "FLAG_SEND": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "ID_VSB_VOYAGE": {
+                                        "type": "string",
+                                        "example": "202410120946504941"
+                                    },
+                                    "VESSEL_CODE": {
+                                        "type": "string",
+                                        "example": "SPRE"
+                                    },
+                                    "VOYAGE": {
+                                        "type": "string",
+                                        "example": "SPRE-0031"
+                                    },
+                                    "FIRST_ETD": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "RBM_DLD": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "UPD_USER": {
+                                        "type": "string",
+                                        "example": "0304002"
+                                    },
+                                    "UPD_DATE": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-17T07:01:28Z"
+                                    },
+                                    "DLT_FLG": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "CONTAINER_LIMIT": {
+                                        "type": "string",
+                                        "example": "402"
+                                    },
+                                    "BERTH": {
+                                        "type": "string",
+                                        "example": "402"
+                                    },
+                                    "NO_PKK": {
+                                        "type": "string",
+                                        "example": "08"
+                                    },
+                                    "ORIGIN_PORT": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "LAST_PORT": {
+                                        "type": "string",
+                                        "example": "IDJK1"
+                                    },
+                                    "NEXT_PORT": {
+                                        "type": "string",
+                                        "example": "IDJKT"
+                                    },
+                                    "ACTIVE": {
+                                        "type": "string",
+                                        "example": "N"
+                                    },
+                                    "VESSEL_CLOSE": {
+                                        "type": "string",
+                                        "example": "N"
+                                    },
+                                    "ACTWKSL_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKCL_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKS_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241015"
+                                    },
+                                    "ACTWKC_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKSL_TIME": {
+                                        "type": "string",
+                                        "example": "011600"
+                                    },
+                                    "ACTWKCL_TIME": {
+                                        "type": "string",
+                                        "example": "170300"
+                                    },
+                                    "ACTWKS_TIME": {
+                                        "type": "string",
+                                        "example": "183700"
+                                    },
+                                    "ACTWKC_TIME": {
+                                        "type": "string",
+                                        "example": "150000"
+                                    },
+                                    "NOBC11": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "TGBC11": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "EARLY_STACK": {
+                                        "type": "string",
+                                        "example": "20241012100000"
+                                    },
+                                    "SERVICE_LANE_IN": {
+                                        "type": "string",
+                                        "example": "SPLJKT"
+                                    },
+                                    "SERVICE_LANE_OUT": {
+                                        "type": "string",
+                                        "example": "SPLJKT"
+                                    },
+                                    "VESEL_TYPE_CD": {
+                                        "type": "string",
+                                        "example": "UCC"
+                                    },
+                                    "SERVICE_TYPE": {
+                                        "type": "string",
+                                        "example": "DOMESTIC"
+                                    },
+                                    "CANCEL_FLAG": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Voyage created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage created successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error creating voyage",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error creating voyage"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Exception message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        },
+        "/voyages/{id}": {
+            "get": {
+                "tags": [
+                    "Voyages"
+                ],
+                "summary": "Retrieve a specific voyage by ID",
+                "operationId": "c7d38d7c2d935ee8c01b62db4725539c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the voyage",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "202410120946504941"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "TML_CD": {
+                                            "type": "string",
+                                            "example": "PNK"
+                                        },
+                                        "VESSEL": {
+                                            "type": "string",
+                                            "example": "SPIL RENATA"
+                                        },
+                                        "VOYAGE_IN": {
+                                            "type": "string",
+                                            "example": "28/2024"
+                                        },
+                                        "VOYAGE_OUT": {
+                                            "type": "string",
+                                            "example": "28/2024"
+                                        },
+                                        "CALL_SIGN": {
+                                            "type": "string",
+                                            "example": "YDDF2"
+                                        },
+                                        "OPERATOR_ID": {
+                                            "type": "string",
+                                            "example": "SPL"
+                                        },
+                                        "OPERATOR_NAME": {
+                                            "type": "string",
+                                            "example": "SALAM PACIFIC INDONESIA LINES"
+                                        },
+                                        "ETA": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T07:00:00Z"
+                                        },
+                                        "ETB": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T18:00:00Z"
+                                        },
+                                        "ETD": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-16T17:16:00Z"
+                                        },
+                                        "ATA": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T17:00:00Z"
+                                        },
+                                        "ATB": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T18:00:00Z"
+                                        },
+                                        "ATD": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-16T17:33:00Z"
+                                        },
+                                        "ID_POD": {
+                                            "type": "string",
+                                            "example": "IDPNK"
+                                        },
+                                        "POD": {
+                                            "type": "string",
+                                            "example": "PONTIANAK"
+                                        },
+                                        "ID_POL": {
+                                            "type": "string",
+                                            "example": "IDPNK"
+                                        },
+                                        "POL": {
+                                            "type": "string",
+                                            "example": "PONTIANAK"
+                                        },
+                                        "OPEN_STACK": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-12T10:00:00Z"
+                                        },
+                                        "CLOSSING_TIME": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T18:00:00Z"
+                                        },
+                                        "CLOSSING_DOC": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "BERTHING_TIME": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T18:00:00Z"
+                                        },
+                                        "START_WORK": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-15T18:37:00Z"
+                                        },
+                                        "END_WORK": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-16T17:03:00Z"
+                                        },
+                                        "DATE_SEND": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-12T09:46:50Z"
+                                        },
+                                        "FLAG_SEND": {
+                                            "type": "string",
+                                            "example": "1"
+                                        },
+                                        "ID_VSB_VOYAGE": {
+                                            "type": "string",
+                                            "example": "202410120946504941"
+                                        },
+                                        "VESSEL_CODE": {
+                                            "type": "string",
+                                            "example": "SPRE"
+                                        },
+                                        "VOYAGE": {
+                                            "type": "string",
+                                            "example": "SPRE-0031"
+                                        },
+                                        "FIRST_ETD": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "RBM_DLD": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "UPD_USER": {
+                                            "type": "string",
+                                            "example": "0304002"
+                                        },
+                                        "UPD_DATE": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2024-10-17T07:01:28Z"
+                                        },
+                                        "DLT_FLG": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "CONTAINER_LIMIT": {
+                                            "type": "string",
+                                            "example": "402"
+                                        },
+                                        "BERTH": {
+                                            "type": "string",
+                                            "example": "402"
+                                        },
+                                        "NO_PKK": {
+                                            "type": "string",
+                                            "example": "08"
+                                        },
+                                        "ORIGIN_PORT": {
+                                            "type": "string",
+                                            "example": "IDPNK"
+                                        },
+                                        "LAST_PORT": {
+                                            "type": "string",
+                                            "example": "IDJK1"
+                                        },
+                                        "NEXT_PORT": {
+                                            "type": "string",
+                                            "example": "IDJKT"
+                                        },
+                                        "ACTIVE": {
+                                            "type": "string",
+                                            "example": "N"
+                                        },
+                                        "VESSEL_CLOSE": {
+                                            "type": "string",
+                                            "example": "N"
+                                        },
+                                        "ACTWKSL_DATE": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "20241016"
+                                        },
+                                        "ACTWKCL_DATE": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "20241016"
+                                        },
+                                        "ACTWKS_DATE": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "20241015"
+                                        },
+                                        "ACTWKC_DATE": {
+                                            "type": "string",
+                                            "format": "date",
+                                            "example": "20241016"
+                                        },
+                                        "ACTWKSL_TIME": {
+                                            "type": "string",
+                                            "example": "011600"
+                                        },
+                                        "ACTWKCL_TIME": {
+                                            "type": "string",
+                                            "example": "170300"
+                                        },
+                                        "ACTWKS_TIME": {
+                                            "type": "string",
+                                            "example": "183700"
+                                        },
+                                        "ACTWKC_TIME": {
+                                            "type": "string",
+                                            "example": "150000"
+                                        },
+                                        "NOBC11": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "TGBC11": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "EARLY_STACK": {
+                                            "type": "string",
+                                            "example": "20241012100000"
+                                        },
+                                        "SERVICE_LANE_IN": {
+                                            "type": "string",
+                                            "example": "SPLJKT"
+                                        },
+                                        "SERVICE_LANE_OUT": {
+                                            "type": "string",
+                                            "example": "SPLJKT"
+                                        },
+                                        "VESEL_TYPE_CD": {
+                                            "type": "string",
+                                            "example": "UCC"
+                                        },
+                                        "SERVICE_TYPE": {
+                                            "type": "string",
+                                            "example": "DOMESTIC"
+                                        },
+                                        "CANCEL_FLAG": {
+                                            "type": "string",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Voyage not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error retrieving the voyage",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error retrieving the voyage"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Exception message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Voyages"
+                ],
+                "summary": "Update an existing voyage",
+                "operationId": "41b8e07acac1106ad4916771b8d82822",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the voyage to be updated",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "202410120946504941"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "TML_CD": {
+                                        "type": "string",
+                                        "example": "PNK"
+                                    },
+                                    "VESSEL": {
+                                        "type": "string",
+                                        "example": "SPIL RENATA"
+                                    },
+                                    "VOYAGE_IN": {
+                                        "type": "string",
+                                        "example": "28/2024"
+                                    },
+                                    "VOYAGE_OUT": {
+                                        "type": "string",
+                                        "example": "28/2024"
+                                    },
+                                    "CALL_SIGN": {
+                                        "type": "string",
+                                        "example": "YDDF2"
+                                    },
+                                    "OPERATOR_ID": {
+                                        "type": "string",
+                                        "example": "SPL"
+                                    },
+                                    "OPERATOR_NAME": {
+                                        "type": "string",
+                                        "example": "SALAM PACIFIC INDONESIA LINES"
+                                    },
+                                    "ETA": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T07:00:00Z"
+                                    },
+                                    "ETB": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "ETD": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:16:00Z"
+                                    },
+                                    "ATA": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T17:00:00Z"
+                                    },
+                                    "ATB": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "ATD": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:33:00Z"
+                                    },
+                                    "ID_POD": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "POD": {
+                                        "type": "string",
+                                        "example": "PONTIANAK"
+                                    },
+                                    "ID_POL": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "POL": {
+                                        "type": "string",
+                                        "example": "PONTIANAK"
+                                    },
+                                    "OPEN_STACK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-12T10:00:00Z"
+                                    },
+                                    "CLOSSING_TIME": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "CLOSSING_DOC": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "BERTHING_TIME": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:00:00Z"
+                                    },
+                                    "START_WORK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-15T18:37:00Z"
+                                    },
+                                    "END_WORK": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-16T17:03:00Z"
+                                    },
+                                    "DATE_SEND": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-12T09:46:50Z"
+                                    },
+                                    "FLAG_SEND": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "ID_VSB_VOYAGE": {
+                                        "type": "string",
+                                        "example": "202410120946504941"
+                                    },
+                                    "VESSEL_CODE": {
+                                        "type": "string",
+                                        "example": "SPRE"
+                                    },
+                                    "VOYAGE": {
+                                        "type": "string",
+                                        "example": "SPRE-0031"
+                                    },
+                                    "FIRST_ETD": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "RBM_DLD": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "UPD_USER": {
+                                        "type": "string",
+                                        "example": "0304002"
+                                    },
+                                    "UPD_DATE": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-10-17T07:01:28Z"
+                                    },
+                                    "DLT_FLG": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "CONTAINER_LIMIT": {
+                                        "type": "string",
+                                        "example": "402"
+                                    },
+                                    "BERTH": {
+                                        "type": "string",
+                                        "example": "402"
+                                    },
+                                    "NO_PKK": {
+                                        "type": "string",
+                                        "example": "08"
+                                    },
+                                    "ORIGIN_PORT": {
+                                        "type": "string",
+                                        "example": "IDPNK"
+                                    },
+                                    "LAST_PORT": {
+                                        "type": "string",
+                                        "example": "IDJK1"
+                                    },
+                                    "NEXT_PORT": {
+                                        "type": "string",
+                                        "example": "IDJKT"
+                                    },
+                                    "ACTIVE": {
+                                        "type": "string",
+                                        "example": "N"
+                                    },
+                                    "VESSEL_CLOSE": {
+                                        "type": "string",
+                                        "example": "N"
+                                    },
+                                    "ACTWKSL_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKCL_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKS_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241015"
+                                    },
+                                    "ACTWKC_DATE": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "20241016"
+                                    },
+                                    "ACTWKSL_TIME": {
+                                        "type": "string",
+                                        "example": "011600"
+                                    },
+                                    "ACTWKCL_TIME": {
+                                        "type": "string",
+                                        "example": "170300"
+                                    },
+                                    "ACTWKS_TIME": {
+                                        "type": "string",
+                                        "example": "183700"
+                                    },
+                                    "ACTWKC_TIME": {
+                                        "type": "string",
+                                        "example": "150000"
+                                    },
+                                    "NOBC11": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "TGBC11": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "EARLY_STACK": {
+                                        "type": "string",
+                                        "example": "20241012100000"
+                                    },
+                                    "SERVICE_LANE_IN": {
+                                        "type": "string",
+                                        "example": "SPLJKT"
+                                    },
+                                    "SERVICE_LANE_OUT": {
+                                        "type": "string",
+                                        "example": "SPLJKT"
+                                    },
+                                    "VESEL_TYPE_CD": {
+                                        "type": "string",
+                                        "example": "UCC"
+                                    },
+                                    "SERVICE_TYPE": {
+                                        "type": "string",
+                                        "example": "DOMESTIC"
+                                    },
+                                    "CANCEL_FLAG": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Voyage updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Voyage not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error updating voyage",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error updating voyage"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Exception message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Voyages"
+                ],
+                "summary": "Delete an existing voyage",
+                "operationId": "5e2fd2c94aefa97ff01205c20015eaf6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the voyage to be deleted",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "202410120946504941"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Voyage deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Voyage not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Voyage not found or already deleted"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error deleting voyage",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error deleting voyage"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Exception message"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "ApiKeyAuth": {
+                "type": "apiKey",
+                "name": "API_KEY",
+                "in": "header"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Voyages",
+            "description": "Voyages"
+        }
+    ]
+}

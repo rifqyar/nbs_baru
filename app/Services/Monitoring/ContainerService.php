@@ -35,6 +35,7 @@ class ContainerService
             AND Q.NO_CONTAINER = W.NO_CONTAINER(+)
             AND W.NO_BOOKING(+) = 'VESSEL_NOTHING'
             AND W.KEGIATAN(+) = 'REQUEST RECEIVING'
+            AND Q.NO_BOOKING IS NOT NULL
         ORDER BY TIME_ DESC ) WHERE ROWNUM <= 6";
 
         return DB::connection('uster')->select($sql);

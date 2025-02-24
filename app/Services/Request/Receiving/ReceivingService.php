@@ -66,7 +66,7 @@ class ReceivingService
                                     LEFT JOIN ITPK_NOTA_HEADER c
                                         ON a.NO_REQUEST = c.NO_REQUEST
 						            WHERE     a.RECEIVING_DARI = 'LUAR'
-						                 AND a.TGL_REQUEST BETWEEN SYSDATE - INTERVAL '15' AND LAST_DAY (SYSDATE)
+						                 AND a.TGL_REQUEST BETWEEN SYSDATE - INTERVAL '15' DAYa AND LAST_DAY (SYSDATE)
 						        ORDER BY a.TGL_REQUEST DESC)
                                ";
         }

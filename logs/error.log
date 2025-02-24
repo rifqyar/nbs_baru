@@ -1,0 +1,75 @@
+2025/02/24 10:42:30 [error] 19301#19301: *2 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 10:42:31 [error] 19301#19301: *2 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 10:45:53 [error] 19305#19305: *6 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:18:18 [crit] 19302#19302: *8 connect() to unix:/run/php/php8.3-fpm.sock failed (2: No such file or directory) while connecting to upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:18:19 [crit] 19302#19302: *8 connect() to unix:/run/php/php8.3-fpm.sock failed (2: No such file or directory) while connecting to upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:20:03 [crit] 19303#19303: *12 connect() to unix:/run/php/php8.3-fpm.sock failed (2: No such file or directory) while connecting to upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:20:46 [error] 19303#19303: *12 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:22:09 [error] 19303#19303: *16 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:33:27 [error] 19303#19303: *19 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:35:29 [error] 19303#19303: *22 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 11:53:57 [error] 19303#19303: *25 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:17:07 [error] 19303#19303: *28 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:17:08 [error] 19303#19303: *28 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:42:51 [error] 19303#19303: *32 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:42:53 [error] 19303#19303: *32 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:43:34 [error] 19303#19303: *32 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 12:45:26 [error] 19303#19303: *37 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 13:03:12 [error] 19301#19301: *40 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php8.3-fpm.sock:", host: "10.15.42.159"
+2025/02/24 13:23:46 [error] 44042#44042: *1 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php-fpm.sock:", host: "10.15.42.159"
+2025/02/24 13:24:15 [error] 44042#44042: *1 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php-fpm.sock:", host: "10.15.42.159"
+2025/02/24 13:24:16 [error] 44042#44042: *1 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/nbs_baru/public/index.php on line 34; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/public/../vendor/autoload.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/public/index.php:34
+Stack trace:
+#0 {main}
+  thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php-fpm.sock:", host: "10.15.42.159"

@@ -150,7 +150,7 @@ class PerencanaanStrippingController extends Controller
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
-        
+
         DB::beginTransaction();
         try {
             $param = array(
@@ -184,9 +184,9 @@ class PerencanaanStrippingController extends Controller
             $noReq = null;
 
             if($storeData->getData()->status->code != 200){
-                throw new Exception('Gagal Membuat Perencanaan Stripping',500);
+                throw new Exception('Gagal Membuat Perencanaan Stripping'. $storeData->getData()->status->msg,500);
             } else if($storeData->getData()->data->outmsg == 'F'){
-                throw new Exception('Gagal Membuat Perencanaan Stripping', 500);
+                throw new Exception('Gagal Membuat Perencanaan Stripping'. $storeData->getData()->status->msg, 500);
             } else {
                 $noReq = base64_encode($storeData->getData()->data->out_noreq);
             }

@@ -512,11 +512,10 @@ class PerencanaanStripping
             //     ); end;",$param
             // );
 
-            $procedureName = 'uster.create_header_strip_praya';
+            $procedureName = 'uster.pack_create_req_stripping.create_header_strip_praya';
             $stmt = $pdo->prepare(
                 "
-                        DECLARE
-                        BEGIN " . $procedureName . " (
+                        DECLARE BEGIN " . $procedureName . " (
                             :in_accpbm,
                             :in_pbm,
                             :in_personal,
@@ -547,11 +546,11 @@ class PerencanaanStripping
             );
 
             foreach ($param as $key => &$value) {
-                $stmt->bindParam(":$key", $value);
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
             }
 
-            $stmt->bindParam(":out_noreq", $outNoReq);
-            $stmt->bindParam(":out_msg", $outMsg);
+            $stmt->bindParam(":out_noreq", $outNoReq, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+            $stmt->bindParam(":out_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
 
             DB::commit();

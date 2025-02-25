@@ -169,16 +169,17 @@ function getData() {
     });
 }
 
-$("#CONSIGNEE").on("keyup", function () {
-    $("#ID_CONSIGNEE").val("");
-    $("#ALMT_CONSIGNEE").val("");
-    $("#NPWP_CONSIGNEE").val("");
-    $("#PENUMPUKAN").val("");
-    $("#ID_PENUMPUKAN").val("");
-    $("#ALMT_PENUMPUKAN").val("");
-    $("#NPWP_PENUMPUKAN").val("");
-    $("#NO_ACC_CONS").val("");
-});
+// $("#CONSIGNEE").on("keyup", function () {
+//     $("#ID_CONSIGNEE").val("");
+//     $("#ALMT_CONSIGNEE").val("");
+//     $("#NPWP_CONSIGNEE").val("");
+//     $("#PENUMPUKAN").val("");
+//     $("#ID_PENUMPUKAN").val("");
+//     $("#ALMT_PENUMPUKAN").val("");
+//     $("#NPWP_PENUMPUKAN").val("");
+//     $("#NO_ACC_CONS").val("");
+// });
+
 $("#CONSIGNEE").autocomplete({
     source: function (request, response) {
         $.ajax({
@@ -222,21 +223,22 @@ $("#CONSIGNEE").autocomplete({
     },
 });
 
-$("#NM_KAPAL").on("keyup", function () {
-    $("#VOYAGE_IN").val("");
-    $("#VOYAGE_OUT").val("");
-    $("#NO_BOOKING").val("");
-    $("#IDVSB").val("");
-    $("#CALLSIGN").val("");
-    $("#VESSEL_CODE").val("");
-    $("#TANGGAL_JAM_TIBA").val("");
-    $("#TANGGAL_JAM_BERANGKAT").val("");
-    $("#OPERATOR_NAME").val("");
-    $("#OPERATOR_ID").val("");
-    $("#POD").val("");
-    $("#POL").val("");
-    $("#VOYAGE").val("");
-});
+// $("#NM_KAPAL").on("keyup", function () {
+//     $("#VOYAGE_IN").val("");
+//     $("#VOYAGE_OUT").val("");
+//     $("#NO_BOOKING").val("");
+//     $("#IDVSB").val("");
+//     $("#CALLSIGN").val("");
+//     $("#VESSEL_CODE").val("");
+//     $("#TANGGAL_JAM_TIBA").val("");
+//     $("#TANGGAL_JAM_BERANGKAT").val("");
+//     $("#OPERATOR_NAME").val("");
+//     $("#OPERATOR_ID").val("");
+//     $("#POD").val("");
+//     $("#POL").val("");
+//     $("#VOYAGE").val("");
+// });
+
 $("#NM_KAPAL").autocomplete({
     source: function (request, response) {
         $.ajax({
@@ -595,11 +597,11 @@ async function saveData(formId) {
 
         return false;
     }
-    await ajaxGetJson(
-        `/request/stripping/stripping-plan/cek-saldo-emkl/${kd_consignee}`,
-        "afterCekSaldo",
-        "get_error"
-    );
+    // await ajaxGetJson(
+    //     `/request/stripping/stripping-plan/cek-saldo-emkl/${kd_consignee}`,
+    //     "afterCekSaldo",
+    //     "get_error"
+    // );
 }
 
 function afterCekSaldo(data) {

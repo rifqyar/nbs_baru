@@ -163,7 +163,7 @@ class PaymentCashController extends Controller
                                       ELSE 'IPTK BANK'
                                    END
                                       receipt_method
-                              FROM billing_nbs.mst_bank_simkeu
+                              from billing_nbs.mst_bank_simkeu
                               where org_id = '88'";
         $rwsql_bank            = DB::connection('uster')->select($query_nota);
 

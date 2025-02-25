@@ -570,13 +570,13 @@ Perencanaan Kegiatan Delivery
             },
             complete: function() {
                 $("#NO_CONT").val('');
-                $("#HZ").val('');
+                // $("#HZ").val('');
                 $("#STATUS").val('');
                 $("#komoditi").val('');
                 $("#keterangan").val('');
                 $("#no_seal").val('');
                 $("#berat").val('');
-                $("#via").val('');
+                // $("#via").val('');
                 $("#start_pnkn").val('');
                 $("#end_pnkn").val('');
             }

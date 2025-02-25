@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use PDO;
 
@@ -75,7 +76,7 @@ class NotaStrippingServices
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/YYYY')
          THEN a.NO_NOTA
          ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                             FROM nota_stripping a, request_stripping c, BILLING_NBS.tb_user mu where
+                             FROM nota_stripping a, request_stripping c, billing_nbs.tb_user mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stripping d WHERE d.NO_REQUEST = '$no_req' )
                              and c.NO_REQUEST = '$no_req'
@@ -214,7 +215,7 @@ class NotaStrippingServices
        CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
         THEN a.NO_NOTA
         ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                            FROM nota_relokasi_mty a, request_stripping c, BILLING_NBS.tb_user mu where
+                            FROM nota_relokasi_mty a, request_stripping c, billing_nbs.tb_user mu where
                             a.NO_REQUEST = c.NO_REQUEST
                             AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_relokasi_mty d WHERE d.NO_REQUEST = '$no_req' )
                             and c.NO_REQUEST = '$no_req'
@@ -1004,8 +1005,6 @@ class NotaStrippingServices
                     $ppn             = $item->ppn;
                     $urut           = $item->urut;
                     $tekstual    = $item->tekstual;
-                    $relok    = $item->relok;
-                    $diskon    = $item->diskon;
 
                     $rawParamInsertDetail = array(
                         'ID_ISO' => $id_iso,
@@ -1015,20 +1014,30 @@ class NotaStrippingServices
                         'NO_NOTA' => $no_nota,
                         'JML_CONT' => $jml_cont,
                         'HZ' => $hz,
-                        'START_STACK' => "TO_DATE('$start','mm/dd/rrrr')@ORA",
-                        'END_STACK' => "TO_DATE('$end','mm/dd/rrrr')@ORA",
+                        'START_STACK' => $start != null ? "TO_DATE('$start','mm/dd/rrrr')@ORA" : null,
+                        'END_STACK' => $end != null ? "TO_DATE('$end','mm/dd/rrrr')@ORA" : null,
                         'JML_HARI' => $jml,
                         'COA' => $coa,
                         'LINE_NUMBER' => $key + 1,
                         'PPN' => $ppn,
                         'URUT' => $urut,
                         'TEKSTUAL' => $tekstual,
-                        'DISKON' => $diskon,
                         'NO_NOTA_MTI' => $no_nota_mti,
                     );
+
                     $paramInsertDetail = generateQuerySimpan($rawParamInsertDetail);
                     $queryInsertDetail    = "INSERT INTO nota_stripping_d $paramInsertDetail";
-                    $execInsertDetail = DB::connection('uster')->statement($queryInsertDetail);
+                    try {
+                        $execInsertDetail = DB::connection('uster')->statement($queryInsertDetail);
+                        if (!$execInsertDetail) {
+                            // Log or inspect the error
+                            $error = DB::connection('uster')->getPdo()->errorInfo();
+                            Log::error("Error inserting data into nota_stripping_d: " . implode(', ', $error));
+                        }
+                    } catch (Exception $e) {
+                        // Handle the exception
+                        Log::error("Exception during insert: " . $e->getMessage());
+                    }
                 }
 
                 $update_nota = "UPDATE NOTA_STRIPPING SET CETAK_NOTA = '1' WHERE NO_NOTA = '$no_nota'";
@@ -1047,6 +1056,7 @@ class NotaStrippingServices
                     'code' => 200
                 ], 200);
             } else {
+                DB::rollback();
                 throw new Exception('Gagal Menyimpan Proforma', 500);
             }
         } catch (Exception $th) {

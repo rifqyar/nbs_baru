@@ -237,8 +237,8 @@ class NotaStrippingController extends Controller
         $no_req = base64_decode($no_req);
         $query_cek_nota 	= "SELECT NO_NOTA, STATUS FROM NOTA_STRIPPING WHERE NO_REQUEST = '$no_req'";
         $nota				= DB::connection('uster')->selectOne($query_cek_nota);
-        $no_nota_cek		= $nota->no_nota;
-        $nota_status		= $nota->status;
+        $no_nota_cek		= $nota->no_nota ?? null;
+        $nota_status		= $nota->status ?? null;
 
         try {
             if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)){

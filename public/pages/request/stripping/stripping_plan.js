@@ -597,11 +597,12 @@ async function saveData(formId) {
 
         return false;
     }
-    // await ajaxGetJson(
-    //     `/request/stripping/stripping-plan/cek-saldo-emkl/${kd_consignee}`,
-    //     "afterCekSaldo",
-    //     "get_error"
-    // );
+
+    await ajaxGetJson(
+        `/request/stripping/stripping-plan/cek-saldo-emkl/${kd_consignee}`,
+        "afterCekSaldo",
+        "get_error"
+    );
 }
 
 function afterCekSaldo(data) {

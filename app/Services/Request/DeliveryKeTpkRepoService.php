@@ -869,7 +869,7 @@ class DeliveryKeTpkRepoService
             );
 
             // echo var_dump($param_b_var);die;
-            $query_ops = "declare begin billing.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+            $query_ops = "declare begin billing_nbs.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
 
             $query_del    = "DELETE FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
 

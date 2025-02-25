@@ -273,7 +273,7 @@ class PerencanaanStrippingController extends Controller
         try {
             $validasiContainerAktif = $this->cekCont($request->NO_CONT);
 
-            if($request->TGL_BONGKAR != null){
+            if($request->TGL_BONGKAR == null){
                 throw new Exception('Tanggal Bongkar Kosong, Silahkan Hubungi Admin', 400);
             }
 

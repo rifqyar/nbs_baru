@@ -332,7 +332,7 @@ $("#NO_CONT").autocomplete({
                         data.map(function (value) {
                             console.log(value);
                             return {
-                                label: `${value.vesselName} | ${value.voyageIn}/${value.voyageOut}`,
+                                label: `${value.containerNo} | ${value.voyageIn}/${value.voyageOut}`,
                                 vesselName: value.vesselName,
                                 voyageIn: value.voyageIn,
                                 containerNo: value.containerNo,

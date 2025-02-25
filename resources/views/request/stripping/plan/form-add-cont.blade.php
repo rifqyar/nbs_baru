@@ -64,7 +64,7 @@
 
         <div class="col-12 col-md-4 form-group">
             <label for="TGL_BONGKAR">Tanggal Bongkar</label>
-            <input type="date" name="TGL_BONGKAR" id="TGL_BONGKAR" class="form-control" readonly>
+            <input type="text" name="TGL_BONGKAR" id="TGL_BONGKAR" class="form-control" readonly>
         </div>
         <div class="col-12 col-md-4 form-group">
             <label for="lokasi">Depo Tujuan</label>
@@ -81,7 +81,7 @@
         </div>
         <div class="col-12 col-md-6 form-group">
             <label for="tgl_mulai">Tgl. Mulai Stripping</label>
-            <input readonly type="date" name="tgl_mulai" ID="tgl_mulai" class="form-control" />
+            <input readonly type="text" name="tgl_mulai" ID="tgl_mulai" class="form-control" />
         </div>
         <div class="col-12 col-md-6 form-group">
             <label for="TGL_SELESAI">Tgl. Selesai Stripping</label>

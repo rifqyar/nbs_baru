@@ -106,9 +106,9 @@ class RequestReceivingController extends Controller
         $queryCek = "SELECT PAID_VALIDATE('$noReq') CEK FROM DUAL";
         $dataCek = DB::connection('uster')->select($queryCek);
 
-        if($dataCek[0]->cek > 0){
-            return redirect()->route('uster.new_request.receiving.receiving_luar')->with(['notifCekPaid' => 'Nota dengan nomor request <b> ' . $noReq . ' </b> belum dilakukan pembayaran']);
-        }
+        // if($dataCek[0]->cek > 0){
+        //     return redirect()->route('uster.new_request.receiving.receiving_luar')->with(['notifCekPaid' => 'Nota dengan nomor request <b> ' . $noReq . ' </b> belum dilakukan pembayaran']);
+        // }
 
         $data['request'] = $this->receiving->getOverviewData($noReq, 'view');
         $data['request'] = $data['request'][0];
@@ -130,6 +130,7 @@ class RequestReceivingController extends Controller
 
         DB::beginTransaction();
         try {
+            $noReq = '';
             if($request->type == 'edit'){
                 $data = array(
                     'KD_CONSIGNEE' => $request->kd_consignee,
@@ -169,8 +170,8 @@ class RequestReceivingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => $request->type == 'edit' ? 'Berhasil Rubah Data Request Receiving' : 'Berhasil membuat request receiving baru',
                 'redirect' => [
-                    'need' => true,
-                    'to' => route('uster.new_request.receiving.receiving_luar'),
+                    'need' => $request->type == 'add' ? true : false,
+                    'to' => $request->type == 'add' ? route('uster.new_request.receiving.view', base64_encode($noReq)) : null,
                 ]
             ]);
             DB::commit();
@@ -242,7 +243,7 @@ class RequestReceivingController extends Controller
         // Cek Container
         $queryCekCont = "SELECT NO_CONTAINER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '".$request->no_cont."'";
         $result_cek_cont = DB::connection('uster')->selectOne($queryCekCont);
-        $cek_cont		 = $result_cek_cont->no_container;
+        $cek_cont		 = $result_cek_cont;
         if($cek_cont == null){
             // insert into master
             $queryInsertCont = generateQuerySimpan([
@@ -349,7 +350,7 @@ class RequestReceivingController extends Controller
             $rec_dari = $result_rec_dari->receiving_dari;
 
             $result_cek1	= DB::connection('uster')->selectOne($query_cek1);
-            $aktif			= $result_cek1->aktif;
+            $aktif			= $result_cek1->aktif ?? 'T';
         }
 
         if($aktif == 'Y'){

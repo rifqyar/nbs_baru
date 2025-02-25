@@ -13,7 +13,7 @@
             <label for="size">Ukuran  <small class="text-danger">*</small></label>
             <select name="size" id="size" class="form-control custom-select" required>
                 <option value="">-- Pilih Size Container --</option>
-                <option value="20">20</option>
+                <option value="20" selected>20</option>
                 <option value="40">40</option>
             </select>
             <div class="invalid-feedback">Harap pilih ukuran container</div>
@@ -22,7 +22,7 @@
             <label for="status">Status  <small class="text-danger">*</small></label>
             <select name="status" id="status" class="form-control custom-select" required>
                 <option value="">-- Pilih Status Container --</option>
-                <option value="MTY">MTY</option>
+                <option value="MTY" selected>MTY</option>
                 <option value="FCL">FCL</option>
             </select>
             <div class="invalid-feedback">Harap pilih status container</div>
@@ -31,7 +31,7 @@
             <label for="type">Type  <small class="text-danger">*</small></label>
             <select name="type" id="type" class="form-control custom-select" required>
                 <option value="">-- Pilih Type Container --</option>
-                <option value="DRY">DRY</option>
+                <option value="DRY" selected>DRY</option>
                 <option value="HQ">HQ</option>
                 <option value="OT">OT</option>
                 <option value="OVD">OVD</option>

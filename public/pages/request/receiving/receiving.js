@@ -506,6 +506,13 @@ function addContainer() {
 function cancelAddCont() {
     if ($("#form-card-container").css("display") != "none") {
         $("#form-card-container").slideUp();
+        $('#no_cont').val('')
+        $('#id_vsb').val('')
+        $('#vessel').val('')
+        $('#komoditi').val('')
+        $('#kd_komoditi').val('')
+        $('#owner').val('')
+        $('#kd_owner').val('')
     }
 }
 

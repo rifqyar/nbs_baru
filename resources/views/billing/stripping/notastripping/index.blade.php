@@ -108,12 +108,12 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
+                                            <th class="text-center" width="200px">Action</th>
                                             <th class="text-center">No. Request</th>
                                             <th class="text-center">Tgl. Request</th>
                                             <th class="text-center">No. DO/BL</th>
                                             <th class="text-center">Penumpukan Oleh / Consignee</th>
                                             <th class="text-center">Jumlah Container</th>
-                                            <th class="text-center" width="200px">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

@@ -46,12 +46,12 @@ class NotaStrippingController extends Controller
     }
 
     private function previewRelokBtn($koreksi, $no_req){
-        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_relok', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Relokasi MTY"> <b><i> Preview Proforma Relokasi MTY</i></b></a> ';
+        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_relok', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Relokasi MTY"> <b><i> Preview Proforma Relokasi MTY</i></b></a>';
         return $btn;
     }
 
     private function previewProformaBtn($koreksi, $no_req){
-        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_proforma', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Stripping"> <b><i> Preview Proforma Stripping</i></b></a> ';
+        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_proforma', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Stripping"> <b><i> Preview Proforma Stripping</i></b></a> </br>';
         return $btn;
     }
 

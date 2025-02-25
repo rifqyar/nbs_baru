@@ -248,7 +248,7 @@ class ReceivingService
                         , trim(d.type_cont) type_cont
                         , d.vessel||'|'||d.voyage_in||' '||d.voyage_out as vessel
                         , d.no_ukk
-                    from billing.req_delivery_h h, billing.req_delivery_d d
+                    from billing_nbs.req_delivery_h h, billing_nbs.req_delivery_d d
                     where trim(h.id_req) = trim(d.id_req)
                         and no_container like '%$noCont%'
                     order by tgl_request desc
@@ -259,7 +259,7 @@ class ReceivingService
 
     function getKomoditi($search)
     {
-        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
+        $query = "SELECT KD_COMMODITY, NM_COMMODITY from billing_nbs.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
         $data = DB::connection('uster')->select($query);
         return $data;
     }

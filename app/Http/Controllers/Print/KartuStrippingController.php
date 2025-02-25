@@ -93,9 +93,9 @@ class KartuStrippingController extends Controller
 
 
             $query_get_container    = "SELECT CONTAINER_STRIPPING.*, MASTER_CONTAINER.SIZE_, TO_CHAR(REQUEST_STRIPPING.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST , request_stripping.CETAK_KARTU_SPPS
-								FROM CONTAINER_STRIPPING 
-								INNER JOIN REQUEST_STRIPPING ON CONTAINER_STRIPPING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST 	
-								JOIN MASTER_CONTAINER ON CONTAINER_STRIPPING.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER 
+								FROM CONTAINER_STRIPPING
+								INNER JOIN REQUEST_STRIPPING ON CONTAINER_STRIPPING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST
+								JOIN MASTER_CONTAINER ON CONTAINER_STRIPPING.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER
 								WHERE CONTAINER_STRIPPING.NO_REQUEST = '$no_req'";
             $row_cont        = DB::connection('uster')->select($query_get_container);;
 
@@ -114,7 +114,7 @@ class KartuStrippingController extends Controller
                 if ($row_cek->cek > 0) {
                     // sudah pernah di insert
                 } else {
-                    // belum pernah di insert, insert kartu stripping		
+                    // belum pernah di insert, insert kartu stripping
                     if ($size == "20")
                         $j = 4;
                     else if ($size == "40")
@@ -151,7 +151,7 @@ class KartuStrippingController extends Controller
               d.SIZE_ AS SIZE_,
               d.TYPE_ AS TYPE_,
 			  d.NO_BOOKING AS NO_BOOKING,
-              a.NO_REQUEST_RECEIVING,              
+              a.NO_REQUEST_RECEIVING,
               TO_CHAR(c.TGL_APPROVE,'dd/mm/rrrr') TGL_AWAL,
               TO_CHAR(c.TGL_APP_SELESAI,'dd/mm/rrrr') TGL_AKHIR,
 			  TO_CHAR(c.START_PERP_PNKN,'dd/mm/rrrr') START_PNKN_,
@@ -171,16 +171,16 @@ class KartuStrippingController extends Controller
               a.o_voyin,
               a.o_voyout,
               h.PIN_NUMBER
-       FROM REQUEST_STRIPPING a 
-                JOIN CONTAINER_STRIPPING c 
+       FROM REQUEST_STRIPPING a
+                JOIN CONTAINER_STRIPPING c
                     ON  a.NO_REQUEST = c.NO_REQUEST
-                 JOIN MASTER_CONTAINER d 
+                 JOIN MASTER_CONTAINER d
                     ON c.NO_CONTAINER = d.NO_CONTAINER
 				 LEFT JOIN PLAN_CONTAINER_STRIPPING k
 					ON d.NO_CONTAINER = k.NO_CONTAINER AND c.NO_REQUEST = REPLACE(K.NO_REQUEST,'P','S')
                 LEFT JOIN REQUEST_RECEIVING g
                    ON a.NO_REQUEST_RECEIVING = g.NO_REQUEST
-                LEFT JOIN BILLING.REQ_DELIVERY_D h
+                LEFT JOIN billing_nbs.REQ_DELIVERY_D h
                 	ON a.O_REQNBS = trim(h.ID_REQ) AND c.NO_CONTAINER = h.NO_CONTAINER
                 WHERE a.NO_REQUEST = '$no_req' ";
             if (isset($_GET['no_cont'])) {
@@ -207,10 +207,10 @@ class KartuStrippingController extends Controller
 
 
 
-        $query_get_container    = "SELECT CONTAINER_STRIPPING.*, MASTER_CONTAINER.SIZE_, TO_CHAR(REQUEST_STRIPPING.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST 
-								FROM CONTAINER_STRIPPING 
-								INNER JOIN REQUEST_STRIPPING ON CONTAINER_STRIPPING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST 	
-								JOIN MASTER_CONTAINER ON CONTAINER_STRIPPING.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER 
+        $query_get_container    = "SELECT CONTAINER_STRIPPING.*, MASTER_CONTAINER.SIZE_, TO_CHAR(REQUEST_STRIPPING.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST
+								FROM CONTAINER_STRIPPING
+								INNER JOIN REQUEST_STRIPPING ON CONTAINER_STRIPPING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST
+								JOIN MASTER_CONTAINER ON CONTAINER_STRIPPING.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER
 								WHERE CONTAINER_STRIPPING.NO_REQUEST = '$no_req'";
         $row_cont        =  DB::connection('uster')->select($query_get_container);
 
@@ -224,14 +224,14 @@ class KartuStrippingController extends Controller
               d.TYPE_ AS TYPE_,
               a.NO_REQUEST_RECEIVING,
 			  TO_CHAR(c.TGL_APPROVE,'dd/mm/rrrr') TGL_AWAL,
-              TO_DATE(c.TGL_APPROVE)+2 TGL_AKHIR,              
+              TO_DATE(c.TGL_APPROVE)+2 TGL_AKHIR,
 			  TO_CHAR(SYSDATE,'dd/mm/rrrr') SYSDATE_
-       FROM REQUEST_STRIPPING a 
-                INNER JOIN v_mst_pbm b 
-                    ON a.KD_CONSIGNEE = b.KD_PBM 
-                JOIN CONTAINER_STRIPPING c 
+       FROM REQUEST_STRIPPING a
+                INNER JOIN v_mst_pbm b
+                    ON a.KD_CONSIGNEE = b.KD_PBM
+                JOIN CONTAINER_STRIPPING c
                     ON  a.NO_REQUEST = c.NO_REQUEST
-                 JOIN MASTER_CONTAINER d 
+                 JOIN MASTER_CONTAINER d
                     ON c.NO_CONTAINER = d.NO_CONTAINER
                 WHERE a.NO_REQUEST = '$no_req'";
 
@@ -265,7 +265,7 @@ class KartuStrippingController extends Controller
                   d.SIZE_ AS SIZE_,
                   d.TYPE_ AS TYPE_,
                   d.NO_BOOKING AS NO_BOOKING,
-                  a.NO_REQUEST_RECEIVING,              
+                  a.NO_REQUEST_RECEIVING,
                   TO_CHAR(c.TGL_APPROVE,'dd/mm/rrrr') TGL_AWAL,
                   TO_CHAR(c.TGL_APP_SELESAI,'dd/mm/rrrr') TGL_AKHIR,
                   TO_CHAR(c.START_PERP_PNKN,'dd/mm/rrrr') START_PNKN_,
@@ -283,18 +283,18 @@ class KartuStrippingController extends Controller
                   k.LOKASI_TPK,
                   a.o_vessel,
                   a.o_voyin,
-                  a.o_voyout,              
+                  a.o_voyout,
                   h.PIN_NUMBER
-           FROM REQUEST_STRIPPING a 
-                    INNER JOIN V_MST_PBM b 
-                        ON a.KD_CONSIGNEE = b.KD_PBM 
-                    JOIN CONTAINER_STRIPPING c 
+           FROM REQUEST_STRIPPING a
+                    INNER JOIN V_MST_PBM b
+                        ON a.KD_CONSIGNEE = b.KD_PBM
+                    JOIN CONTAINER_STRIPPING c
                         ON  a.NO_REQUEST = c.NO_REQUEST
-                     JOIN MASTER_CONTAINER d 
+                     JOIN MASTER_CONTAINER d
                         ON c.NO_CONTAINER = d.NO_CONTAINER
                      LEFT JOIN PLAN_CONTAINER_STRIPPING k
                         ON d.NO_CONTAINER = k.NO_CONTAINER AND c.NO_REQUEST = REPLACE(K.NO_REQUEST,'P','S')
-                    LEFT JOIN BILLING.REQ_DELIVERY_D h
+                    LEFT JOIN billing_nbs.REQ_DELIVERY_D h
                         ON a.O_REQNBS = trim(h.ID_REQ) AND c.NO_CONTAINER = h.NO_CONTAINER
                     WHERE a.NO_REQUEST = '$no_req' ";
         if (isset($_GET['no_cont'])) {

@@ -858,7 +858,7 @@ class DeliveryService
             // DB::connection('uster')->table('CONTAINER_DELIVERY')
             //     ->where('NO_REQUEST', $no_req)
             //     ->where('NO_CONTAINER', $no_cont)
-            //     ->update(['TGL_DELIVERY' => "TO_DATE('$tgl_delivery','yyyy-mm-dd')"]);                
+            //     ->update(['TGL_DELIVERY' => "TO_DATE('$tgl_delivery','yyyy-mm-dd')"]);
 
             DB::commit();
             return [
@@ -894,7 +894,7 @@ class DeliveryService
     function commodity($term)
     {
         $nama            = strtoupper($term);
-        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
+        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from billing_nbs.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
         $result_query    = DB::connection('uster')->select($query);
         return $result_query;
     }

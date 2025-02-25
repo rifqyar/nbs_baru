@@ -332,22 +332,19 @@ $("#NO_CONT").autocomplete({
                         data.map(function (value) {
                             console.log(value);
                             return {
-                                label: `${value.vessel} | ${value.voyage_in}/${value.voyage_out}`,
-                                VOYAGE_IN: value.voyage_in,
-                                VOYAGE_OUT: value.voyage_out,
-                                VESSEL_CODE: value.vessel_code,
-                                VESSEL: value.vessel,
-                                ID_VSB_VOYAGE: value.id_vsb_voyage,
-                                CALL_SIGN: value.call_sign,
-                                ATA: value.ata,
-                                ETA: value.eta,
-                                ATD: value.atd,
-                                ETD: value.etd,
-                                OPERATOR_NAME: value.operator_name,
-                                OPERATOR_ID: value.operator_id,
-                                ID_POD: value.id_pod,
-                                ID_POL: value.id_pol,
-                                VOYAGE: value.voyage,
+                                label: `${value.vesselName} | ${value.voyageIn}/${value.voyageOut}`,
+                                vesselName: value.vesselName,
+                                voyageIn: value.voyageIn,
+                                containerNo: value.containerNo,
+                                containerSize: value.containerSize,
+                                containerStatus: value.containerStatus,
+                                containerType: value.containerType,
+                                vesselConfirm: value.vesselConfirm,
+                                dischargeDate: value.dischargeDate,
+                                ydBlock: value.ydBlock,
+                                ydSlot: value.ydSlot,
+                                ydRow: value.ydRow,
+                                ydTier: value.ydTier,
                             };
                         })
                     );
@@ -367,13 +364,11 @@ $("#NO_CONT").autocomplete({
         $("#tgl_mulai").val(ui.item.vesselConfirm);
         $("#TGL_BONGKAR").val(ui.item.vesselConfirm);
         $("#TGL_STACK").val(ui.item.dischargeDate);
-        $("#NO_UKK").val("{$row_request.O_IDVSB}");
+        $("#NO_UKK").val($("#IDVSB").val());
         $("#NM_AGEN").val(ui.item.NM_AGEN);
-        $("#BP_ID").val("BP{$row_request.O_VESCODE}{$row_request.O_IDVSB}");
+        $("#BP_ID").val("BP"+$("#VESCODE").val()+""+$("#IDVSB").val());
         $("#ASAL_CONT").val("TPK");
-        $("#NO_BOOKING").val(
-            "BP{$row_request.O_VESCODE}{$row_request.O_IDVSB}"
-        );
+        $("#NO_BOOKING").val("BP"+$("#VESCODE").val()+""+$("#IDVSB").val());
         $("#BLOK").val(ui.item.ydBlock);
         $("#SLOT").val(ui.item.ydSlot);
         $("#ROW").val(ui.item.ydRow);

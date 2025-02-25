@@ -51,6 +51,7 @@
                             <thead>
                                 <tr>
                                     <th>NO</th>
+                                    <th>Action</th>
                                     <th>NO. NOTA</th>
                                     <th>No. Proforma</th>
                                     <th>No. Faktur SAP</th>
@@ -59,7 +60,6 @@
                                     <th>Modul</th>
                                     <th>Tanggal Kegiatan</th>
                                     <th>Amount</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                         </table>
@@ -114,46 +114,6 @@
                         }
                     },
                     {
-                        data: 'no_nota',
-                        name: 'no_nota',
-                    },
-                    {
-                        data: 'no_nota_mti',
-                        name: 'no_nota_mti',
-                    },
-                    {
-                        data: 'no_faktur_mti',
-                        name: 'no_faktur_mti'
-                    },
-                    {
-                        data: 'no_request',
-                        name: 'no_request',
-                    },
-                    {
-                        data: 'emkl',
-                        name: 'emkl',
-                    },
-                    {
-                        data: 'kegiatan',
-                        name: 'kegiatan',
-                    },
-                    {
-                        data: 'tgl_nota_1',
-                        name: 'tgl_nota_1',
-                    },
-                    {
-                        data: 'total_tagihan',
-                        name: 'total_tagihan',
-                        render: function(data, type, row, meta) {
-                            const formatter = new Intl.NumberFormat('id-ID', {
-                                style: 'currency',
-                                currency: 'IDR',
-                            });
-
-                            return formatter.format(data);
-                        }
-                    },
-                    {
                         data: null,
                         orderable: false,
                         searchable: false,
@@ -197,6 +157,46 @@
                                 }
                             }
                             return act;
+                        }
+                    },
+                    {
+                        data: 'no_nota',
+                        name: 'no_nota',
+                    },
+                    {
+                        data: 'no_nota_mti',
+                        name: 'no_nota_mti',
+                    },
+                    {
+                        data: 'no_faktur_mti',
+                        name: 'no_faktur_mti'
+                    },
+                    {
+                        data: 'no_request',
+                        name: 'no_request',
+                    },
+                    {
+                        data: 'emkl',
+                        name: 'emkl',
+                    },
+                    {
+                        data: 'kegiatan',
+                        name: 'kegiatan',
+                    },
+                    {
+                        data: 'tgl_nota_1',
+                        name: 'tgl_nota_1',
+                    },
+                    {
+                        data: 'total_tagihan',
+                        name: 'total_tagihan',
+                        render: function(data, type, row, meta) {
+                            const formatter = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                            });
+
+                            return formatter.format(data);
                         }
                     },
                 ],

@@ -105,10 +105,10 @@ function getData() {
                 responsivePriority: 1,
             },
         ],
-        fnDrawCallback: () => {
-            const tooltipTriggerList = document.querySelectorAll('[data-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
-        },
+        // fnDrawCallback: () => {
+        //     const tooltipTriggerList = document.querySelectorAll('[data-toggle="tooltip"]')
+        //     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        // },
     });
 }
 

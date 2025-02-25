@@ -451,15 +451,19 @@ async function saveContainerData(formId) {
             "input_success"
         );
 
-        var no_req = $(formId).find('input[name="no_req"]').val();
-        ajaxGetJson(
-            `/request/receiving/get-contlist/${no_req}`,
-            "refreshContList",
-            "get_error"
-        );
+        setTimeout(() => {
+            window.location.reload()
+        }, 750);
 
-        $(formId).removeClass("was-validated");
-        cancelAddCont();
+        // var no_req = $(formId).find('input[name="no_req"]').val();
+        // ajaxGetJson(
+        //     `/request/receiving/get-contlist/${no_req}`,
+        //     "refreshContList",
+        //     "get_error"
+        // );
+
+        // $(formId).removeClass("was-validated");
+        // cancelAddCont();
     }
 }
 

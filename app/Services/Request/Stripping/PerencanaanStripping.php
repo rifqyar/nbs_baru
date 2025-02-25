@@ -628,7 +628,7 @@ class PerencanaanStripping
             $procedureName = 'uster.pack_create_req_stripping.create_detail_strip';
             $stmt = $pdo->prepare(
                 "
-                        BEGIN " . $procedureName . " (
+                        DECLARE BEGIN " . $procedureName . " (
                             :in_nocont,
                             :in_planreq,
                             :in_size,
@@ -653,9 +653,9 @@ class PerencanaanStripping
             );
 
             foreach ($param as $key => &$value) {
-                $stmt->bindParam(":$key", $value);
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
             }
-            $stmt->bindParam(":p_ErrMsg", $outMsg);
+            $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
 
             DB::commit();

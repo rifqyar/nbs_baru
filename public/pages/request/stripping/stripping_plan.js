@@ -366,9 +366,11 @@ $("#NO_CONT").autocomplete({
         $("#TGL_STACK").val(ui.item.dischargeDate);
         $("#NO_UKK").val($("#IDVSB").val());
         $("#NM_AGEN").val(ui.item.NM_AGEN);
-        $("#BP_ID").val("BP"+$("#VESCODE").val()+""+$("#IDVSB").val());
+        $("#BP_ID").val("BP" + $("#VESCODE").val() + "" + $("#IDVSB").val());
         $("#ASAL_CONT").val("TPK");
-        $("#NO_BOOKING").val("BP"+$("#VESCODE").val()+""+$("#IDVSB").val());
+        $("#NO_BOOKING").val(
+            "BP" + $("#VESCODE").val() + "" + $("#IDVSB").val()
+        );
         $("#BLOK").val(ui.item.ydBlock);
         $("#SLOT").val(ui.item.ydSlot);
         $("#ROW").val(ui.item.ydRow);
@@ -376,40 +378,48 @@ $("#NO_CONT").autocomplete({
 
         //start  updated by clara ilcs 27 November 2023
         if (ui.item && ui.item.dischargeDate) {
-            var containerDischDateStr = ui.item.dischargeDate; // Ganti dengan data dari ui.item.containerDischDate
+            var containerDischDateStr = ui.item.dischargeDate; // Format: YYYYMMDDHHmmss
 
+            // Parsing the date components correctly
+            var year = parseInt(containerDischDateStr.substring(0, 4));
+            var month = parseInt(containerDischDateStr.substring(4, 6)) - 1; // JavaScript months are 0-based
+            var day = parseInt(containerDischDateStr.substring(6, 8));
+            var hours = parseInt(containerDischDateStr.substring(8, 10));
+            var minutes = parseInt(containerDischDateStr.substring(10, 12));
+            var seconds = parseInt(containerDischDateStr.substring(12, 14));
+
+            // Create the date object
             var containerDischDate = new Date(
-                containerDischDateStr.substring(0, 4), // Tahun
-                parseInt(containerDischDateStr.substring(4, 6)) - 1, // Bulan (0-11)
-                containerDischDateStr.substring(6, 8), // Hari
-                containerDischDateStr.substring(8, 10), // Jam
-                containerDischDateStr.substring(10, 12), // Menit
-                containerDischDateStr.substring(12, 14) // Detik
+                year,
+                month,
+                day,
+                hours,
+                minutes,
+                seconds
             );
 
-            // Menambahkan 5 hari
-            containerDischDate.setDate(containerDischDate.getDate() + 5);
+            // Check if date creation is valid
+            if (isNaN(containerDischDate.getTime())) {
+                console.error("Invalid date format");
+            } else {
+                // Add 5 days
+                containerDischDate.setDate(containerDischDate.getDate() + 4);
 
-            // Membuat format tanggal yang diinginkan (misalnya, DD-MM-YYYY HH:mm:ss)
-            var day = ("0" + containerDischDate.getDate()).slice(-2);
-            var month = ("0" + (containerDischDate.getMonth() + 1)).slice(-2); // Penyesuaian indeks bulan
-            var year = containerDischDate.getFullYear();
-            var hours = ("0" + containerDischDate.getHours()).slice(-2);
-            var minutes = ("0" + containerDischDate.getMinutes()).slice(-2);
-            var seconds = ("0" + containerDischDate.getSeconds()).slice(-2);
+                // Format the date as DD-MM-YYYY HH:mm:ss
+                var formattedDate =
+                    ("0" + containerDischDate.getDate()).slice(-2) +
+                    "-" +
+                    ("0" + (containerDischDate.getMonth() + 1)).slice(-2) +
+                    "-" +
+                    containerDischDate.getFullYear() +
+                    " " +
+                    ("0" + containerDischDate.getHours()).slice(-2) +
+                    ":" +
+                    ("0" + containerDischDate.getMinutes()).slice(-2) +
+                    ":" +
+                    ("0" + containerDischDate.getSeconds()).slice(-2);
+            }
 
-            var formattedDate =
-                day +
-                "-" +
-                month +
-                "-" +
-                year +
-                " " +
-                hours +
-                ":" +
-                minutes +
-                ":" +
-                seconds;
             $("#TGL_SELESAI").val(formattedDate);
 
             return false;

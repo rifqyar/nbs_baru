@@ -1,6 +1,6 @@
 <form action="javascript:void(0)" id="form-add-container" class="form-horizontal m-t-20" novalidate>
     @csrf
-    <input type="hidden" name="no_req" value="{{$request->row_request->no_request}}">
+    <input type="hidden" name="no_req" value="{{$request->row_request->no_request_plan}}">
     <input type="hidden" name="no_req2" class="form-control" readonly id="no_req2" value="{{$request->row_request->o_reqnbs}}">
 
     <div class="row align-items-start">
@@ -85,7 +85,7 @@
         </div>
         <div class="col-12 col-md-6 form-group">
             <label for="TGL_SELESAI">Tgl. Selesai Stripping</label>
-            <input type="date" name="tgl_selesai" ID="TGL_SELESAI" class="form-control" />
+            <input type="text" name="tgl_selesai" ID="TGL_SELESAI" class="form-control" />
         </div>
     </div>
     <div class="d-flex justify-content-end">

@@ -12,7 +12,7 @@ trait NpwpCheckPengkinianTrait
     public function validateNpwp($request)
     {
         // Check for multiple NPWP fields and select the one that's not null
-        $npwpFields = ['npwp_consignee','npwp','NPWP'];
+        $npwpFields = ['npwp_consignee','npwp','NPWP', 'NPWP_CONSIGNEE'];
         $NPWP_CONSIGNEE = null;
 
         foreach ($npwpFields as $field) {
@@ -125,24 +125,24 @@ trait NpwpCheckPengkinianTrait
     {
         // Check for EMKL field
         $EMKL = $request->input('EMKL');
-    
+
         if (is_null($EMKL)) {
             return response()->json([
                 "status" => "0",
                 "message" => "No EMKL field provided"
             ]);
         }
-    
+
         try {
             // Query to check if NPWP exists in the local database (corrected column names)
             $result = DB::connection('uster')->table('mst_pelanggan')
                 ->select('nm_pbm', 'no_npwp_pbm16', 'no_npwp_pbm') // Correct column names
                 ->where('nm_pbm', $EMKL) // Use correct column for EMKL (NM_PBM)
                 ->first();
-    
+
             $NPWP16 = $result ? $result->no_npwp_pbm16 : null;
             $NPWP15 = $result ? $result->no_npwp_pbm : null;
-    
+
             if ($NPWP16 == null) {
                 // Use Guzzle to make an API request to validate NPWP
                 $client = new Client();
@@ -151,17 +151,17 @@ trait NpwpCheckPengkinianTrait
                         'query' => ['NPWP' => $NPWP15], // NPWP as query string
                         'headers' => ['Content-Type' => 'application/json']
                     ]);
-    
+
                     $response_data = json_decode($response->getBody(), true);
-    
+
                     if ($response_data['status'] == 1) {
                         $NPWP16 = $response_data['data']['npwp16'];
-    
+
                         // Update the NPWP16 in the local database (correct column names)
                         $updateNPWP = DB::connection('uster')->table('mst_pelanggan')
                             ->where('no_npwp_pbm', $NPWP15)
                             ->update(['no_npwp_pbm16' => $NPWP16]);
-    
+
                         if ($updateNPWP) {
                             // Only proceed if NPWP is successfully updated to 16 characters
                             if (strlen($NPWP16) == 16) {
@@ -205,5 +205,5 @@ trait NpwpCheckPengkinianTrait
             ]);
         }
     }
-    
+
 }

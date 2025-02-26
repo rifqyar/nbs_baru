@@ -558,7 +558,8 @@ class PerencanaanStripping
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
-                ], 'data' => [
+                ],
+                'data' => [
                     'outmsg' => $outMsg,
                     'out_noreq' => $outNoReq
                 ]
@@ -664,7 +665,81 @@ class PerencanaanStripping
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
-                ], 'data' => [
+                ],
+                'data' => [
+                    'outmsg' => $outMsg,
+                ]
+            ], 200);
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ], 500);
+        }
+    }
+
+    function approveContTPK(Request $request, $param)
+    {
+        DB::beginTransaction();
+        try {
+            $pdo = DB::getPdo();
+
+            $outMsg = "";
+
+            DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'dd/mm/rrrr'");
+            $procedureName = 'uster.pack_create_req_stripping.create_approve_strip_praya';
+            $stmt = $pdo->prepare(
+                "
+                        DECLARE BEGIN " . $procedureName . " (
+                            :in_nocont,
+                            :in_planreq,
+                            :in_reqnbs,
+                            :in_asalcont,
+                            :in_container_size,
+                            :in_container_type,
+                            :in_container_status,
+                            :in_container_hz,
+                            :in_container_imoin_container_iso_code,
+                            :in_container_height,
+                            :in_container_carrier,
+                            :in_container_reefer_temp,
+                            :in_container_booking_sl,
+                            :in_container_over_width,
+                            :in_container_over_length,
+                            :in_container_over_height,
+                            :in_container_over_front,
+                            :in_container_over_rear,
+                            :in_container_over_left,
+                            :in_container_over_right,
+                            :in_container_un_number,
+                            :in_container_pod,
+                            :in_container_pol,
+                            :in_container_vessel_confirm,
+                            :in_container_comodity,
+                            :in_container_c_type_code,
+                            :p_ErrMsg);
+                        end;"
+            );
+
+            foreach ($param as $key => &$value) {
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+            }
+            $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+            $stmt->execute();
+
+            DB::commit();
+            return response()->json([
+                'status' => [
+                    'code' => 200,
+                    'msg' => 'Success Processing Data',
+                ],
+                'data' => [
                     'outmsg' => $outMsg,
                 ]
             ], 200);

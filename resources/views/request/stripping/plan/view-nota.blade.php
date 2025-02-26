@@ -61,7 +61,7 @@
                                 <input name="npwp_consignee" id="NPWP_CONSIGNEE" type="hidden" />
                                 <input type="hidden" id="CURR_VOYAGE" value="{{$request->row_request->o_voyage}}">
                                 <input type="hidden" id="VESCODE" value="{{$request->row_request->o_vescode}}">
-                                <input type="hidden" name="NO_REQUEST_RECEIVING" value="{{$request->row_request->no_request_receiving}}">
+                                <input type="hidden" name="NO_REQUEST_RECEIVING" id="NO_REQUEST_RECEIVING" value="{{$request->row_request->no_request_receiving}}">
 
                                 <div class="row justify-content-center align-items-start">
                                     <div class="col-md-6 col-12 mb-2">
@@ -201,7 +201,10 @@
                                             @endphp
                                             <tr>
                                                 <td class="text-center">{{$i}}</td>
-                                                <td class="text-center">{{$cnt->no_container}}</td>
+                                                <td class="text-center">
+                                                    {{$cnt->no_container}}
+                                                    <input type="hidden" id="no_cont" name="no_cont_{{$i}}" value="{{$cnt->no_container}}">
+                                                </td>
                                                 <td class="text-center">
                                                     @if($cnt->asal_cont == "TPK")
                                                         {{$cnt->kd_size}} / {{$cnt->kd_type}}
@@ -210,7 +213,10 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">{{$cnt->asal_cont}}</td>
-                                                <td class="text-center">{{\Carbon\Carbon::parse($cnt->tgl_bongkar)->translatedFormat('d-M-Y')}}</td>
+                                                <td class="text-center">
+                                                    {{\Carbon\Carbon::parse($cnt->tgl_bongkar)->translatedFormat('d-M-Y')}}
+                                                    <input type="hidden" id="tgl_bongkar" name="tgl_bongkar_{{$i}}" value="{{$cnt->tgl_bongkar}}">
+                                                </td>
                                                 <td class="text-center">{{\Carbon\Carbon::parse($cnt->tgl_mulai)->translatedFormat('d-M-Y')}}</td>
                                                 <td class="text-center">
                                                     @if($closing != 'CLOSED')
@@ -252,6 +258,7 @@
                                                         @endif
                                                     @elseif($cek == null && $closing == 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
+                                                            {{-- <button class="btn btn-sm btn-info" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button> --}}
                                                             <span class="badge badge-warning p-2">Unaproved</span>
                                                             <button class="btn btn-sm btn-info" onclick="infoLapangan()">Info</button>
                                                         @else

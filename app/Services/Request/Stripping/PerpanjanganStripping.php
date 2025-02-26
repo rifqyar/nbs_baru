@@ -489,7 +489,7 @@ class PerpanjanganStripping
             $pdo = DB::getPdo();
 
             $outMsg = "";
-            $procedureName = 'pack_create_req_stripping.create_perpanjangan_strip';
+            $procedureName = 'uster.pack_create_req_stripping.create_perpanjangan_strip';
             $stmt = $pdo->prepare("
                         DECLARE
                         BEGIN " . $procedureName . " (

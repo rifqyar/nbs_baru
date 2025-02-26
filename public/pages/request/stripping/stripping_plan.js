@@ -496,7 +496,7 @@ $("#VOYAGE").autocomplete({
 
 function updateTglApprove(noCont, index) {
     const tglApprove = $(`input[name="TGL_APPROVE_${index}"]`).val();
-    const tglBongkar = $(`input[name="TGL_BONGKAR_${index}"]`).val();
+    const tglBongkar = $(`input[name="tgl_bongkar_${index}"]`).val();
     const no_Cont = $(`input[name="no_cont_${index}"]`).val();
     const tgl_app_sel = $(`input[name="TGL_APPROVE_SELESAI_${index}"]`).val();
     const remark = $(`input[name="remarks_${index}"]`).val();
@@ -568,16 +568,16 @@ function updateTglApprove(noCont, index) {
             },
             success: function (data) {
                 Swal.close();
-                if (data.length == 0) {
-                    $.toast({
-                        heading: "Gagal Approve!!",
-                        text: "Container Not Found In Praya",
-                        position: "top-right",
-                        loaderBg: "#ff6849",
-                        icon: "error",
-                        hideAfter: 3500,
-                    });
-                } else {
+                // if (data.length == 0) {
+                //     $.toast({
+                //         heading: "Gagal Approve!!",
+                //         text: "Container Not Found In Praya",
+                //         position: "top-right",
+                //         loaderBg: "#ff6849",
+                //         icon: "error",
+                //         hideAfter: 3500,
+                //     });
+                // } else {
                     var container_praya = data;
                     var tgl_approve = tglApprove;
                     var no_req = $("#no_req").val();
@@ -654,8 +654,8 @@ function updateTglApprove(noCont, index) {
                         },
                         processData: true,
                         error: function (err) {
+                            Swal.close();
                             get_error(err.responseJSON);
-                            Swal.close()
                         },
                         beforeSend: function () {
                             Swal.fire({
@@ -667,11 +667,11 @@ function updateTglApprove(noCont, index) {
                             Swal.showLoading();
                         },
                         success: function (data) {
-                            Swal.close()
+                            Swal.close();
                             input_success(data);
                         },
                     });
-                }
+                // }
             },
         });
     }

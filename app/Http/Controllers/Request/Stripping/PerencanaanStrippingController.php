@@ -480,7 +480,7 @@ class PerencanaanStrippingController extends Controller
                                                     'FCL',
                                                     'Y',
                                                     '$hz',
-                                                    TO_DATE('$request->tgl_bongkar','dd-mm-yy'),
+                                                    TO_DATE('$request->tgl_bongkar','yyyy-mm-dd'),
                                                     '$komoditi',
                                                     '$depo_tujuan')";
 
@@ -493,7 +493,6 @@ class PerencanaanStrippingController extends Controller
                     $history_rec    = "INSERT INTO history_container
                                             (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
                                         VALUES ('$request->no_cont','$request->NO_REQ_REC','REQUEST RECEIVING',SYSDATE,'$id_user','$id_yard','$cur_booking', '$cur_counter','FCL')";
-
                     $execHistory = DB::connection('uster')->statement($history_rec);
 
                     $query = "UPDATE PLAN_CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'), REMARK = '$request->remark'
@@ -623,7 +622,7 @@ class PerencanaanStrippingController extends Controller
                             $execInsertContainer = DB::connection('uster')->statement($query_ic);
                         }
                     } else {
-                        DB::connection('uster')->statement($query);
+                        $exec = DB::connection('uster')->statement($query);
                         $no_req_strip = str_replace('P', 'S', $request->no_req);
                         foreach ($row_c as $rc) {
                             $after_strip     = $rc->after_strip;
@@ -632,7 +631,6 @@ class PerencanaanStrippingController extends Controller
                             $req             = $rc->no_request;
                             $cont             = $rc->no_container;
                             $aktif             = $rc->aktif;
-                            $keterangan     = $rc->keterangan;
                             $tgl_app         = $rc->tgl_approve;
                             $tgl_bongkar     = $rc->tgl_bongkar;
                             $tgl_selesai     = $rc->tgl_selesai;
@@ -656,7 +654,6 @@ class PerencanaanStrippingController extends Controller
                                                     TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
                                                     '$remark',
                                                     '$tgl_selesai')";
-
                             $execInsertContainer = DB::connection('uster')->statement($query_ic);
                         }
                     }

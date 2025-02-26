@@ -503,10 +503,10 @@ class PerpanjanganStripping
                     );
 
             foreach ($param as $key => &$value) {
-                $stmt->bindParam(":$key", $value);
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
             }
 
-            $stmt->bindParam(":p_ErrMsg", $outMsg);
+            $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
 
             DB::commit();

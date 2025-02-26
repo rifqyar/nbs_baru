@@ -421,6 +421,7 @@ class KartuStuffingController extends Controller
             $query_list .= "AND c.NO_CONTAINER = '$no_cont'";
         }
 
+        DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'dd/mm/rrrr'");
         $row_list    = DB::connection('uster')->selectOne($query_list);;
 
         return view('print.stuffing.print.print', compact('name', 'row_list'));

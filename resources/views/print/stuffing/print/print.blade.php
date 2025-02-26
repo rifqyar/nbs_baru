@@ -32,13 +32,13 @@
                     </p2>
                 </td>
             </tr>
-          
+
             <tr height="10">
                 <td height="20"></td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>
-                    @if ($row->status_req == 'PERP')
+                    @if (isset($row->status_req) && $row->status_req == 'PERP')
                         #PERPANJANGAN#
                     @endif
                 </td>
@@ -59,12 +59,12 @@
             </tr>
             <tr>
                 <td height="18">&nbsp;</td>
-               
+
                 <td>{{ $row->size_ ?? '' }} /MTY</td>
                 <td>&nbsp;</td>
                 <td colspan="2">&nbsp;<img alt="testing"
                         src="{{ $HOME }}lib/barcode.php?text={{ $row->no_container ?? '' }}&size=35" /></td>
-    
+
             </tr>
             <tr>
                 <td height="15">&nbsp;</td>
@@ -92,14 +92,14 @@
                 <td height="19">&nbsp;</td>
                 <td>STUFFING DARI : {{ $row->asal_cont ?? '' }}</td>
                 <td>&nbsp;</td>
-                <td colspan="2">@if($row->status_req == 'PERP') {{ $row->tgl_akhir ?? '' }}
+                <td colspan="2">@if(isset($row->status_req) && $row->status_req == 'PERP') {{ $row->tgl_akhir ?? '' }}
                     @else {{ $row->tgl_awal ?? '' }} @endif</td>
             </tr>
             <tr>
                 <td height="17">&nbsp;</td>
                 <td valign="top">........ / ......... - ......... - ......... </td>
                 <td align="left">&nbsp;</td>
-                <td>@if($row->status_req == 'PERP') {{ $row->end_stack_pnkn ?? '' }} @else {{ $row->tgl_akhir ?? '' }} @endif
+                <td>@if(isset($row->status_req) && $row->status_req == 'PERP') {{ $row->end_stack_pnkn ?? '' }} @else {{ $row->tgl_akhir ?? '' }} @endif
                 </td>
             </tr>
             <tr>

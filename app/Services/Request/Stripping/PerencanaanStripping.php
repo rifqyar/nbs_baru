@@ -315,7 +315,7 @@ class PerencanaanStripping
 
     function getKomoditi($search)
     {
-        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
+        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
         $data = DB::connection('uster')->select($query);
         return $data;
     }

@@ -252,7 +252,7 @@ class SapServerController extends Controller
 
                 // Retrieve the bank ID
                 $bank = DB::connection('oracle')->select("
-                    SELECT BANK_ID from BILLING.mst_bank_simkeu WHERE BANK_ACCOUNT_NAME = ?
+                    SELECT BANK_ID from BILLING_NBS.mst_bank_simkeu WHERE BANK_ACCOUNT_NAME = ?
                 ", [$sapBank]);
 
                 $idBank = $bank ? $bank[0]->BANK_ID : null;
@@ -513,7 +513,7 @@ class SapServerController extends Controller
             }
 
             $query_bank = "SELECT bank_account_name
-                   from BILLING.mst_bank_simkeu
+                   from BILLING_NBS.mst_bank_simkeu
                    WHERE bank_id = '{$bank_id}'";
 
             $parse_bank   = oci_parse($conn, $query_bank);

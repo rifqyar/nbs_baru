@@ -152,7 +152,7 @@ class ContainerService
                     LEFT JOIN REQUEST_BATAL_MUAT RBM
                     ON RBM.NO_REQUEST = HC.NO_REQUEST
                     LEFT JOIN YARD_AREA YAR ON HC.ID_YARD = YAR.ID
-                    LEFT JOIN BILLING.tb_user MU ON to_char(MU.ID) = HC.ID_USER
+                    LEFT JOIN BILLING_NBS.tb_user MU ON to_char(MU.ID) = HC.ID_USER
                     WHERE MC.NO_CONTAINER = '$no_cont'
                     AND HC.NO_BOOKING = '$no_booking'
                     AND HC.COUNTER = '$counter'
@@ -199,7 +199,7 @@ class ContainerService
                     LEFT JOIN REQUEST_BATAL_MUAT RBM
                     ON RBM.NO_REQUEST = HC.NO_REQUEST
                     LEFT JOIN YARD_AREA YAR ON HC.ID_YARD = YAR.ID
-                    LEFT JOIN BILLING.tb_user MU ON TO_CHAR(MU.ID) = HC.ID_USER
+                    LEFT JOIN BILLING_NBS.tb_user MU ON TO_CHAR(MU.ID) = HC.ID_USER
                     WHERE MC.NO_CONTAINER = '$no_cont'
                     AND HC.NO_BOOKING = '$no_booking'
                     AND HC.COUNTER = '$counter'
@@ -244,7 +244,7 @@ class ContainerService
                     JOIN v_mst_pbm pnmt ON REQUEST_STRIPPING.KD_PENUMPUKAN_OLEH = pnmt.KD_PBM AND pnmt.KD_CABANG = '05'
                     JOIN REQUEST_RECEIVING ON REQUEST_RECEIVING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST_RECEIVING
                     JOIN CONTAINER_STRIPPING ON CONTAINER_STRIPPING.NO_REQUEST = REQUEST_STRIPPING.NO_REQUEST
-                    LEFT JOIN BILLING.tb_user MUS ON CONTAINER_STRIPPING.ID_USER_REALISASI = MUS.ID
+                    LEFT JOIN BILLING_NBS.tb_user MUS ON CONTAINER_STRIPPING.ID_USER_REALISASI = MUS.ID
                     LEFT JOIN NOTA_STRIPPING ON REQUEST_STRIPPING.NO_REQUEST = NOTA_STRIPPING.NO_REQUEST
                     LEFT JOIN HISTORY_CONTAINER HC ON CONTAINER_STRIPPING.NO_CONTAINER = HC.NO_CONTAINER
                     AND CONTAINER_STRIPPING.NO_REQUEST = HC.NO_REQUEST
@@ -431,21 +431,21 @@ class ContainerService
                             HISTORY_PLACEMENT INNER JOIN BLOCKING_AREA
                             ON HISTORY_PLACEMENT.ID_BLOCKING_AREA = BLOCKING_AREA.ID
                             LEFT JOIN YARD_AREA ON BLOCKING_AREA.ID_YARD_AREA = YARD_AREA.ID
-                            LEFT JOIN BILLING.tb_user MASTER_USER ON (HISTORY_PLACEMENT.NIPP_USER = TO_CHAR(MASTER_USER.ID) OR HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.NIPP) WHERE NO_CONTAINER = '$no_cont'
+                            LEFT JOIN BILLING_NBS.tb_user MASTER_USER ON (HISTORY_PLACEMENT.NIPP_USER = TO_CHAR(MASTER_USER.ID) OR HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.NIPP) WHERE NO_CONTAINER = '$no_cont'
                             AND HISTORY_PLACEMENT.INSERT_VIA IS NULL
                             UNION ALL
                             SELECT HISTORY_PLACEMENT.*, MASTER_USER.NAME NAMA_LENGKAP, BLOCKING_AREA.NAME, YARD_AREA.NAMA_YARD FROM
                             HISTORY_PLACEMENT INNER JOIN BLOCKING_AREA
                             ON HISTORY_PLACEMENT.ID_BLOCKING_AREA = BLOCKING_AREA.ID
                             LEFT JOIN YARD_AREA ON BLOCKING_AREA.ID_YARD_AREA = YARD_AREA.ID
-                            LEFT JOIN BILLING.tb_user MASTER_USER ON HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.ID WHERE NO_CONTAINER = '$no_cont'
+                            LEFT JOIN BILLING_NBS.tb_user MASTER_USER ON HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.ID WHERE NO_CONTAINER = '$no_cont'
                             AND HISTORY_PLACEMENT.INSERT_VIA = 'H'
                             UNION ALL
                             SELECT HISTORY_PLACEMENT.*, MASTER_USER.NAME NAMA_LENGKAP, BLOCKING_AREA.NAME, YARD_AREA.NAMA_YARD FROM
                             HISTORY_PLACEMENT INNER JOIN BLOCKING_AREA
                             ON HISTORY_PLACEMENT.ID_BLOCKING_AREA = BLOCKING_AREA.ID
                             LEFT JOIN YARD_AREA ON BLOCKING_AREA.ID_YARD_AREA = YARD_AREA.ID
-                            LEFT JOIN BILLING.tb_user MASTER_USER ON HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.ID WHERE NO_CONTAINER = '$no_cont'
+                            LEFT JOIN BILLING_NBS.tb_user MASTER_USER ON HISTORY_PLACEMENT.NIPP_USER = MASTER_USER.ID WHERE NO_CONTAINER = '$no_cont'
                             AND HISTORY_PLACEMENT.INSERT_VIA = 'DB') CEK
                             ORDER BY CEK.TGL_UPDATE DESC";
         }
@@ -522,7 +522,7 @@ class ContainerService
                     request_receiving c,
                     nota_receiving d,
                     -- yard_area e,
-                    BILLING.tb_user f
+                    BILLING_NBS.tb_user f
                 WHERE
                     a.no_container = b.no_container
                     AND b.no_request = c.no_request

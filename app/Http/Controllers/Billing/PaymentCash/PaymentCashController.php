@@ -153,7 +153,7 @@ class PaymentCashController extends Controller
         $tgl = $request->tgl;
         $tgl_new = strtotime($tgl);
 
-        // $getorgid = "select org_id from BILLING.TTH_NOTA_ALL2 where trim(NO_NOTA)=trim('" . $nota . "')";
+        // $getorgid = "select org_id from BILLING_NBS.TTH_NOTA_ALL2 where trim(NO_NOTA)=trim('" . $nota . "')";
         // $rorg     = DB::connection('uster')->selectOne($getorgid);
         // $org_id = $rorg->ORG_ID;
 
@@ -163,7 +163,7 @@ class PaymentCashController extends Controller
                                       ELSE 'IPTK BANK'
                                    END
                                       receipt_method
-                              from BILLING.mst_bank_simkeu
+                              from BILLING_NBS.mst_bank_simkeu
                               where org_id = '88'";
         $rwsql_bank            = DB::connection('uster')->select($query_nota);
 

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use PDO;
 
@@ -414,8 +415,8 @@ class NotaPerpStrippingServices
                         'NO_NOTA' => $no_nota,
                         'JML_CONT' => $jml_cont,
                         'HZ' => $hz,
-                        'START_STACK' => "TO_DATE('$start','mm/dd/rrrr')@ORA",
-                        'END_STACK' => "TO_DATE('$end','mm/dd/rrrr')@ORA",
+                        'START_STACK' => $start != null ? "TO_DATE('$start','YYYY-MM-DD HH24:MI:SS')@ORA" : null,
+                        'END_STACK' => $start != null ? "TO_DATE('$end','YYYY-MM-DD HH24:MI:SS')@ORA" : null,
                         'JML_HARI' => $jml,
                         'COA' => $coa,
                         'LINE_NUMBER' => $key + 1,
@@ -424,7 +425,17 @@ class NotaPerpStrippingServices
                     );
                     $paramInsertDetail = generateQuerySimpan($rawParamInsertDetail);
                     $queryInsertDetail    = "INSERT INTO nota_stripping_d $paramInsertDetail";
-                    $execInsertDetail = DB::connection('uster')->statement($queryInsertDetail);
+                    try {
+                        $execInsertDetail = DB::connection('uster')->statement($queryInsertDetail);
+                        if (!$execInsertDetail) {
+                            // Log or inspect the error
+                            $error = DB::connection('uster')->getPdo()->errorInfo();
+                            Log::error("Error inserting data into nota_stripping_d: " . implode(', ', $error));
+                        }
+                    } catch (Exception $e) {
+                        // Handle the exception
+                        Log::error("Exception during insert: " . $e->getMessage());
+                    }
                 }
 
                 $update_nota = "UPDATE NOTA_STRIPPING SET CETAK_NOTA = 'Y' WHERE NO_NOTA = '$no_nota'";

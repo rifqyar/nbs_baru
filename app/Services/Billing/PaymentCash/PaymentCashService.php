@@ -2652,7 +2652,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA SRIPPING',
+            'nota_kd' => 'NOTA STRIPPING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,

@@ -37,7 +37,7 @@
 
 <body>
     @foreach ($data as $dt)
-        <table border="1" width="767px" height="340" cellpadding="3" cellspacing="3">
+        <table border="0" width="767px" height="340" cellpadding="3" cellspacing="3">
             <tr>
                 <th width="13%" height="11" class="txc" scope="col"></th>
                 <th class="txc" width="5%" scope="col"></th>

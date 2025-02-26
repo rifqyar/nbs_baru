@@ -439,10 +439,10 @@ class NotaPerpStrippingServices
                 }
 
                 $update_nota = "UPDATE NOTA_STRIPPING SET CETAK_NOTA = 'Y' WHERE NO_NOTA = '$no_nota'";
-                $update_req = "UPDATE REQUEST_STRIPPING SET NOTA_PNKN = 'Y' WHERE NO_REQUEST = '$no_req'";
+                $update_req = "UPDATE REQUEST_STRIPPING SET NOTA = 'Y' WHERE NO_REQUEST = '$no_req'";
                 $delete_temp = "DELETE from temp_detail_nota WHERE no_request = '$no_req'";
 
-                DB::connection('uster')->statement($update_nota);
+                // DB::connection('uster')->statement($update_nota);
                 DB::connection('uster')->statement($update_req);
                 DB::connection('uster')->statement($delete_temp);
 

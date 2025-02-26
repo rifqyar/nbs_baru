@@ -65,9 +65,9 @@ class PerpanjanganStrippingController extends Controller
         } else if (($nota == NULL) and ($koreksi == NULL)) {
             return $this->previewProformaBtn('N', $no_req);
         } else if (($nota == 'Y') and ($koreksi <> 'Y' || $koreksi == 'Y')) {
-            return $this->previewProformaBtn('N', $no_req);
-            // $btn = '<a href="' . route('uster.billing.nota_ext_stripping.print.print_proforma', ['no_req' => $no_req]) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Ulang Nota Stripping"> <b class="font-bold">Cetak Ulang</b></a> ';
-            // return $btn;
+            // return $this->previewProformaBtn('N', $no_req);
+            $btn = '<a href="' . route('uster.billing.nota_ext_stripping.print.print_proforma', ['no_req' => $no_req]) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Ulang Nota Stripping"> <b class="font-bold">Cetak Ulang</b></a> ';
+            return $btn;
         } else if (($nota <> 'Y') and ($koreksi == 'Y')) {
             return $this->previewProformaBtn('Y', $no_req);
         }

@@ -712,7 +712,8 @@
                             no_cont: data.no_container
                         }, function(data) {
                             // Menangani respons dari server
-                            $("#TGL_BONGKAR").val(data);
+                            console.log(data)
+                            $("#TGL_BONGKAR").val(data.tgl_bongkar);
                         });
                     }
                     $("#COMMODITY").focus();

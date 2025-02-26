@@ -30,13 +30,13 @@ class PerencanaanStuffingController extends Controller
 
 
         $total_req = "SELECT COUNT(DISTINCT REQUEST_STUFFING.NO_REQUEST) AS TOTAL
-            FROM REQUEST_STUFFING, CONTAINER_STUFFING 
+            FROM REQUEST_STUFFING, CONTAINER_STUFFING
             WHERE REQUEST_STUFFING.NO_REQUEST = CONTAINER_STUFFING.NO_REQUEST
             AND TRUNC(TGL_REQUEST) = TRUNC(SYSDATE)
             AND EARLY_STUFFING IS NULL";
 
         $total_cont = "SELECT COUNT(NO_CONTAINER) TOTAL FROM REQUEST_STUFFING, CONTAINER_STUFFING
-        WHERE REQUEST_STUFFING.NO_REQUEST= CONTAINER_STUFFING.NO_REQUEST AND CONTAINER_STUFFING.TGL_APPROVE IS NOT NULL AND 
+        WHERE REQUEST_STUFFING.NO_REQUEST= CONTAINER_STUFFING.NO_REQUEST AND CONTAINER_STUFFING.TGL_APPROVE IS NOT NULL AND
         TRUNC(TGL_REQUEST) = TRUNC(SYSDATE) AND EARLY_STUFFING IS NULL";
 
         // $data =  DB::connection('uster')->select($jumlah_req);
@@ -57,8 +57,8 @@ class PerencanaanStuffingController extends Controller
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
-        
-        
+
+
         try {
             return $this->stuffing->storeStuffingPlan($request);
         } catch (Exception $e) {
@@ -77,7 +77,7 @@ class PerencanaanStuffingController extends Controller
 
         $list = $this->stuffing->overviewStuffingPlan($request->no_req);
 
-       
+
         return view('request.stuffing.plan.overview', $list);
     }
 
@@ -94,8 +94,8 @@ class PerencanaanStuffingController extends Controller
 
 
         $list = $this->stuffing->viewStuffingPlan($request->no_req);
-        
-        
+
+
         return view('request.stuffing.plan.view', $list);
     }
 
@@ -137,7 +137,7 @@ class PerencanaanStuffingController extends Controller
     public function getTanggalStack(Request $request)
     {
         $viewData = $this->stuffing->getTanggalStack($request);
-        return json_encode($viewData);
+        return response()->json($viewData); #json_encode($viewData);
     }
 
     public function CheckCapacityTPK(Request $request)

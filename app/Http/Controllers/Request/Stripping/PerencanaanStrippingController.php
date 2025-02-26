@@ -394,7 +394,8 @@ class PerencanaanStrippingController extends Controller
 
             $q_cek_double = "SELECT count(no_container) jum from container_stripping where no_request = REPLACE('$request->no_req','P','S') and no_container = '$request->no_cont' ";
             $rcekd = DB::connection('uster')->selectOne($q_cek_double);
-            if ($rcekd->JUM > 0) {
+
+            if ($rcekd->jum > 0) {
                 $q_update_p = "UPDATE PLAN_CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd') WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
                 $rcekd = DB::connection('uster')->statement($q_update_p);
                 $q_update_r = "UPDATE CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd') WHERE NO_REQUEST = REPLACE('$request->no_req','P','S') AND NO_CONTAINER = '$request->no_cont'";
@@ -411,7 +412,6 @@ class PerencanaanStrippingController extends Controller
                 ], 200);
             }
 
-
             $query_cx         = "SELECT DISTINCT PLAN_CONTAINER_STRIPPING.HZ,
                                         PLAN_CONTAINER_STRIPPING.COMMODITY,
                                         PLAN_CONTAINER_STRIPPING.UKURAN,
@@ -421,7 +421,7 @@ class PerencanaanStrippingController extends Controller
                                         FROM PLAN_CONTAINER_STRIPPING
                                         WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
                                         AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
-            $row_cx = DB::connection('uster')->selectOne($q_cek_double);
+            $row_cx = DB::connection('uster')->selectOne($query_cx);
             $hz             = $row_cx->hz;
             $komoditi         = $row_cx->commodity;
             $size             = $row_cx->ukuran;
@@ -435,29 +435,29 @@ class PerencanaanStrippingController extends Controller
                     "in_planreq" => $request->no_req,
                     "in_reqnbs" => $request->NO_REQ2,
                     "in_asalcont" => $request->ASAL_CONT,
-                    "in_container_size" => $request->CONTAINER_SIZE != 'null' ? $request->CONTAINER_SIZE : '',
-                    "in_container_type" => $request->CONTAINER_TYPE != 'null' ? $request->CONTAINER_TYPE : '',
-                    "in_container_status" => $request->CONTAINER_STATUS != 'null' ? $request->CONTAINER_STATUS : '',
-                    "in_container_hz" => $request->CONTAINER_HZ != 'null' ? $request->CONTAINER_HZ : '',
-                    "in_container_imo" => $request->CONTAINER_IMO != 'null' ? $request->CONTAINER_IMO : '',
-                    "in_container_iso_code" => $request->CONTAINER_ISO_CODE != 'null' ? $request->CONTAINER_ISO_CODE : '',
-                    "in_container_height" => $request->CONTAINER_HEIGHT != 'null' ? $request->CONTAINER_HEIGHT : '',
-                    "in_container_carrier" => $request->CONTAINER_CARRIER != 'null' ? $request->CONTAINER_CARRIER : '',
-                    "in_container_reefer_temp" => $request->CONTAINER_REEFER_TEMP != 'null' ? $request->CONTAINER_REEFER_TEMP : '',
-                    "in_container_booking_sl" => $request->CONTAINER_BOOKING_SL != 'null' ? $request->CONTAINER_BOOKING_SL : '',
-                    "in_container_over_width" => $request->CONTAINER_OVER_WIDTH != 'null' ? $request->CONTAINER_OVER_WIDTH : '',
-                    "in_container_over_length" => $request->CONTAINER_OVER_LENGTH != 'null' ? $request->CONTAINER_OVER_LENGTH : '',
-                    "in_container_over_height" => $request->CONTAINER_OVER_HEIGHT != 'null' ? $request->CONTAINER_OVER_HEIGHT : '',
-                    "in_container_over_front" => $request->CONTAINER_OVER_FRONT != 'null' ? $request->CONTAINER_OVER_FRONT : '',
-                    "in_container_over_rear" => $request->CONTAINER_OVER_REAR != 'null' ? $request->CONTAINER_OVER_REAR : '',
-                    "in_container_over_left" => $request->CONTAINER_OVER_LEFT != 'null' ? $request->CONTAINER_OVER_LEFT : '',
-                    "in_container_over_right" => $request->CONTAINER_OVER_RIGHT != 'null' ? $request->CONTAINER_OVER_RIGHT : '',
-                    "in_container_un_number" => $request->CONTAINER_UN_NUMBER != 'null' ? $request->CONTAINER_UN_NUMBER : '',
-                    "in_container_pod" => $request->CONTAINER_POD != 'null' ? $request->CONTAINER_POD : '',
-                    "in_container_pol" => $request->CONTAINER_POL != 'null' ? $request->CONTAINER_POL : '',
-                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM != 'null' ? $request->CONTAINER_VESSEL_CONFIRM : '',
-                    "in_container_comodity" => $komoditi != 'null' ? trim($komoditi) : '',
-                    "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE != 'null' ? $request->CONTAINER_COMODITY_TYPE_CODE : '',
+                    "in_container_size" => $request->CONTAINER_SIZE ?? '',
+                    "in_container_type" => $request->CONTAINER_TYPE ?? '',
+                    "in_container_status" => $request->CONTAINER_STATUS ?? '',
+                    "in_container_hz" => $request->CONTAINER_HZ ?? '',
+                    "in_container_imo" => $request->CONTAINER_IMO ?? '',
+                    "in_container_iso_code" => $request->CONTAINER_ISO_CODE ?? '',
+                    "in_container_height" => $request->CONTAINER_HEIGHT ?? '',
+                    "in_container_carrier" => $request->CONTAINER_CARRIER ?? '',
+                    "in_container_reefer_temp" => $request->CONTAINER_REEFER_TEMP ?? '',
+                    "in_container_booking_sl" => $request->CONTAINER_BOOKING_SL ?? '',
+                    "in_container_over_width" => $request->CONTAINER_OVER_WIDTH ?? '',
+                    "in_container_over_length" => $request->CONTAINER_OVER_LENGTH ?? '',
+                    "in_container_over_height" => $request->CONTAINER_OVER_HEIGHT ?? '',
+                    "in_container_over_front" => $request->CONTAINER_OVER_FRONT ?? '',
+                    "in_container_over_rear" => $request->CONTAINER_OVER_REAR ?? '',
+                    "in_container_over_left" => $request->CONTAINER_OVER_LEFT ?? '',
+                    "in_container_over_right" => $request->CONTAINER_OVER_RIGHT ?? '',
+                    "in_container_un_number" => $request->CONTAINER_UN_NUMBER ?? '',
+                    "in_container_pod" => $request->CONTAINER_POD ?? '',
+                    "in_container_pol" => $request->CONTAINER_POL ?? '',
+                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ?? '',
+                    "in_container_comodity" => $komoditi != null ? trim($komoditi) : '',
+                    "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE ?? '',
                 );
 
                 $process = $this->stripping_plan->approveContTPK($request, $param);

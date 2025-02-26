@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use PDO;
 
@@ -705,7 +706,8 @@ class PerencanaanStripping
                             :in_container_type,
                             :in_container_status,
                             :in_container_hz,
-                            :in_container_imoin_container_iso_code,
+                            :in_container_imo,
+                            :in_container_iso_code,
                             :in_container_height,
                             :in_container_carrier,
                             :in_container_reefer_temp,
@@ -745,6 +747,8 @@ class PerencanaanStripping
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            $error = DB::connection('uster')->getPdo()->errorInfo();
+            Log::error("Error inserting data into nota_stripping_d: " . implode(', ', $error));
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',

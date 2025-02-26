@@ -212,7 +212,10 @@
                                                         {{$cnt->ukuran}} / {{$cnt->type}}
                                                     @endif
                                                 </td>
-                                                <td class="text-center">{{$cnt->asal_cont}}</td>
+                                                <td class="text-center">
+                                                    {{$cnt->asal_cont}}
+                                                    <input type="hidden" name="asal_cont_{{$i}}" value="{{$cnt->asal_cont}}">
+                                                </td>
                                                 <td class="text-center">
                                                     {{\Carbon\Carbon::parse($cnt->tgl_bongkar)->translatedFormat('d-M-Y')}}
                                                     <input type="hidden" id="tgl_bongkar" name="tgl_bongkar_{{$i}}" value="{{$cnt->tgl_bongkar}}">
@@ -259,7 +262,8 @@
                                                     @elseif($cek == null && $closing == 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
                                                             {{-- <button class="btn btn-sm btn-info" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button> --}}
-                                                            <span class="badge badge-warning p-2">Unaproved</span>
+                                                            <button class="btn btn-sm btn-warning" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button>
+                                                            {{-- <span class="badge badge-warning p-2">Unaproved</span> --}}
                                                             <button class="btn btn-sm btn-info" onclick="infoLapangan()">Info</button>
                                                         @else
                                                             Approval Di Uster

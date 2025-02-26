@@ -500,6 +500,7 @@ function updateTglApprove(noCont, index) {
     const no_Cont = $(`input[name="no_cont_${index}"]`).val();
     const tgl_app_sel = $(`input[name="TGL_APPROVE_SELESAI_${index}"]`).val();
     const remark = $(`input[name="remarks_${index}"]`).val();
+    var asal_cont = $(`input[name="asal_cont_${index}`).val();
     let canInput = true;
 
     if (tglApprove == "") {
@@ -585,7 +586,6 @@ function updateTglApprove(noCont, index) {
                     var no_bl_ = $("#no_bl").val();
                     var sp2_ = $("#SP2").val();
                     var kd_consignee_ = $("#ID_CONSIGNEE").val();
-                    var asal_cont = $("#ASAL_CONT").val();
 
                     var no_req_rec = $("#NO_REQUEST_RECEIVING").val();
 
@@ -595,6 +595,7 @@ function updateTglApprove(noCont, index) {
                         )}request/stripping/stripping-plan/approve-cont`,
                         type: "POST",
                         data: {
+                            _token: $('input[name="_token"]').val(),
                             tgl_app_selesai: tgl_app_sel,
                             tgl_approve: tgl_approve,
                             no_cont: no_Cont,
@@ -608,41 +609,53 @@ function updateTglApprove(noCont, index) {
                             ASAL_CONT: asal_cont,
                             tgl_bongkar: tglBongkar,
                             REMARK: remark,
-                            //start  updated by clara ilcs 27 November 2023
-                            CONTAINER_SIZE: container_praya.containerSize
-                                ? container_praya.containerSize == "21"
+                            // Start update by Clara ILCS - 27 November 2023
+                            CONTAINER_SIZE:
+                                container_praya?.containerSize === "21"
                                     ? "20"
-                                    : container_praya.containerSize
-                                : null,
-                            // end updated by clara ilcs 27 November 2023
-                            CONTAINER_TYPE: container_praya.containerType,
-                            CONTAINER_STATUS: container_praya.containerStatus,
-                            CONTAINER_HZ: container_praya.hz,
-                            CONTAINER_IMO: container_praya.imo,
-                            CONTAINER_ISO_CODE: container_praya.isoCode,
-                            CONTAINER_HEIGHT: container_praya.containerHeight,
-                            CONTAINER_CARRIER: container_praya.carrier,
-                            CONTAINER_REEFER_TEMP: container_praya.reeferTemp,
-                            CONTAINER_BOOKING_SL: container_praya.bookingSl,
-                            CONTAINER_OVER_WIDTH: container_praya.overWidth,
-                            CONTAINER_OVER_LENGTH: container_praya.overLength,
-                            CONTAINER_OVER_HEIGHT: container_praya.overHeight,
-                            CONTAINER_OVER_FRONT: container_praya.overFront,
-                            CONTAINER_OVER_REAR: container_praya.overRear,
-                            CONTAINER_OVER_LEFT: container_praya.overLeft,
-                            CONTAINER_OVER_RIGHT: container_praya.overRight,
-                            CONTAINER_UN_NUMBER: container_praya.unNumber,
-                            CONTAINER_POD: container_praya.pod,
-                            CONTAINER_POL: container_praya.pol,
+                                    : container_praya?.containerSize ?? null,
+                            // End update by Clara ILCS - 27 November 2023
+                            CONTAINER_TYPE:
+                                container_praya?.containerType ?? "",
+                            CONTAINER_STATUS:
+                                container_praya?.containerStatus ?? "",
+                            CONTAINER_HZ: container_praya?.hz ?? "",
+                            CONTAINER_IMO: container_praya?.imo ?? "",
+                            CONTAINER_ISO_CODE: container_praya?.isoCode ?? "",
+                            CONTAINER_HEIGHT:
+                                container_praya?.containerHeight ?? "",
+                            CONTAINER_CARRIER: container_praya?.carrier ?? "",
+                            CONTAINER_REEFER_TEMP:
+                                container_praya?.reeferTemp ?? "",
+                            CONTAINER_BOOKING_SL:
+                                container_praya?.bookingSl ?? "",
+                            CONTAINER_OVER_WIDTH:
+                                container_praya?.overWidth ?? "",
+                            CONTAINER_OVER_LENGTH:
+                                container_praya?.overLength ?? "",
+                            CONTAINER_OVER_HEIGHT:
+                                container_praya?.overHeight ?? "",
+                            CONTAINER_OVER_FRONT:
+                                container_praya?.overFront ?? "",
+                            CONTAINER_OVER_REAR:
+                                container_praya?.overRear ?? "",
+                            CONTAINER_OVER_LEFT:
+                                container_praya?.overLeft ?? "",
+                            CONTAINER_OVER_RIGHT:
+                                container_praya?.overRight ?? "",
+                            CONTAINER_UN_NUMBER:
+                                container_praya?.unNumber ?? "",
+                            CONTAINER_POD: container_praya?.pod ?? "",
+                            CONTAINER_POL: container_praya?.pol ?? "",
                             CONTAINER_VESSEL_CONFIRM:
-                                container_praya.vesselConfirm,
+                                container_praya?.vesselConfirm ?? "",
                             CONTAINER_COMODITY_TYPE_CODE:
-                                container_praya.commodity,
+                                container_praya?.commodity ?? "",
                         },
-                        processData: false,
-                        contentType: false,
+                        processData: true,
                         error: function (err) {
                             get_error(err.responseJSON);
+                            Swal.close()
                         },
                         beforeSend: function () {
                             Swal.fire({
@@ -654,7 +667,8 @@ function updateTglApprove(noCont, index) {
                             Swal.showLoading();
                         },
                         success: function (data) {
-                            input_success(data)
+                            Swal.close()
+                            input_success(data);
                         },
                     });
                 }

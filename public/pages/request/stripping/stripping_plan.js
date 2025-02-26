@@ -692,6 +692,10 @@ async function saveCont(formId) {
         form,
         "input_success"
     );
+
+    setTimeout(() => {
+        window.location.reload()
+    }, 750);
 }
 /** End Of Post Data (Save / Edit / Delete) Section */
 /** =============================================== */

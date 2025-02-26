@@ -28,13 +28,13 @@
 
         .imgs {
             width: 200px;
-            height: 120px;
+            /* height: 120px; */
             margin-left: -53px;
         }
     </style>
 </head>
 
-<body style="margin-top:-50px;">
+<body style="margin-top:-100px;">
     <table border=0>
         <tr>
             <td width=100><img src="{{$img}}" alt="" class="imgs"> </td>

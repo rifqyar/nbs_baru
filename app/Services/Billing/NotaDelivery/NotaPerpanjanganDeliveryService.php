@@ -124,7 +124,7 @@ class NotaPerpanjanganDeliveryService
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
          THEN a.NO_NOTA
          ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                             FROM nota_delivery a, request_delivery c, BILLING.tb_user mu where
+                             FROM nota_delivery a, request_delivery c, billing_nbs.tb_user mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery d WHERE d.NO_REQUEST = '$no_req' )
                              and c.NO_REQUEST = '$no_req'
@@ -202,12 +202,11 @@ class NotaPerpanjanganDeliveryService
         $query_nota    = "SELECT c.NM_PBM AS EMKL,
                           c.NO_NPWP_PBM AS NPWP,
                           c.ALMT_PBM AS ALAMAT,
-						  b.DELIVERY_KE,
-						  TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST,
-							F_CORPORATE(b.TGL_REQUEST) CORPORATE,
-						  c.NO_ACCOUNT_PBM
-                   FROM REQUEST_DELIVERY b INNER JOIN
-                            V_MST_PBM c ON b.KD_EMKL = c.KD_PBM AND c.KD_CABANG = '05'
+                          c.NO_ACCOUNT_PBM,
+                          TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST,
+													F_CORPORATE(b.TGL_REQUEST) CORPORATE
+                   FROM request_delivery b INNER JOIN
+                            V_MST_PBM c ON b.KD_EMKL = c.KD_PBM and c.KD_CABANG = '05'
                    WHERE b.NO_REQUEST = '$no_req'";
 
         $row_nota    = DB::connection('uster')->selectOne($query_nota);
@@ -215,7 +214,7 @@ class NotaPerpanjanganDeliveryService
         $kd_pbm     = $row_nota->no_account_pbm;
         $display     = 1;
 
-        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'YYYY/MM/DD') TGL_REQUEST FROM request_delivery
+        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'dd/mon/yyyy') TGL_REQUEST FROM request_delivery
                              WHERE NO_REQUEST = '$no_req'
                             ";
         $tgl_req    = DB::connection('uster')->selectOne($query_tgl);
@@ -228,46 +227,71 @@ class NotaPerpanjanganDeliveryService
             'err_msg:100' => 'NULL'
         );
         //debug($parameter);
-        $delivery_ke         = $row_nota->delivery_ke;
+        // $delivery_ke         = $row_nota->delivery_ke;
 
         DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD'");
-        $sql_xpi = "DECLARE id_nota NUMBER; tgl_req DATE; no_request VARCHAR2(100); jenis VARCHAR2 (100); err_msg VARCHAR2(100); BEGIN  id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL';jenis := 'delivery'; pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg); END;";
-        // //echo $sql_xpi;
+        // $sql_xpi = "DECLARE id_nota NUMBER; tgl_req DATE; no_request VARCHAR2(100); jenis VARCHAR2 (100); err_msg VARCHAR2(100); BEGIN  id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL';jenis := 'delivery'; pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg); END;";
+        // // //echo $sql_xpi;
+        $sql_xpi = "DECLARE tgl_nota DATE; no_req VARCHAR2(100); 
+            BEGIN 
+                tgl_nota := TO_DATE('$tgl_re', 'DD/Mon/YYYY', 'NLS_DATE_LANGUAGE = ENGLISH'); 
+                no_req := '$no_req'; 
+                perp_pnkn_del(no_req, tgl_nota); 
+            END;";
+        // echo $sql_xpi;
         DB::connection('uster')->statement($sql_xpi);
 
-        $detail_nota  = "SELECT a.JML_HARI, TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF, TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA, a.KETERANGAN,
-							a.HZ, a.JML_CONT, TO_CHAR(a.START_STACK,'dd/mm/yyyy') START_STACK, TO_CHAR(a.END_STACK,'dd/mm/yyyy') END_STACK, b.SIZE_, b.TYPE_, b.STATUS
-					FROM temp_detail_nota a, iso_code b
-					WHERE a.id_iso = b.id_iso and a.no_request = '$no_req'
-					and a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')";/*gagat modif 09 feb 2020*/
+        // $detail_nota  = "SELECT a.JML_HARI, TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF, TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA, a.KETERANGAN,
+		// 					a.HZ, a.JML_CONT, TO_CHAR(a.START_STACK,'dd/mm/yyyy') START_STACK, TO_CHAR(a.END_STACK,'dd/mm/yyyy') END_STACK, b.SIZE_, b.TYPE_, b.STATUS
+		// 			FROM temp_detail_nota a, iso_code b
+		// 			WHERE a.id_iso = b.id_iso and a.no_request = '$no_req'
+		// 			and a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')";/*gagat modif 09 feb 2020*/
+        $detail_nota = "SELECT 
+    TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF, 
+    a.JML_HARI,  
+    TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA, 
+    a.KETERANGAN, 
+    a.HZ, 
+    a.JML_CONT, 
+    TO_CHAR(a.START_STACK, 'DD/MM/YYYY') AS START_STACK, 
+    TO_CHAR(a.END_STACK, 'DD/MM/YYYY') AS END_STACK, 
+    b.SIZE_, 
+    b.TYPE_, 
+    b.STATUS 
+FROM temp_detail_nota a, iso_code b
+WHERE a.id_iso = b.id_iso 
+AND a.no_request = '$no_req' 
+AND a.KETERANGAN NOT IN ('ADMIN NOTA', 'MATERAI')";
+
+
 
         $row_detail   = DB::connection('uster')->select($detail_nota);
 
-        // echo json_encode($row_detail);die();
+        // // echo json_encode($row_detail);die();
 
 
-        //jumlah container per request
-        $jum          = "SELECT COUNT(NO_CONTAINER) JUMLAH FROM container_delivery WHERE no_request = '$no_req'";
-        $jum_         = DB::connection('uster')->selectOne($jum);
+        // //jumlah container per request
+        // $jum          = "SELECT COUNT(NO_CONTAINER) JUMLAH FROM container_delivery WHERE no_request = '$no_req'";
+        // $jum_         = DB::connection('uster')->selectOne($jum);
 
-        $jumlah_cont  = $jum_->jumlah;
+        // $jumlah_cont  = $jum_->jumlah;
 
-        //get_via
+        // //get_via
 
-        $q_via = "SELECT NO_CONTAINER, VIA FROM CONTAINER_DELIVERY WHERE NO_REQUEST = '$no_req'";
-        $row_v = DB::connection('uster')->select($q_via);
+        // $q_via = "SELECT NO_CONTAINER, VIA FROM CONTAINER_DELIVERY WHERE NO_REQUEST = '$no_req'";
+        // $row_v = DB::connection('uster')->select($q_via);
 
 
-        //tarif pass
-        $pass          = "SELECT TO_CHAR(($jumlah_cont * a.TARIF), '999,999,999,999') PASS, ($jumlah_cont * a.TARIF) TARIF
-					  FROM master_tarif a, group_tarif b
-					 WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF
-					       AND TO_DATE ('$tgl_re', 'YYYY/MM/DD') BETWEEN b.START_PERIOD
-					                                                    AND b.END_PERIOD
-					       AND a.ID_ISO = 'PASS'";
+        // //tarif pass
+        // $pass          = "SELECT TO_CHAR(($jumlah_cont * a.TARIF), '999,999,999,999') PASS, ($jumlah_cont * a.TARIF) TARIF
+		// 			  FROM master_tarif a, group_tarif b
+		// 			 WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF
+		// 			       AND TO_DATE ('$tgl_re', 'YYYY/MM/DD') BETWEEN b.START_PERIOD
+		// 			                                                    AND b.END_PERIOD
+		// 			       AND a.ID_ISO = 'PASS'";
 
-        $row_pass     = DB::connection('uster')->selectOne($pass);
-        $tarif_pass   = $row_pass->tarif;
+        // $row_pass     = DB::connection('uster')->selectOne($pass);
+        // $tarif_pass   = $row_pass->tarif;
 
 
         $total_          = "SELECT SUM(BIAYA) TOTAL, SUM(PPN) PPN, (SUM(BIAYA) + SUM(PPN)) TOTAL_TAGIHAN FROM temp_detail_nota WHERE no_request = '$no_req' AND KETERANGAN NOT IN ('MATERAI')";
@@ -331,7 +355,7 @@ class NotaPerpanjanganDeliveryService
             "nama_peg" => $nama_peg,
             "tgl_nota" => $tgl_re,
             "row_adm" => $row_adm,
-            "row_pass" => $row_pass,
+            // "row_pass" => $row_pass,
             "row_tot" => $row_tot,
             "row_ppn" => $row_ppn,
             "row_materai" => $row_materai,

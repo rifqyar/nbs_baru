@@ -12,7 +12,7 @@
         body {
             margin: 0px;
             padding-left: 50px;
-            padding-top: 0px;
+            /* padding-top: 2cm; */
             width: 100%;
             height: 100%;
             font-family: Arial
@@ -39,7 +39,7 @@
     @foreach ($data as $dt)
         <table border="1" width="767px" height="340" cellpadding="3" cellspacing="3">
             <tr>
-                <th width="13%" height="12" class="txc" scope="col"></th>
+                <th width="13%" height="11" class="txc" scope="col"></th>
                 <th class="txc" width="5%" scope="col"></th>
                 <th class="txc" width="5%" scope="col"></th>
                 <th class="txc" width="5%" scope="col"></th>
@@ -67,24 +67,14 @@
                 <td class="txc"></td>
             </tr>
             <tr>
-                <th height="21" class="txc" scope="row"></th>
-                <td class="txc"></td>
-                <td class="txc"></td>
-                <td class="txc" colspan="5">
-                    <div style="padding-right:150px; font-size:13px"></div>
-                </td>
-                <td colspan="2" class="style1" style="font-size:11px; font-family:Arial"></td>
-                <td class="txc"></td>
-            </tr>
-            <tr>
-                <th height="20" colspan="8" valign="top" align="left" scope="row"
+                <th height="13" colspan="8" valign="top" align="left" scope="row"
                     style="font-size:20px; padding-left:15px; line-height:10px">VIA {{ $dt->via }} </th>
                 <td width="10%"></td>
                 <td width="8%"></td>
                 <td></td>
             </tr>
             <tr>
-                <th height="30" scope="row"></th>
+                <th height="10" scope="row"></th>
                 <td colspan="5" align="center"><b style="font-size:26px;">{{ $dt->no_container }}</b>
                 </td>
                 <td></td>
@@ -95,7 +85,7 @@
                 <td></td>
             </tr>
             <tr>
-                <th height="30" scope="row"></th>
+                <th height="20" scope="row"></th>
                 <td align="right"><strong>{{ $dt->size_ }}</strong></td>
                 <td colspan="3" align="center"><strong>{{ $dt->type_ }}</strong></td>
                 <td align="left"><strong>{{ $dt->status }}</strong></td>
@@ -105,7 +95,7 @@
                 <td></td>
             </tr>
             <tr>
-                <th height="18" scope="row"></th>
+                <th height="20" scope="row"></th>
                 <td colspan="3"></td>
                 <td colspan="2"></td>
                 <td></td>
@@ -113,6 +103,16 @@
                 <td></td>
                 <td></td>
                 <td></td>
+            </tr>
+            <tr>
+              <th  height="18" scope="row"></th>
+              <td colspan="3"></td>
+              <td colspan="2"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tr>
             <tr>
                 <th height="45" scope="row"></th>
@@ -161,7 +161,7 @@
         </table>
 
         <div style=" height:5px; border:1px solid #FFF"></div>
-        <div style=" margin-top:55px;"></div>
+        <div style=" margin-top:30px;"></div>
     @endforeach
 </body>
 

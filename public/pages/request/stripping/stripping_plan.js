@@ -568,16 +568,16 @@ function updateTglApprove(noCont, index) {
             },
             success: function (data) {
                 Swal.close();
-                // if (data.length == 0) {
-                //     $.toast({
-                //         heading: "Gagal Approve!!",
-                //         text: "Container Not Found In Praya",
-                //         position: "top-right",
-                //         loaderBg: "#ff6849",
-                //         icon: "error",
-                //         hideAfter: 3500,
-                //     });
-                // } else {
+                if (data.length == 0) {
+                    $.toast({
+                        heading: "Gagal Approve!!",
+                        text: "Container Not Found In Praya",
+                        position: "top-right",
+                        loaderBg: "#ff6849",
+                        icon: "error",
+                        hideAfter: 3500,
+                    });
+                } else {
                     var container_praya = data;
                     var tgl_approve = tglApprove;
                     var no_req = $("#no_req").val();
@@ -671,7 +671,7 @@ function updateTglApprove(noCont, index) {
                             input_success(data);
                         },
                     });
-                // }
+                }
             },
         });
     }

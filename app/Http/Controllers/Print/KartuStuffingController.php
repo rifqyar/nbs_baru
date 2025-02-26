@@ -93,10 +93,10 @@ class KartuStuffingController extends Controller
 
 
 
-        $query_get_container    = "SELECT container_stuffing.*, MASTER_CONTAINER.SIZE_, TO_CHAR(request_stuffing.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST 
-                                    FROM container_stuffing 
-                                    INNER JOIN request_stuffing ON container_stuffing.NO_REQUEST = request_stuffing.NO_REQUEST     
-                                    JOIN MASTER_CONTAINER ON container_stuffing.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER 
+        $query_get_container    = "SELECT container_stuffing.*, MASTER_CONTAINER.SIZE_, TO_CHAR(request_stuffing.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST
+                                    FROM container_stuffing
+                                    INNER JOIN request_stuffing ON container_stuffing.NO_REQUEST = request_stuffing.NO_REQUEST
+                                    JOIN MASTER_CONTAINER ON container_stuffing.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER
                                     WHERE container_stuffing.NO_REQUEST = '$no_req'";
         $row_cont        = DB::connection('uster')->select($query_get_container);
 
@@ -116,7 +116,7 @@ class KartuStuffingController extends Controller
             if ($row_cek->cek > 0) {
                 // sudah pernah di insert
             } else {
-                // belum pernah di insert, insert kartu stripping		
+                // belum pernah di insert, insert kartu stripping
                 if ($size == "20")
                     $j = 4;
                 else if ($size == "40")
@@ -148,9 +148,9 @@ class KartuStuffingController extends Controller
         $name         = session('NAME');
 
 
-        //cek apakah perpanjangan atau bukan, karena berbeda ambil tanggal awal penumpukkannya 
-        $query_cek_perp = "SELECT PERP_KE 
-                        FROM REQUEST_STUFFING 
+        //cek apakah perpanjangan atau bukan, karena berbeda ambil tanggal awal penumpukkannya
+        $query_cek_perp = "SELECT PERP_KE
+                        FROM REQUEST_STUFFING
                         WHERE NO_REQUEST='$no_req'";
 
         $row_cek_perp        = DB::connection('uster')->selectOne($query_cek_perp);
@@ -173,18 +173,18 @@ class KartuStuffingController extends Controller
                           CASE WHEN REMARK_SP2 = 'Y' THEN
                             TO_DATE(c.START_PERP_PNKN,'dd/mm/rrrr')
                           ELSE c.START_STACK END TGL_AWAL,
-    
+
                           CASE WHEN REMARK_SP2 = 'Y' THEN
                                 TO_DATE(c.END_STACK_PNKN,'dd/mm/rrrr')
-                          ELSE TO_DATE(c.START_PERP_PNKN,'dd/mm/rrrr') END TGL_AKHIR 
-    
-                   FROM REQUEST_STUFFING a 
-                            INNER JOIN V_MST_PBM b 
-                                ON a.KD_CONSIGNEE = b.KD_PBM 
-                            JOIN CONTAINER_STUFFING c 
+                          ELSE TO_DATE(c.START_PERP_PNKN,'dd/mm/rrrr') END TGL_AKHIR
+
+                   FROM REQUEST_STUFFING a
+                            INNER JOIN V_MST_PBM b
+                                ON a.KD_CONSIGNEE = b.KD_PBM
+                            JOIN CONTAINER_STUFFING c
                                 ON  a.NO_REQUEST = c.NO_REQUEST
-    
-                             JOIN MASTER_CONTAINER d 
+
+                             JOIN MASTER_CONTAINER d
                                 ON c.NO_CONTAINER = d.NO_CONTAINER
                                 LEFT JOIN CONTAINER_RECEIVING i
                                     ON c.NO_CONTAINER = i.NO_CONTAINER
@@ -194,7 +194,7 @@ class KartuStuffingController extends Controller
             $query_list = "SELECT b.NM_PBM AS EMKL,
                           a.NO_REQUEST AS NO_REQUEST,
                           c.NO_CONTAINER AS NO_CONTAINER,
-    
+
                           d.SIZE_ AS SIZE_,
                           d.TYPE_ AS TYPE_,
                           a.NO_REQUEST_RECEIVING,
@@ -207,14 +207,14 @@ class KartuStuffingController extends Controller
                           c.TYPE_STUFFING,
                           c.START_PERP_PNKN TGL_AWAL,
                           c.END_STACK_PNKN TGL_AKHIR
-    
-                   FROM REQUEST_STUFFING a 
-                            INNER JOIN V_MST_PBM b 
-                                ON a.KD_CONSIGNEE = b.KD_PBM 
-                            JOIN CONTAINER_STUFFING c 
+
+                   FROM REQUEST_STUFFING a
+                            INNER JOIN V_MST_PBM b
+                                ON a.KD_CONSIGNEE = b.KD_PBM
+                            JOIN CONTAINER_STUFFING c
                                 ON  a.NO_REQUEST = c.NO_REQUEST
-    
-                             JOIN MASTER_CONTAINER d 
+
+                             JOIN MASTER_CONTAINER d
                                 ON c.NO_CONTAINER = d.NO_CONTAINER
                                 LEFT JOIN CONTAINER_RECEIVING i
                                     ON c.NO_CONTAINER = i.NO_CONTAINER
@@ -228,6 +228,7 @@ class KartuStuffingController extends Controller
             $query_list .= "AND c.NO_CONTAINER = '$no_cont'";
         }
 
+        DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'dd/mm/rrrr'");
         $row_list    = DB::connection('uster')->select($query_list);
 
 
@@ -238,7 +239,7 @@ class KartuStuffingController extends Controller
     {
         $no_req     = $request->no_req;
 
-  
+
         $query_update = "UPDATE REQUEST_STUFFING SET CETAK_KARTU_SPPS = CETAK_KARTU_SPPS + 1";
         DB::connection('uster')->update($query_update);
 
@@ -253,13 +254,13 @@ class KartuStuffingController extends Controller
                   TO_DATE(c.TGL_APPROVE)+1 TGL_AWAL,
                   TO_DATE(c.TGL_APPROVE)+5 TGL_AKHIR,
                   TO_DATE(SYSDATE) SYSDATE_
-           FROM REQUEST_STUFFING a 
-                    INNER JOIN v_mst_pbm b 
-                        ON a.KD_CONSIGNEE = b.KD_PBM 
+           FROM REQUEST_STUFFING a
+                    INNER JOIN v_mst_pbm b
+                        ON a.KD_CONSIGNEE = b.KD_PBM
                         AND b.KD_CABANG = '05'
-                    JOIN CONTAINER_STUFFING c 
+                    JOIN CONTAINER_STUFFING c
                         ON  a.NO_REQUEST = c.NO_REQUEST
-                     JOIN MASTER_CONTAINER d 
+                     JOIN MASTER_CONTAINER d
                         ON c.NO_CONTAINER = d.NO_CONTAINER
                     --JOIN PLACEMENT g
                     --   ON a.NO_REQUEST_RECEIVING = g.NO_REQUEST_RECEIVING
@@ -271,7 +272,7 @@ class KartuStuffingController extends Controller
 
         $qspv = "SELECT NAMA_PEGAWAI, JABATAN FROM MASTER_PEGAWAI WHERE STATUS = 'SPK'";
         $rowspv = DB::connection('uster')->selectOne($qspv);
-        
+
 
 
         return view('print.stuffing.print.cetak_spk', compact('rowspv', 'row_list'));
@@ -287,10 +288,10 @@ class KartuStuffingController extends Controller
 
 
 
-        $query_get_container    = "SELECT container_stuffing.*, MASTER_CONTAINER.SIZE_, TO_CHAR(request_stuffing.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST 
-                                    FROM container_stuffing 
-                                    INNER JOIN request_stuffing ON container_stuffing.NO_REQUEST = request_stuffing.NO_REQUEST     
-                                    JOIN MASTER_CONTAINER ON container_stuffing.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER 
+        $query_get_container    = "SELECT container_stuffing.*, MASTER_CONTAINER.SIZE_, TO_CHAR(request_stuffing.TGL_REQUEST+3,'dd/mm/yyyy') TGL_REQUEST
+                                    FROM container_stuffing
+                                    INNER JOIN request_stuffing ON container_stuffing.NO_REQUEST = request_stuffing.NO_REQUEST
+                                    JOIN MASTER_CONTAINER ON container_stuffing.NO_CONTAINER = MASTER_CONTAINER.NO_CONTAINER
                                     WHERE container_stuffing.NO_REQUEST = '$no_req'";
         $row_cont        = DB::connection('uster')->select($query_get_container);
 
@@ -310,7 +311,7 @@ class KartuStuffingController extends Controller
             if ($row_cek->cek > 0) {
                 // sudah pernah di insert
             } else {
-                // belum pernah di insert, insert kartu stripping		
+                // belum pernah di insert, insert kartu stripping
                 if ($size == "20")
                     $j = 4;
                 else if ($size == "40")
@@ -342,9 +343,9 @@ class KartuStuffingController extends Controller
         $name         = session('NAME');
 
 
-        //cek apakah perpanjangan atau bukan, karena berbeda ambil tanggal awal penumpukkannya 
-        $query_cek_perp = "SELECT PERP_KE 
-                        FROM REQUEST_STUFFING 
+        //cek apakah perpanjangan atau bukan, karena berbeda ambil tanggal awal penumpukkannya
+        $query_cek_perp = "SELECT PERP_KE
+                        FROM REQUEST_STUFFING
                         WHERE NO_REQUEST='$no_req'";
 
         $row_cek_perp        = DB::connection('uster')->selectOne($query_cek_perp);
@@ -370,13 +371,13 @@ class KartuStuffingController extends Controller
 
                           CASE WHEN REMARK_SP2 = 'Y' THEN
                                 TO_DATE(c.END_STACK_PNKN,'dd/mm/rrrr')
-                          ELSE TO_DATE(c.START_PERP_PNKN,'dd/mm/rrrr') END TGL_AKHIR 
-                   FROM REQUEST_STUFFING a 
-                            INNER JOIN V_MST_PBM b 
-                                ON a.KD_CONSIGNEE = b.KD_PBM 
-                            JOIN CONTAINER_STUFFING c 
+                          ELSE TO_DATE(c.START_PERP_PNKN,'dd/mm/rrrr') END TGL_AKHIR
+                   FROM REQUEST_STUFFING a
+                            INNER JOIN V_MST_PBM b
+                                ON a.KD_CONSIGNEE = b.KD_PBM
+                            JOIN CONTAINER_STUFFING c
                                 ON  a.NO_REQUEST = c.NO_REQUEST
-                             JOIN MASTER_CONTAINER d 
+                             JOIN MASTER_CONTAINER d
                                 ON c.NO_CONTAINER = d.NO_CONTAINER
                                 LEFT JOIN CONTAINER_RECEIVING i
                                     ON c.NO_CONTAINER = i.NO_CONTAINER
@@ -399,14 +400,14 @@ class KartuStuffingController extends Controller
                           c.START_PERP_PNKN TGL_AWAL,
                           c.END_STACK_PNKN TGL_AKHIR
 
-                   FROM REQUEST_STUFFING a 
-                            INNER JOIN KAPAL_CABANG.MST_PBM b 
-                                ON a.KD_CONSIGNEE = b.KD_PBM 
+                   FROM REQUEST_STUFFING a
+                            INNER JOIN KAPAL_CABANG.MST_PBM b
+                                ON a.KD_CONSIGNEE = b.KD_PBM
                                 AND b.KD_CABANG = '05'
-                            JOIN CONTAINER_STUFFING c 
+                            JOIN CONTAINER_STUFFING c
                                 ON  a.NO_REQUEST = c.NO_REQUEST
- 
-                             JOIN MASTER_CONTAINER d 
+
+                             JOIN MASTER_CONTAINER d
                                 ON c.NO_CONTAINER = d.NO_CONTAINER
                                 LEFT JOIN CONTAINER_RECEIVING i
                                     ON c.NO_CONTAINER = i.NO_CONTAINER

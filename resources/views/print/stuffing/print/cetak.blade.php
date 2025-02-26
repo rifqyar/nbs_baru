@@ -16,7 +16,6 @@
     }
 </style>
 
-
 @foreach ($row_list as $index => $row)
     <div style="width:767px; height:487px; border:1px solid  #FFF">
 
@@ -56,7 +55,7 @@
                 <td>&nbsp;</td>
 
                 <td>
-                    @if ($row->status_req == 'PERP')
+                    @if (isset($row->status_req) && $row->status_req == 'PERP')
                         #PERPANJANGAN#
                     @endif
                 </td>
@@ -129,21 +128,21 @@
 
                 <td> &nbsp;
                 <?php
-                    
-                    if ($row->status_req == 'PERP') {
+
+                    if (isset($row->status_req) && $row->status_req == 'PERP') {
                         $no_co = $row->no_container;
                         $no_re = $row->no_request;
-                    
+
                         $tgl_awal = "SELECT a.TGL_BONGKAR FROM container_stripping a, request_stripping b where a.no_request = b.no_request
                                                                                                                                                                                                                                                                             and a.no_container = '$no_co' AND a.no_request = '$no_re'";
-                    
+
                         $perp = Illuminate\Support\Facades\DB::connection('uster')->select($tgl_awal);
-                    
+
                         echo $row->tgl_awal ?? '';
                     } else {
                         echo $row->tgl_akhir ?? '';
                     }
-                    
+
                     ?>
                 </td>
 
@@ -166,9 +165,9 @@
 
                 <td>
                     <?php
-                    if ($row->status_req == 'PERP') {
+                    if (isset($row->status_req) && $row->status_req == 'PERP') {
                         $tgl_akhir = "SELECT PERP_SD TGL_AKHIR FROM REQUEST_STRIPPING a WHERE a.NO_REQUEST = '$no_re'";
-                    
+
                         $perp = Illuminate\Support\Facades\DB::connection('uster')->select($tgl_akhir);
                         echo $row->end_stack_pnkn ?? '';
                     } else {
@@ -202,15 +201,15 @@
             <tr>
 
                 <td height="1">&nbsp;</td>
-        
+
                 <td>........ / ......... - ......... - ......... </td>
-        
+
                 <td>&nbsp;</td>
-        
+
                 <td></td>
-        
+
               </tr>
-        
+
 
             <tr>
 
@@ -221,7 +220,7 @@
                 <td>&nbsp;</td>
 
                 <td>
-                   
+
                 </td>
 
             </tr>
@@ -303,7 +302,7 @@
 
     <div style=" margin-top:-12px;"></div>
     <?php } else {
-            
+
          ?>
     <div style=" margin-top:10px;"></div>
     <?php  }?>

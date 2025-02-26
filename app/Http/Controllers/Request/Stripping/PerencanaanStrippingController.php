@@ -865,6 +865,47 @@ class PerencanaanStrippingController extends Controller
         }
     }
 
+    public function saveReq(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $updatePlanContStrip = "UPDATE PLAN_CONTAINER_STRIPPING SET REMARK = '$request->remark' WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
+            $updateContStrip = "UPDATE CONTAINER_STRIPPING SET REMARK = '$request->remark' WHERE NO_REQUEST = REPLACE('$request->no_req', 'P' , 'S') AND NO_CONTAINER = '$request->no_cont'";
+
+            $execPlanContStrip = DB::connection('uster')->statement($updatePlanContStrip);
+            $execContStrip = DB::connection('uster')->statement($updateContStrip);
+
+            $updatePlanStrip = "UPDATE PLAN_REQUEST_STRIPPING SET CLOSING = 'CLOSED' WHERE NO_REQUEST = '$request->no_req'";
+            $execPlanStrip = DB::connection('uster')->statement($updatePlanStrip);
+
+            if ($execPlanStrip) {
+                $updateStrip = "UPDATE REQUEST_STRIPPING SET CLOSING = 'CLOSED' WHERE NO_REQUEST = REPLACE('$request->no_req', 'P' , 'S')";
+                $execStrip = DB::connection('uster')->statement($updateStrip);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Simpan Data Container',
+                'redirect' => [
+                    'need' => false,
+                    'to' => null,
+                ]
+            ], 200);
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ], $th->getCode() != '' ? $th->getCode() : 500);
+        }
+    }
+
     // Get Master Data
     public function getDataPBM(Request $request)
     {

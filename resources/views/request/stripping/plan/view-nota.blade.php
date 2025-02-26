@@ -289,6 +289,10 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            <center>
+                                <a href="javascript:void(0)" class="btn btn-info mt-3" onclick="saveReq({{count($container)}})">Save Request</a>
+                            </center>
                         </div>
                     </div>
                 </div>

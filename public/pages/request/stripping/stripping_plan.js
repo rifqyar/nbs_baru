@@ -669,6 +669,9 @@ function updateTglApprove(noCont, index) {
                         success: function (data) {
                             Swal.close();
                             input_success(data);
+                            setTimeout(() => {
+                                window.location.reload()
+                            }, 1000);
                         },
                     });
                 }
@@ -792,6 +795,43 @@ async function saveCont(formId) {
     setTimeout(() => {
         window.location.reload();
     }, 750);
+}
+
+function saveReq(total){
+    Swal.fire({
+        title: 'Approve Request',
+        text: "Apakah Anda yakin ingin melakukan approve request ini?",
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Approve',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.value) {
+            for (let i = 1; i <= total; i++) {
+                var formData = new FormData()
+                var remark = $(`input[name='remarks_${i}']`).val();
+                var no_cont = $(`input[name='no_cont_${i}']`).val();
+                var no_req = $('#no_req').val()
+
+                formData.append('_token', $('input[name="_token"]').val());
+                formData.append('no_req', no_req);
+                formData.append('remark', remark);
+                formData.append('no_cont', no_cont);
+
+                ajaxPostFile(
+                    "/request/stripping/stripping-plan/save-req",
+                    formData,
+                    "input_success"
+                );
+            }
+
+            window.location.href = '/request/stripping/stripping-plan'
+        } else {
+            return false;
+        }
+    })
 }
 /** End Of Post Data (Save / Edit / Delete) Section */
 /** =============================================== */

@@ -138,6 +138,7 @@ Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' 
             Route::post('/save-edit', [PerencanaanStrippingController::class, 'saveEdit']);
             Route::post('/save-cont', [PerencanaanStrippingController::class, 'saveCont']);
             Route::post('/approve-cont', [PerencanaanStrippingController::class, 'approveCont']);
+            Route::post('/save-req', [PerencanaanStrippingController::class, 'saveReq']);
 
             // Get master data
             Route::get('/data-pbm', [PerencanaanStrippingController::class, 'getDataPBM'])->name('data-pbm');

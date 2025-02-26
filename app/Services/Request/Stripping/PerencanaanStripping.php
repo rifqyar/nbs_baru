@@ -625,6 +625,7 @@ class PerencanaanStripping
 
             $outMsg = "";
 
+            DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'dd/mm/rrrr'");
             $procedureName = 'uster.pack_create_req_stripping.create_detail_strip';
             $stmt = $pdo->prepare(
                 "

@@ -311,9 +311,9 @@ class PerencanaanStrippingController extends Controller
                 "in_voyin" => $request->VOYAGE,
                 "in_after_strip" => $request->AFTER_STRIP,
                 "in_asalcont" => $request->ASAL_CONT,
-                "in_datedisch" => $request->TGL_BONGKAR ? date('Y-m-d', strtotime($request->TGL_BONGKAR)) : '',
-                "in_tglmulai" => $request->tgl_mulai ? date('Y-m-d', strtotime($request->tgl_mulai)) : '',
-                "in_tglselesai" => $request->tgl_selesai ? date('Y-m-d', strtotime($request->tgl_selesai)) : '',
+                "in_datedisch" => $request->TGL_BONGKAR ? date('d-m-Y', strtotime($request->TGL_BONGKAR)) : '',
+                "in_tglmulai" => $request->tgl_mulai ? date('d-m-Y', strtotime($request->tgl_mulai)) : '',
+                "in_tglselesai" => $request->tgl_selesai ? date('d-m-Y', strtotime($request->tgl_selesai)) : '',
                 "in_blok" => $request->BLOK,
                 "in_slot" => $request->SLOT,
                 "in_row"=> $request->ROW,
@@ -326,7 +326,7 @@ class PerencanaanStrippingController extends Controller
             $statusCode = $process->getData()->status->code;
 
             if($statusCode != 200){
-                throw new Exception('Gagal Simpan Container',500);
+                throw new Exception('Gagal Simpan Container'.$process->getData()->status->msg,500);
             }
 
             DB::commit();

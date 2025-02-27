@@ -146,18 +146,6 @@
                 <td colspan="3" style="font-size:10px">&nbsp;</td>
                 <td></td>
             </tr>
-            <tr>
-                <th height="26" scope="row"></th>
-                <td valign="bottom" colspan="5">
-                    <strong> {{ $dt->nama_yard }} </strong>
-                </td>
-                <td></td>
-                <td style="font-size:14px"></td>
-                <td style="font-size:14px"></td>
-                <td align="left" valign="top" style="font-size:14px"><strong> {{ Session::get('name') }}
-                    </strong></td>
-                <td>&nbsp;</td>
-            </tr>
         </table>
 
         <div style=" height:5px; border:1px solid #FFF"></div>

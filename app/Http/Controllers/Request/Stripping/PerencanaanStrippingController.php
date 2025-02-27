@@ -455,7 +455,7 @@ class PerencanaanStrippingController extends Controller
                     "in_container_un_number" => $request->CONTAINER_UN_NUMBER ?? '',
                     "in_container_pod" => $request->CONTAINER_POD ?? '',
                     "in_container_pol" => $request->CONTAINER_POL ?? '',
-                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ?? '',
+                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ? Carbon::parse($request->CONTAINER_VESSEL_CONFIRM)->format('d-m-Y') : null,
                     "in_container_comodity" => $komoditi != null ? trim($komoditi) : '',
                     "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE ?? '',
                 );
@@ -497,7 +497,6 @@ class PerencanaanStrippingController extends Controller
 
                     $query = "UPDATE PLAN_CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'), REMARK = '$request->remark'
                                 WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
-
                     $query_r = "SELECT NO_REQUEST,
                                     --ID_YARD,
                                     KETERANGAN,

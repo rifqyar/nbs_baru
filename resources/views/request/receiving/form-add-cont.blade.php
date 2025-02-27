@@ -58,7 +58,7 @@
 
         <div class="col-12 col-md-2 form-group">
             <label for="depo_tujuan">Depo Tujuan</label>
-            <input type="text" name="nm_depo_tujuan" ID="nm_depo_tujuan" class="form-control" value="TPK" disabled />
+            <input type="text" name="nm_depo_tujuan" ID="nm_depo_tujuan" class="form-control" value="MTI" disabled />
             <input type="hidden" value="1" name="depo_tujuan" ID="depo_tujuan" class="form-control" />
         </div>
 

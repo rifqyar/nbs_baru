@@ -455,11 +455,12 @@
 
 
         function cekearly() {
+            var formData = $('#dataCont').serialize();
             $NO_BOOKING = $("#NO_BOOKING").val();
             $KD_PBM = $("#KD_PELANGGAN").val();
             $KD_PELABUHAN_ASAL = $("#KD_PELABUHAN_ASAL").val();
             $KD_PELABUHAN_TUJUAN = $("#KD_PELABUHAN_TUJUAN").val();
-            //$KD_PBM2    = $("#KD_PELANGGAN2").val(); 
+            //$KD_PBM2    = $("#KD_PELANGGAN2").val();
             $NO_UKK = $("#NO_UKK").val();
             $JN_REPO = $("#JN_REPO").val();
 

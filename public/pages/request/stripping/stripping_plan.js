@@ -578,7 +578,7 @@ function updateTglApprove(noCont, index) {
                         hideAfter: 3500,
                     });
                 } else {
-                    var container_praya = data;
+                    var container_praya = data[0];
                     var tgl_approve = tglApprove;
                     var no_req = $("#no_req").val();
                     var no_req2_ = $("#no_req2").val();

@@ -3,6 +3,7 @@
 namespace App\Services\Billing\PaymentCash;
 
 use App\Services\Others\Praya;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -254,8 +255,9 @@ class PaymentCashService
 
         // Add Date Information
         $pdf->Cell(0, 7, 'Date: ', 0, 0, 'L');
-        $date = DateTime::createFromFormat('d-M-y h.i.s.u A', $result->tgl_nota ?? null);
-        $formattedDate = $date ? $date->format('d-M-y h:i:s') : 'N/A';
+        // $date = DateTime::createFromFormat('d-M-y h.i.s.u A', $result->tgl_nota ?? null);
+        // $formattedDate = $date ? $date->format('d-M-y h:i:s') : 'N/A';
+        $formattedDate = Carbon::parse($result->tgl_nota)->format('d-M-y H:i:s');
         $pdf->Cell(0, 7, $formattedDate, 0, 1, 'R');
 
         // Add NO_NOTA and Amount

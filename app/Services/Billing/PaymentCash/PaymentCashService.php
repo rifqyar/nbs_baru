@@ -2450,7 +2450,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA RECEIVING',
+            'nota_kd' => 'LAMPIRAN NOTA RECEIVING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -2655,7 +2655,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA STRIPPING',
+            'nota_kd' => 'LAMPIRAN NOTA STRIPPING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -2829,7 +2829,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA RELOKASI MTY',
+            'nota_kd' => 'LAMPIRAN NOTA RELOKASI MTY',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -2961,7 +2961,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA PERPANJANGAN STRIPPING',
+            'nota_kd' => 'LAMPIRAN NOTA PERPANJANGAN STRIPPING',
             // 'no_do' => $no_do,
             // 'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -3107,7 +3107,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA PENUMPUKAN STUFFING',
+            'nota_kd' => 'LAMPIRAN NOTA PENUMPUKAN STUFFING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -3341,7 +3341,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA STUFFING',
+            'nota_kd' => 'LAMPIRAN NOTA STUFFING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -3450,9 +3450,9 @@ class printNotaMTI
             session(["nota_lama" => 'EX ' . $nota_lama]);
         }
         if ($row_nota->jn_repo == "EKS_STUFFING") {
-            session(["nm_nota" => 'NOTA RELOKASI KE TPK EKS STUFFING']);
+            session(["nm_nota" => 'LAMPIRAN NOTA RELOKASI KE TPK EKS STUFFING']);
         } else {
-            session(["nm_nota" => 'NOTA RELOKASI KE TPK']);
+            session(["nm_nota" => 'LAMPIRAN NOTA RELOKASI KE TPK']);
         }
 
         $bilang = ucwords(session()->get('terbilang'));
@@ -3663,7 +3663,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA DELIVERY',
+            'nota_kd' => 'LAMPIRAN NOTA DELIVERY',
             // 'no_do' => $no_do,
             // 'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -3797,7 +3797,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA PERPANJANGAN DELIVERY',
+            'nota_kd' => 'LAMPIRAN NOTA PERPANJANGAN DELIVERY',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -3937,7 +3937,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA PERPANJANGAN PNKN STUFFING',
+            'nota_kd' => 'LAMPIRAN NOTA PERPANJANGAN PNKN STUFFING',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -4078,7 +4078,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA BATAL MUAT',
+            'nota_kd' => 'LAMPIRAN NOTA BATAL MUAT',
             'no_do' => $no_do,
             'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
@@ -4215,7 +4215,7 @@ class printNotaMTI
             'nota' => $row_nota,
             'ln' => 0,
             'dt' => $dt,
-            'nota_kd' => 'NOTA PENUMPUKAN DELIVERY',
+            'nota_kd' => 'LAMPIRAN NOTA PENUMPUKAN DELIVERY',
             // 'no_do' => $no_do,
             // 'no_bl' => $no_bl,
             'rowdetail' => $row_detail,

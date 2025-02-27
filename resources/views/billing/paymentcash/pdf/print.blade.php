@@ -55,7 +55,7 @@
             <td><b>{{session()->get('NOTA_MTI')}}</b></td>
         </tr>
         <tr>
-            <td>No. Faktur</td>
+            <td>No. Faktur SAP</td>
             <td>:</td>
             <td><b>{{session()->get('FAKTUR_MTI')}}</b></td>
         </tr>
@@ -254,84 +254,6 @@
         </tr>
         @endif
     </table>
-
-    @if($ln != 1)
-    <table border='0' style="font-size: 10pt;">
-
-        <tr height="20">
-            <td align="left"><b></b></td>
-        </tr>
-        <tr>
-            <td align="left">Nota sebagai faktur pajak berdasarkan Peraturan Dirjen Pajak</td>
-        </tr>
-        <tr>
-            <td align="left">Per - 13/PJ/2019 Tanggal 2 Juli 2019</td>
-        </tr>
-        <tr>
-            <td align="left"># {{$bilang}} </td>
-        </tr>
-        <tr>
-            <td align="left">Ketentuan : </td>
-        </tr>
-        <tr>
-            <td align="left">1. Pengajuan keberatan hanya dapat dilakukan dalam waktu 14 hari setelah tanggal nota </td>
-        </tr>
-        <tr>
-            <td align="left">2. Terhadap nota yang diajukan keberatan harus dilunasi terlebih dahulu</td>
-        </tr>
-    </table>
-    @endif
-
-    <div class="container">
-        <div>
-            <table style="font-size: 10pt;" class="item">
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td align="center">Pontianak, {{$date}}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td align="center">MENGETAHUI :</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td align="center"><b>{{$jabatan}}</b></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td align="center"><b><u>{{$nama}}</u></b></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td align="center"><b>NIPP.{{$nipp}}</b></td>
-                </tr>
-            </table>
-        </div>
-    </div>
 </body>
 
 </html>

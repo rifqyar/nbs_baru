@@ -693,7 +693,7 @@ class PerencanaanStripping
 
             $outMsg = "";
 
-            $procedureName = 'uster.pack_create_req_stripping.create_approve_strip_praya';
+            $procedureName = 'uster.pack_create_req_stripping.create_approve_strip_praya2';
             $stmt = $pdo->prepare(
                 "
                         DECLARE BEGIN " . $procedureName . " (
@@ -731,7 +731,7 @@ class PerencanaanStripping
             foreach ($param as $key => &$value) {
                 $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
             }
-            DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'DD-MM-YYYY'");
+
             $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
 

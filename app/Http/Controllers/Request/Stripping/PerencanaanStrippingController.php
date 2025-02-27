@@ -461,38 +461,6 @@ class PerencanaanStrippingController extends Controller
                     "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE ?? '',
                 );
 
-                $param = [
-                    "in_nocont" => $request->no_cont,
-                    "in_planreq" => $request->no_req,
-                    "in_reqnbs" => $request->NO_REQ2,
-                    "in_asalcont" => $request->ASAL_CONT,
-                    "in_container_size" => $request->CONTAINER_SIZE ?? '',
-                    "in_container_type" => $request->CONTAINER_TYPE ?? '',
-                    "in_container_status" => $request->CONTAINER_STATUS ?? '',
-                    "in_container_hz" => $request->CONTAINER_HZ ?? '',
-                    "in_container_imo" => $request->CONTAINER_IMO ?? '',
-                    "in_container_iso_code" => $request->CONTAINER_ISO_CODE ?? '',
-                    "in_container_height" => $request->CONTAINER_HEIGHT ?? '',
-                    "in_container_carrier" => $request->CONTAINER_CARRIER ?? '',
-                    "in_container_reefer_temp" => $request->CONTAINER_REEFER_TEMP ?? '',
-                    "in_container_booking_sl" => $request->CONTAINER_BOOKING_SL ?? '',
-                    "in_container_over_width" => $request->CONTAINER_OVER_WIDTH ?? '',
-                    "in_container_over_length" => $request->CONTAINER_OVER_LENGTH ?? '',
-                    "in_container_over_height" => $request->CONTAINER_OVER_HEIGHT ?? '',
-                    "in_container_over_front" => $request->CONTAINER_OVER_FRONT ?? '',
-                    "in_container_over_rear" => $request->CONTAINER_OVER_REAR ?? '',
-                    "in_container_over_left" => $request->CONTAINER_OVER_LEFT ?? '',
-                    "in_container_over_right" => $request->CONTAINER_OVER_RIGHT ?? '',
-                    "in_container_un_number" => $request->CONTAINER_UN_NUMBER ?? '',
-                    "in_container_pod" => $request->CONTAINER_POD ?? '',
-                    "in_container_pol" => $request->CONTAINER_POL ?? '',
-                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ? Carbon::parse($request->CONTAINER_VESSEL_CONFIRM)->format('d-m-Y') : null,
-
-                    'in_container_vessel_confirm' => DB::raw("TO_DATE('".Carbon::parse($request->CONTAINER_VESSEL_CONFIRM)->format('d-m-Y')."', 'DD-MM-YYYY')"),
-                    'p_ErrMsg'                 => ['value' => '', 'type' => PDO::PARAM_STR, 'length' => 4000],
-                ];
-
-                dd(DB::raw("TO_DATE('".Carbon::parse($request->CONTAINER_VESSEL_CONFIRM)->format('d-m-Y')."', 'DD-MM-YYYY')"));
                 $process = $this->stripping_plan->approveContTPK($request, $param);
                 $statusCode = $process->getData()->status->code;
 

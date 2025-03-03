@@ -196,9 +196,9 @@ class NotaDeliveryLuarService
         $query = "SELECT NO_NOTA FROM nota_delivery WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
         $hasil_ = DB::connection('uster')->selectOne($query);
 
-        if (!isset($hasil_->no_nota)) {
+        // if (!isset($hasil_->no_nota)) {
             $this->insertProformaPnkn($no_req, $koreksi);
-        }
+        // }
 
         $query = "SELECT NO_NOTA FROM nota_delivery WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
         $hasil_ = DB::connection('uster')->selectOne($query);
@@ -940,8 +940,8 @@ class NotaDeliveryLuarService
 
             $query_cek_nota     = "SELECT NO_NOTA,STATUS FROM NOTA_PNKN_DEL WHERE NO_REQUEST = '$no_req'";
             $nota               = DB::connection('uster')->selectOne($query_cek_nota);
-            $no_nota_cek        = $nota->no_nota;
-            $nota_status        = $nota->status;
+            $no_nota_cek        = $nota->no_nota ?? null;
+            $nota_status        = $nota->status ?? null;
 
             if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)) {
 
@@ -1131,17 +1131,17 @@ class NotaDeliveryLuarService
 
                     $i = 1;
                     foreach ($row as $item) {
-                        $id_iso = $item['ID_ISO'];
-                        $tarif  = $item['TARIF'];
-                        $biaya  = $item['BIAYA'];
-                        $ket    = $item['KETERANGAN'];
-                        $jml_cont  = $item['JML_CONT'];
-                        $hz     = $item['HZ'];
-                        $start  = $item['START_STACK'];
-                        $end    = $item['END_STACK'];
-                        $jml    = $item['JML_HARI'];
-                        $coa    = $item['COA'];
-                        $ppn_d    = $item['PPN'];
+                        $id_iso = $item->id_iso;
+                        $tarif  = $item->tarif;
+                        $biaya  = $item->biaya;
+                        $ket    = $item->keterangan;
+                        $jml_cont  = $item->jml_cont;
+                        $hz     = $item->hz;
+                        $start  = $item->start_stack;
+                        $end    = $item->end_stack;
+                        $jml    = $item->jml_hari;
+                        $coa    = $item->coa;
+                        $ppn_d  = $item->ppn;
 
 
 

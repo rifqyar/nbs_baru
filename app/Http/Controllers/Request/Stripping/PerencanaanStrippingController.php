@@ -456,7 +456,7 @@ class PerencanaanStrippingController extends Controller
                     "in_container_un_number" => $request->CONTAINER_UN_NUMBER ?? '',
                     "in_container_pod" => $request->CONTAINER_POD ?? '',
                     "in_container_pol" => $request->CONTAINER_POL ?? '',
-                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ? Carbon::parse($request->CONTAINER_VESSEL_CONFIRM)->format('YmdHis') : null,
+                    "in_container_vessel_confirm" => $request->CONTAINER_VESSEL_CONFIRM ?? null,
                     "in_container_comodity" => $komoditi != null ? trim($komoditi) : '',
                     "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE ?? '',
                 );

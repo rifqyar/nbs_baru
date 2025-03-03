@@ -224,7 +224,7 @@
                                                 <td class="text-center">
                                                     @if($cek == null && $closing != 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
-                                                            <input type="date" name="TGL_APPROVE_{{$i}}" class="form-control" value="{{date('Y-m-d', strtotime($cnt->tgl_approve))}}">
+                                                            <input type="date" name="TGL_APPROVE_{{$i}}" class="form-control" value="{{\Carbon\Carbon::now()->translatedFormat('Y-m-d')}}">
                                                         @elseif(Session::get('id_group') == '6')
                                                             {{\Carbon\Carbon::parse($cnt->tgl_approve)->translatedFormat('d-M-Y')}}
                                                         @endif
@@ -237,7 +237,7 @@
                                                 <td class="text-center">
                                                     @if($cek == null && $closing != 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
-                                                            <input type="date" name="TGL_APPROVE_SELESAI_{{$i}}" class="form-control" value="{{date('Y-m-d', strtotime($cnt->tgl_app_selesai))}}">
+                                                            <input type="date" name="TGL_APPROVE_SELESAI_{{$i}}" class="form-control" value="{{\Carbon\Carbon::now()->translatedFormat('Y-m-d')}}">
                                                         @elseif(Session::get('id_group') == '6')
                                                             {{\Carbon\Carbon::parse($cnt->tgl_app_selesai)->translatedFormat('d-M-Y')}}
                                                         @endif

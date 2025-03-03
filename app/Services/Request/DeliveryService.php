@@ -363,8 +363,10 @@ class DeliveryService
             $berat          = $request->BERAT;
             $via            = $request->VIA;
             $komoditi       = $request->KOMODITI;
-            $start_pnkn     = $request->start_pnkn;
-            $end_pnkn       = $request->end_pnkn;
+            // $start_pnkn     = $request->start_pnkn;
+            // $end_pnkn       = $request->end_pnkn;
+            $start_pnkn     = Carbon::parse($request->start_pnkn)->format('Y-m-d');
+            $end_pnkn       = Carbon::parse($request->end_pnkn)->format('Y-m-d');
             $size           = $request->SIZE;
             $type           = $request->TYPE;
             $id_user        = session()->get('LOGGED_STORAGE');

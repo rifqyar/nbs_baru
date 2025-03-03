@@ -291,13 +291,21 @@ $("#no_cont").autocomplete({
         $("#vessel").val(ui.item.vessel);
         $("#size option").each(function () {
             if ($(this).val() == ui.item.size) {
+                $(this).prop("selected", "selected");
                 $(this).attr("selected", "selected");
+            } else {
+                $(this).removeAttr("selected");
+                $(this).removeProp("selected");
             }
         });
 
         $("#type option").each(function () {
             if ($(this).val() == ui.item.type) {
+                $(this).prop("selected", "selected");
                 $(this).attr("selected", "selected");
+            } else {
+                $(this).removeAttr("selected");
+                $(this).removeProp("selected");
             }
         });
         return false;
@@ -374,6 +382,24 @@ $("#owner").autocomplete({
         $("#kd_owner").val(ui.item.kd_owner);
         return false;
     },
+});
+
+$("#type").on("change", function () {
+    if ($(this).val() == "") {
+        $("#type option").each(function () {
+            $(this).removeAttr("selected");
+            $(this).removeProp("selected");
+        });
+    }
+});
+
+$("#size").on("change", function () {
+    if ($(this).val() == "") {
+        $("#size option").each(function () {
+            $(this).removeAttr("selected");
+            $(this).removeProp("selected");
+        });
+    }
 });
 /** End Of Get Data & Auto Complete Section */
 /** ======================================= */
@@ -452,7 +478,7 @@ async function saveContainerData(formId) {
         );
 
         setTimeout(() => {
-            window.location.reload()
+            window.location.reload();
         }, 750);
 
         // var no_req = $(formId).find('input[name="no_req"]').val();
@@ -510,20 +536,20 @@ function addContainer() {
 function cancelAddCont() {
     if ($("#form-card-container").css("display") != "none") {
         $("#form-card-container").slideUp();
-        $('#no_cont').val('')
-        $('#id_vsb').val('')
-        $('#vessel').val('')
-        $('#komoditi').val('')
-        $('#kd_komoditi').val('')
-        $('#owner').val('')
-        $('#kd_owner').val('')
+        $("#no_cont").val("");
+        $("#id_vsb").val("");
+        $("#vessel").val("");
+        $("#komoditi").val("");
+        $("#kd_komoditi").val("");
+        $("#owner").val("");
+        $("#kd_owner").val("");
     }
 }
 
 function refreshContList(res) {
     var listTable = "";
-    var container = res.container
-    var noReq = res.no_req
+    var container = res.container;
+    var noReq = res.no_req;
     container.map((v, k) => {
         listTable += `
             <tr>
@@ -536,7 +562,9 @@ function refreshContList(res) {
                 <td class="text-center">${v.nama_yard}</td>
                 <td class="text-center">${v.kd_owner}</td>
                 <td class="text-center">
-                    <button class="btn btn-rounded btn-danger" onclick="delCont('${btoa(v.no_container)}', '${btoa(noReq)}')">
+                    <button class="btn btn-rounded btn-danger" onclick="delCont('${btoa(
+                        v.no_container
+                    )}', '${btoa(noReq)}')">
                         <i class="mdi mdi-delete h5"></i>
                     </button>
                 </td>
@@ -591,7 +619,7 @@ function input_success(res) {
             if (res.redirect.need) {
                 window.location.href = res.redirect.to;
             } else {
-                Swal.close()
+                Swal.close();
             }
         },
     });

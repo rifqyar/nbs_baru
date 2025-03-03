@@ -616,10 +616,11 @@ class DeliveryService
                     $asal_cont         = 'DEPO';
                 }
 
-                $start_stack = Carbon::parse($start_stack)->format('d/m/Y');
-
-                $formattedStartStack = Carbon::createFromFormat('Y-m-d H:i:s', trim($start_stack))->format('d/m/Y');
-                $formattedEndPnkn = Carbon::createFromFormat('Y-m-d', trim($end_pnkn))->format('d/m/Y');
+                // $start_stack = Carbon::parse($start_stack)->format('d/m/Y');
+                // $formattedStartStack = Carbon::parse('Y-m-d H:i:s', trim($start_stack))->format('d/m/Y');
+                // $formattedEndPnkn = Carbon::parse('Y-m-d', trim($end_pnkn))->format('d/m/Y');
+                $formattedStartStack = date('d/m/Y', strtotime($start_pnkn));
+                $formattedEndPnkn = date('d/m/Y', strtotime($end_pnkn));
                 // $query_insert   = "INSERT INTO CONTAINER_DELIVERY(NO_CONTAINER, NO_REQUEST, STATUS, AKTIF, KELUAR,HZ, KOMODITI,KETERANGAN,NO_SEAL,BERAT,VIA, ID_YARD, NOREQ_PERALIHAN, START_STACK, ASAL_CONT, TGL_DELIVERY)
                 // VALUES('$no_cont', '$no_req', '$status','Y','N','$hz','$komoditi','$keterangan','$no_seal','$berat','$via','$id_yard','$no_request',TO_DATE('$start_stack','dd/mm/rrrr'),'$asal_cont', TO_DATE('$end_pnkn','dd/mm/rrrr'))";
 

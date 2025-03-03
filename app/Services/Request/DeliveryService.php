@@ -898,7 +898,7 @@ class DeliveryService
     function commodity($term)
     {
         $nama            = strtoupper($term);
-        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
+        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
         $result_query    = DB::connection('uster')->select($query);
         return $result_query;
     }

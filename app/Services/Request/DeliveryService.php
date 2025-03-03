@@ -642,7 +642,7 @@ class DeliveryService
                         'NOREQ_PERALIHAN' => $no_request,
                         'START_STACK' => DB::raw("TO_DATE('$formattedStartStack', 'DD/MM/YYYY')"),
                         'ASAL_CONT' => $asal_cont,
-                        'TGL_DELIVERY' => DB::raw("TO_DATE('$formattedEndPnkn', 'YYYY-MM-DD')")
+                        'TGL_DELIVERY' => DB::raw("TO_CHAR(TO_DATE('$formattedEndPnkn', 'DD-MM-YYYY'), 'YYYY-MM-DD')")
                     ]);
 
 

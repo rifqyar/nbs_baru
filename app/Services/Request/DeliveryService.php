@@ -363,10 +363,8 @@ class DeliveryService
             $berat          = $request->BERAT;
             $via            = $request->VIA;
             $komoditi       = $request->KOMODITI;
-            // $start_pnkn     = $request->start_pnkn;
-            // $end_pnkn       = $request->end_pnkn;
-            $start_pnkn     = Carbon::parse($request->start_pnkn)->format('Y-m-d');
-            $end_pnkn       = Carbon::parse($request->end_pnkn)->format('Y-m-d');
+            $start_pnkn     = $request->start_pnkn;
+            $end_pnkn       = $request->end_pnkn;
             $size           = $request->SIZE;
             $type           = $request->TYPE;
             $id_user        = session()->get('LOGGED_STORAGE');
@@ -620,6 +618,8 @@ class DeliveryService
 
                 $start_stack = Carbon::parse($start_stack)->format('d/m/Y');
 
+                $formattedStartStack = Carbon::createFromFormat('Y-m-d H:i:s', trim($start_stack))->format('d/m/Y');
+                $formattedEndPnkn = Carbon::createFromFormat('Y-m-d', trim($end_pnkn))->format('d/m/Y');
                 // $query_insert   = "INSERT INTO CONTAINER_DELIVERY(NO_CONTAINER, NO_REQUEST, STATUS, AKTIF, KELUAR,HZ, KOMODITI,KETERANGAN,NO_SEAL,BERAT,VIA, ID_YARD, NOREQ_PERALIHAN, START_STACK, ASAL_CONT, TGL_DELIVERY)
                 // VALUES('$no_cont', '$no_req', '$status','Y','N','$hz','$komoditi','$keterangan','$no_seal','$berat','$via','$id_yard','$no_request',TO_DATE('$start_stack','dd/mm/rrrr'),'$asal_cont', TO_DATE('$end_pnkn','dd/mm/rrrr'))";
 
@@ -639,9 +639,9 @@ class DeliveryService
                         'VIA' => $via,
                         'ID_YARD' => $id_yard,
                         'NOREQ_PERALIHAN' => $no_request,
-                        'START_STACK' => DB::raw("TO_DATE('$start_stack', 'DD/MM/YYYY')"),
+                        'START_STACK' => DB::raw("TO_DATE('$formattedStartStack', 'DD/MM/YYYY')"),
                         'ASAL_CONT' => $asal_cont,
-                        'TGL_DELIVERY' => DB::raw("TO_DATE('$end_pnkn', 'YYYY-MM-DD')")
+                        'TGL_DELIVERY' => DB::raw("TO_DATE('$formattedEndPnkn', 'YYYY-MM-DD')")
                     ]);
 
 
@@ -898,7 +898,7 @@ class DeliveryService
     function commodity($term)
     {
         $nama            = strtoupper($term);
-        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
+        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
         $result_query    = DB::connection('uster')->select($query);
         return $result_query;
     }

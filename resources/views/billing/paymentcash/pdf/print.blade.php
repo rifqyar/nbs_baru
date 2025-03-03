@@ -47,7 +47,6 @@
 
     </table>
 
-
     <table style="float: right; font-size: 9pt; margin-top: -50px;">
         <tr>
             <td>No. Nota</td>
@@ -57,7 +56,7 @@
         <tr>
             <td>No. Faktur SAP</td>
             <td>:</td>
-            <td><b>{{session()->get('FAKTUR_MTI')}}</b></td>
+            <td><b>{{session()->get('NO_FAKTUR')}}</b></td>
         </tr>
         <tr>
             <td>No. Request</td>

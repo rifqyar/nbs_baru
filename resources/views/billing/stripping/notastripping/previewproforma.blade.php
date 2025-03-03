@@ -157,16 +157,16 @@
                                     <tbody>
                                         @foreach ($row_detail as $detail)
                                             <tr>
-                                                <td>{{ $detail['keterangan'] }}</td>
-                                                <td> - </td>
-                                                <td> - </td>
-                                                <td>{{ $detail['jml_cont'] }}</td>
-                                                <td>{{ $detail['size_'] }}</td>
-                                                <td>{{ $detail['type_'] }}</td>
-                                                <td>{{ $detail['status'] }}</td>
-                                                <td>{{ $detail['hz'] }}</td>
-                                                <td>{{ $detail['jml_hari'] }}</td>
-                                                <td>{{ $detail['tarif'] }}</td>
+                                                <td>{{ $detail['keterangan'] ?? '-' }}</td>
+                                                <td> {{ $detail['start_stack'] ?? '-' }} </td>
+                                                <td> {{ $detail['end_stack'] ?? '-' }} </td>
+                                                <td>{{ $detail['jml_cont'] ?? '-' }}</td>
+                                                <td>{{ $detail['size_'] ?? '-' }}</td>
+                                                <td>{{ $detail['type_'] ?? '-' }}</td>
+                                                <td>{{ $detail['status'] ?? '-' }}</td>
+                                                <td>{{ $detail['hz'] ?? '-' }}</td>
+                                                <td>{{ $detail['jml_hari'] ?? '-' }}</td>
+                                                <td>{{ $detail['tarif'] ?? '-' }}</td>
                                                 <td>IDR</td>
                                                 <td>{{ $detail['biaya'] }}</td>
                                             </tr>

@@ -222,7 +222,7 @@
                                                 </td>
                                                 <td class="text-center">{{\Carbon\Carbon::parse($cnt->tgl_mulai)->translatedFormat('d-M-Y')}}</td>
                                                 <td class="text-center">
-                                                    @if($closing != 'CLOSED')
+                                                    @if($cek == null && $closing != 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
                                                             <input type="date" name="TGL_APPROVE_{{$i}}" class="form-control" value="{{date('Y-m-d', strtotime($cnt->tgl_approve))}}">
                                                         @elseif(Session::get('id_group') == '6')
@@ -235,7 +235,7 @@
                                                 </td>
                                                 <td class="text-center">{{\Carbon\Carbon::parse($cnt->tgl_selesai)->translatedFormat('d-M-Y')}}</td>
                                                 <td class="text-center">
-                                                    @if($closing != 'CLOSED')
+                                                    @if($cek == null && $closing != 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
                                                             <input type="date" name="TGL_APPROVE_SELESAI_{{$i}}" class="form-control" value="{{date('Y-m-d', strtotime($cnt->tgl_app_selesai))}}">
                                                         @elseif(Session::get('id_group') == '6')
@@ -263,8 +263,8 @@
                                                         @endif
                                                     @elseif($cek == null && $closing == 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
-                                                            <button class="btn btn-sm btn-warning" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button>
-                                                            {{-- <span class="badge badge-warning p-2">Unaproved</span> --}}
+                                                            {{-- <button class="btn btn-sm btn-warning" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button> --}}
+                                                            <span class="badge badge-warning p-2">Unaproved</span>
                                                             <button class="btn btn-sm btn-info" onclick="infoLapangan()">Info</button>
                                                         @else
                                                             Approval Di Uster

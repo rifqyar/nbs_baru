@@ -211,7 +211,7 @@ class PerencanaanStripping
 
         $cek_save = "SELECT CLOSING FROM PLAN_REQUEST_STRIPPING WHERE NO_REQUEST = '$noReq'";
         $r_cek = DB::connection('uster')->selectOne($cek_save);
-        $close = !empty($r_cek) ?? $r_cek->closing;
+        $close = !empty($r_cek) ? $r_cek->closing : '';
 
         return [$rowList, $close];
     }
@@ -693,41 +693,18 @@ class PerencanaanStripping
 
             $outMsg = "";
 
-            $procedureName = 'uster.pack_create_req_stripping.create_approve_strip_praya2';
-            $stmt = $pdo->prepare(
-                "
-                        DECLARE BEGIN " . $procedureName . " (
-                            :in_nocont,
-                            :in_planreq,
-                            :in_reqnbs,
-                            :in_asalcont,
-                            :in_container_size,
-                            :in_container_type,
-                            :in_container_status,
-                            :in_container_hz,
-                            :in_container_imo,
-                            :in_container_iso_code,
-                            :in_container_height,
-                            :in_container_carrier,
-                            :in_container_reefer_temp,
-                            :in_container_booking_sl,
-                            :in_container_over_width,
-                            :in_container_over_length,
-                            :in_container_over_height,
-                            :in_container_over_front,
-                            :in_container_over_rear,
-                            :in_container_over_left,
-                            :in_container_over_right,
-                            :in_container_un_number,
-                            :in_container_pod,
-                            :in_container_pol,
-                            :in_container_vessel_confirm,
-                            :in_container_comodity,
-                            :in_container_c_type_code,
-                            :p_ErrMsg);
-                        end;"
-            );
+            $queryProc = "
+                DECLARE BEGIN USTER.PACK_CREATE_REQ_STRIPPING.CREATE_APPROVE_STRIP_PRAYA2 (:in_nocont,:in_planreq,:in_reqnbs,:in_asalcont,
+                            :in_container_size,:in_container_type,:in_container_status,:in_container_hz,:in_container_imo,
+                            :in_container_iso_code,:in_container_height,:in_container_carrier,:in_container_reefer_temp,
+                            :in_container_booking_sl,:in_container_over_width,:in_container_over_length,:in_container_over_height,
+                            :in_container_over_front,:in_container_over_rear,:in_container_over_left,:in_container_over_right,
+                            :in_container_un_number,:in_container_pod,:in_container_pol,:in_container_vessel_confirm,
+                            :in_container_comodity,:in_container_c_type_code,:p_ErrMsg);
+                        end;
+            ";
 
+            $stmt = $pdo->prepare($queryProc);
             foreach ($param as $key => &$value) {
                 $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
             }

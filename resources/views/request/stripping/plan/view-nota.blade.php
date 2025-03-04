@@ -178,16 +178,16 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center" scope="col">#</th>
+                                            <th class="text-center" scope="col">Approve</th>
                                             <th class="text-center" scope="col">No. Container</th>
                                             <th class="text-center" scope="col">Size / Type</th>
                                             <th class="text-center" scope="col">Asal Cont</th>
-                                            <th class="text-center" scope="col">Tgl. Bonkar</th>
+                                            <th class="text-center" scope="col">Tgl. Bongkar</th>
                                             <th class="text-center" scope="col">Tgl. Mulai</th>
                                             <th class="text-center" scope="col">Tgl. App Mulai</th>
                                             <th class="text-center" scope="col">Tgl. Selesai</th>
                                             <th class="text-center" scope="col">Tgl. App Selesai</th>
                                             <th class="text-center" scope="col">Remarks</th>
-                                            <th class="text-center" scope="col">Approve</th>
                                             <th></th>
                                         </tr>
                                     </thead>
@@ -263,8 +263,8 @@
                                                         @endif
                                                     @elseif($cek == null && $closing == 'CLOSED')
                                                         @if (Session::get('id_group') == 'J' || Session::get('id_group') == 'K')
-                                                            <button class="btn btn-sm btn-warning" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button>
-                                                            {{-- <span class="badge badge-warning p-2">Unaproved</span> --}}
+                                                            {{-- <button class="btn btn-sm btn-warning" onclick="updateTglApprove(`{{$cnt->no_container}}`, `{{$i}}`)">Approve</button> --}}
+                                                            <span class="badge badge-warning p-2">Unaproved</span>
                                                             <button class="btn btn-sm btn-info" onclick="infoLapangan()">Info</button>
                                                         @else
                                                             Approval Di Uster

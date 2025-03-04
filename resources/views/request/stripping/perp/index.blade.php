@@ -107,12 +107,12 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
+                                            <th class="text-center" width="200px">Action</th>
                                             <th class="text-center">No. Request</th>
                                             <th class="text-center">Perp Dari</th>
                                             <th class="text-center">No DO | BL</th>
                                             <th class="text-center">EMKL / Pemilik Barang</th>
                                             <th class="text-center">Total Box</th>
-                                            <th class="text-center" width="200px">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

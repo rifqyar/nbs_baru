@@ -109,7 +109,7 @@
         </tr>
     </table>
     <b><span>{{ $data->no_request }}</span></b><br>
-    <b>PERPANJANGAN DELIVERY KE LUAR</b><br />
+    <b>DELIVERY KE TPK</b><br />
     <b><span>{{ $data->nama }}</span></b><br>
     <b><span>{{ $data->npwp }}</span></b><br>
     <b><span>{{ $data->alamat }}</span></b><br>

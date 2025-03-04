@@ -130,6 +130,15 @@ function getData() {
                 responsivePriority: -1,
             },
             {
+                data: "action",
+                name: "action",
+                orderable: false,
+                searchable: false,
+                className: "text-center",
+                width: "200px",
+                responsivePriority: -1,
+            },
+            {
                 data: "no_request",
                 name: "no_request",
             },
@@ -155,15 +164,6 @@ function getData() {
                 data: "type_stripping",
                 name: "type_stripping",
                 responsivePriority: 1,
-            },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-                className: "text-center",
-                width: "200px",
-                responsivePriority: -1,
             },
         ],
     });

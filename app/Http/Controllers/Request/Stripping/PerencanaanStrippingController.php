@@ -122,6 +122,9 @@ class PerencanaanStrippingController extends Controller
 
     public function view($noReq)
     {
+        if($noReq == 'test'){
+            dd(env('PRAYA_API_TOS'));
+        }
         $noReq = base64_decode($noReq);
         $data['request'] = $this->stripping_plan->getViewData($noReq)->getData();
         $data['container'] = $this->stripping_plan->contList($noReq, 'view');

@@ -2507,7 +2507,7 @@ class printNotaMTI
 	   CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, c.NO_DO, c.NO_BL, m.NAME NAMA_LENGKAP,inh.NO_PERATURAN, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD-MM-RRRR')
 		THEN a.NO_NOTA
 		ELSE A.NO_FAKTUR END NO_FAKTUR_
-                            FROM nota_stripping a, request_stripping c, BILLING.TB_USER m, itpk_nota_header inh where
+                            FROM nota_stripping a, request_stripping c, BILLING_NBS.TB_USER m, itpk_nota_header inh where
                             a.NO_REQUEST = c.NO_REQUEST
 							AND a.nipp_user = m.id(+)
 							AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_STRIPPING d WHERE d.NO_REQUEST = '$no_req' )
@@ -2704,7 +2704,7 @@ class printNotaMTI
         $query_get    = "SELECT a.NOTA_LAMA, c.NO_REQUEST, a.NO_NOTA, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT, a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/rrrr') TGL_REQUEST, CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, TO_CHAR(a.TOTAL_DISKON,'999,999,999,999') TOTAL_DISKON, TOTAL_TAGIHAN AS TOTAL_TAGIHANR, PPN AS PPNR, TAGIHAN AS TAGIHANR, TOTAL_DISKON AS TOTAL_DISKONR, ADM_NOTA AS ADM_NOTAR, m.Name NAMA_LENGKAP, TO_CHAR(a.TGL_NOTA,'dd/mm/rrrr') TGL_NOTA, A.NO_NOTA_MTI, A.NO_FAKTUR_MTI, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
 		THEN a.NO_NOTA
 		ELSE A.NO_FAKTUR END NO_FAKTUR_
-                            FROM nota_relokasi_mty a, request_stripping c, BILLING.TB_USER m where
+                            FROM nota_relokasi_mty a, request_stripping c, BILLING_NBS.TB_USER m where
                             a.NO_REQUEST = c.NO_REQUEST
 							AND a.nipp_user = m.id
 							AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_relokasi_mty d WHERE d.NO_REQUEST = '$no_req' )
@@ -3582,7 +3582,7 @@ class printNotaMTI
 	   CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, m.name NAMA_LENGKAP,inh.NO_PERATURAN, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
 		THEN a.NO_NOTA
 		ELSE A.NO_FAKTUR END NO_FAKTUR_
-                            FROM nota_delivery a, request_delivery c, BILLING.TB_USER m,itpk_nota_header inh where
+                            FROM nota_delivery a, request_delivery c, BILLING_NBS.TB_USER m,itpk_nota_header inh where
                             a.NO_REQUEST = c.NO_REQUEST and a.no_request = '$no_req'
 							AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_DELIVERY d WHERE d.NO_REQUEST = '$no_req' )
 							and a.nipp_user = m.id

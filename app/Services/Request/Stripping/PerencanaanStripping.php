@@ -275,7 +275,7 @@ class PerencanaanStripping
                         M_VSB_VOYAGE_PALAPA
                     WHERE
                         TML_CD = 'PNK'
-                        AND SYSDATE BETWEEN TO_DATE(OPEN_STACK, 'YYYYMMDDHH24MISS') AND TO_DATE(CLOSSING_TIME, 'YYYYMMDDHH24MISS')
+                        AND TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD') BETWEEN TO_DATE(TO_CHAR(TO_DATE(OPEN_STACK, 'YYYYMMDDHH24MISS'), 'YYYYMMDD'), 'YYYYMMDD') AND TO_DATE(TO_CHAR(TO_DATE(CLOSSING_TIME, 'YYYYMMDDHH24MISS'), 'YYYYMMDD'), 'YYYYMMDD')
                         AND (VESSEL LIKE '%$nama_kapal%'
                         OR VOYAGE_IN LIKE '%$nama_kapal%'
                         OR VOYAGE_OUT LIKE '%$nama_kapal%'
@@ -316,7 +316,7 @@ class PerencanaanStripping
 
     function getKomoditi($search)
     {
-        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
+        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
         $data = DB::connection('uster')->select($query);
         return $data;
     }

@@ -252,6 +252,11 @@ class PerpanjanganStrippingController extends Controller
             ];
 
             $exec = $this->perpanjangan->approveReq($param);
+
+            if($exec->getStatusCode() != 200){
+                throw new Exception("Gagal Approve Perpanjangan Stripping", 500);
+            }
+
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Approve Request Perpanjangan Stripping',

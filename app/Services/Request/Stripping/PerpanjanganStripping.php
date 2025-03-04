@@ -467,7 +467,6 @@ class PerpanjanganStripping
             } else {
                 throw new Exception('Nomor Container Tidak Ditemukan Di Database', 500);
             }
-
         } catch (Exception $th) {
             DB::rollBack();
             return response()->json([
@@ -487,34 +486,50 @@ class PerpanjanganStripping
         DB::beginTransaction();
         try {
             $pdo = DB::getPdo();
-
             $outMsg = "";
-            $procedureName = 'uster.pack_create_req_stripping.create_perpanjangan_strip';
-            $stmt = $pdo->prepare("
-                        DECLARE
-                        BEGIN " . $procedureName . " (
-                            :in_req_old,
-                            :in_req_new,
-                            :in_asalcont,
-                            :in_iduser,
-                            :in_ket,
-                            :p_ErrMsg
-                        ); END;"
-                    );
+            $declare = "DECLARE
+                        in_req_old VARCHAR2(100);
+                        in_req_new VARCHAR2(100);
+                        in_asalcont VARCHAR2(100);
+                        in_iduser VARCHAR2 (100);
+                        in_ket VARCHAR2 (100);
+                        p_ErrMsg VARCHAR2(100);
+                        BEGIN
+                                in_req_old := '" . $param['in_req_old'] . "';
+                                in_req_new := '" . $param['in_req_new'] . "';
+                                in_asalcont := '" . $param['in_asalcont'] . "';
+                                in_iduser := '" . $param['in_iduser'] . "';
+                                in_ket := '" . $param['in_ket'] . "';
+                                p_ErrMsg := 'NULL';
+                            USTER.PACK_CREATE_REQ_STRIPPING.CREATE_PERPANJANGAN_STRIP(in_req_old,in_req_new,in_asalcont,in_iduser, in_ket, p_ErrMsg);
+                        END;";
 
-            foreach ($param as $key => &$value) {
-                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
-            }
+            $exec = DB::connection('uster')->statement($declare);
+            // $procedureName = " DECLARE
+            //             BEGIN USTER.PACK_CREATE_REQ_STRIPPING.CREATE_PERPANJANGAN_STRIP (
+            //                 :in_req_old,
+            //                 :in_req_new,
+            //                 :in_asalcont,
+            //                 :in_iduser,
+            //                 :in_ket,
+            //                 :p_ErrMsg
+            //             ); END;";
+            // $stmt = $pdo->prepare($procedureName);
 
-            $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
-            $stmt->execute();
+            // foreach ($param as $key => &$value) {
+            //     $stmt->bindParam(":$key", $value);
+            // }
+
+            // $stmt->bindParam(":p_ErrMsg", $outMsg);
+            // $stmt->execute();
 
             DB::commit();
             return response()->json([
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
-                ], 'data' => [
+                ],
+                'data' => [
                     'outmsg' => $outMsg,
                 ]
             ], 200);
@@ -523,7 +538,7 @@ class PerpanjanganStripping
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
-                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                    'code' => 500,
                 ],
                 'data' => null,
                 'err_detail' => $th,

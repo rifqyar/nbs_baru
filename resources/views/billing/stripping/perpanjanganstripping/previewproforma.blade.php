@@ -158,8 +158,8 @@
                                         @foreach ($row_detail as $detail)
                                             <tr>
                                                 <td>{{ $detail['keterangan'] }}</td>
-                                                <td> - </td>
-                                                <td> - </td>
+                                                <td> {{ $detail['start_stack'] ?? '-' }} </td>
+                                                <td> {{ $detail['end_stack'] ?? '-' }} </td>
                                                 <td>{{ $detail['jml_cont'] }}</td>
                                                 <td>{{ $detail['size_'] }}</td>
                                                 <td>{{ $detail['type_'] }}</td>
@@ -266,7 +266,7 @@
                                     <div class="row justify-align-center">
                                         <div class="col-lg-2 col-md-12"></div>
                                         <div class="col-lg-8 col-md-12 text-center">
-                                            <span class="text-dark">{{$pegawai['jabatan']}}</span>
+                                            <span class="text-dark">{{ $pegawai['jabatan'] }}</span>
                                         </div>
                                         <div class="col-lg-2 col-md-12"></div>
                                     </div>
@@ -274,7 +274,7 @@
                                     <div class="row justify-align-center mt-5 pt-3">
                                         <div class="col-lg-2 col-md-12"></div>
                                         <div class="col-lg-8 col-md-12 text-center">
-                                            <span class="text-dark">{{$pegawai['nama_pegawai']}}</span>
+                                            <span class="text-dark">{{ $pegawai['nama_pegawai'] }}</span>
                                         </div>
                                         <div class="col-lg-2 col-md-12"></div>
                                     </div>
@@ -285,7 +285,8 @@
                 </div>
 
                 <div class="row justify-content-center">
-                    <a href="{{route('uster.billing.nota_ext_stripping.insert_proforma_strip', [base64_encode($no_req), 'koreksi='.$koreksi])}}" class="btn btn-outline-info w-50 mb-5 row align-items-center">
+                    <a href="{{ route('uster.billing.nota_ext_stripping.insert_proforma_strip', [base64_encode($no_req), 'koreksi=' . $koreksi]) }}"
+                        class="btn btn-outline-info w-50 mb-5 row align-items-center">
                         <i class="mdi mdi-content-save mdi-18px"></i>
                         <span>
                             Save Nota

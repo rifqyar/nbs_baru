@@ -196,7 +196,7 @@ class NotaStuffingPlan
         // Ambil data nota_stuffing dan request_stuffing dengan menggunakan Eloquent ORM
         $data = DB::connection('uster')->table('nota_stuffing as a')
             ->join('request_stuffing as c', 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
-            ->leftJoin('BILLING_NBS.TB_USER as mu', 'a.nipp_user', '=', 'mu.id')
+            ->leftJoin('BILLING.TB_USER as mu', 'a.nipp_user', '=', 'mu.id')
             ->selectRaw("c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT, a.NPWP, c.PERP_DARI, a.LUNAS, a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE")
             ->where('a.NO_REQUEST', $no_req)
             ->whereRaw("a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stuffing d WHERE d.NO_REQUEST = '$no_req')")
@@ -386,7 +386,7 @@ class NotaStuffingPlan
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
          THEN a.NO_NOTA
          ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                             FROM nota_pnkn_stuf a, request_stuffing c, BILLING_NBS.TB_USER mu where
+                             FROM nota_pnkn_stuf a, request_stuffing c, BILLING.TB_USER mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_pnkn_stuf d WHERE d.NO_REQUEST = '$no_req' )
                              and c.NO_REQUEST = '$no_req'

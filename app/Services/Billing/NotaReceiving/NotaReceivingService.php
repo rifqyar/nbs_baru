@@ -85,7 +85,7 @@ class NotaReceivingService
                         ELSE
                             A.NO_FAKTUR
                         END NO_FAKTUR_
-                    FROM nota_receiving a, request_receiving c, BILLING_NBS.tb_user mu where
+                    FROM nota_receiving a, request_receiving c, BILLING.tb_user mu where
                     a.NO_REQUEST = c.NO_REQUEST
                     AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_RECEIVING d WHERE d.NO_REQUEST = '$no_req' )
                     and c.NO_REQUEST = '$no_req'

@@ -36,16 +36,16 @@
                     <h3><b>Payment Cash</b></h3>
                     <!-- <div class="row justify-content-end">
 
-                                                        <div class="col-md-2">
-                                                            <label for="from" class="text-end">Tanggal Request</label>
-                                                            <input type="date" class="form-control" id="from" name="from">
-                                                        </div>
+                                                            <div class="col-md-2">
+                                                                <label for="from" class="text-end">Tanggal Request</label>
+                                                                <input type="date" class="form-control" id="from" name="from">
+                                                            </div>
 
-                                                        <div class="col-md-2">
-                                                            <label for="from" class="text-end">Sampai Dengan</label>
-                                                            <input type="date" class="form-control" id="to" name="to">
-                                                        </div>
-                                                    </div> -->
+                                                            <div class="col-md-2">
+                                                                <label for="from" class="text-end">Sampai Dengan</label>
+                                                                <input type="date" class="form-control" id="to" name="to">
+                                                            </div>
+                                                        </div> -->
                     <div class="table-responsive">
                         <table class="datatables-service table table-striped" id="service-table">
                             <thead>
@@ -118,7 +118,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            const SAP_URL = "{{ env('SAP_URL') }}";
+                            const SAP_URL = "http://inco.pelindo.co.id/";
                             if (data['cek'] == '0') {
                                 // if ( `{{ Session::get('ID_GROUP') }}` == 'L' || `{{ Session::get('ID_GROUP') }}` == 'J' || `{{ Session::get('ID_GROUP') }}` == 'P' || `{{ Session::get('ID_GROUP') }}` == 'K') {
                                 //     act = `<a href="#" onclick='pay("${data['no_nota']}", "${data['no_request']}", "${data['kegiatan']}", "${data['total_tagihan']}", "${data['kd_emkl']}", "${data['status']}", "${data['no_nota_mti']}", "${data['tgl_nota_1']}")'><i class="fas fa-file-alt text-danger"></i></a>`;
@@ -257,7 +257,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            const SAP_URL = "{{ env('SAP_URL') }}";
+                            const SAP_URL = "http://inco.pelindo.co.id/";
                             if (data['cek'] == '0') {
                                 // if ( `{{ Session::get('ID_GROUP') }}` == 'L' || `{{ Session::get('ID_GROUP') }}` == 'J' || `{{ Session::get('ID_GROUP') }}` == 'P' || `{{ Session::get('ID_GROUP') }}` == 'K') {
                                 //     act = `<a href="#" onclick='pay("${data['no_nota']}", "${data['no_request']}", "${data['kegiatan']}", "${data['total_tagihan']}", "${data['kd_emkl']}", "${data['status']}", "${data['no_nota_mti']}", "${data['tgl_nota_1']}")'><i class="fas fa-file-alt text-danger"></i></a>`;

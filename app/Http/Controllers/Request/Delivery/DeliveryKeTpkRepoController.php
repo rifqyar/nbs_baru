@@ -63,7 +63,7 @@ class DeliveryKeTpkRepoController extends Controller
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
-        
+
         $viewData = $this->deliveryTpk->editDo($request);
         return response()->json($viewData);
     }
@@ -107,7 +107,7 @@ class DeliveryKeTpkRepoController extends Controller
         $viewData = $this->deliveryTpk->pbm($request->term);
         return response()->json($viewData);
     }
-    
+
     function refcal(Request $request)
     {
         $viewData = $this->deliveryTpk->refcal($request->term);
@@ -116,7 +116,7 @@ class DeliveryKeTpkRepoController extends Controller
 
     function addDoTpk(Request $request)
     {
-        $viewData = $this->deliveryTpk->addDoTpk($request->term);
+        $viewData = $this->deliveryTpk->addDoTpk($request);
         return response()->json($viewData);
     }
 }

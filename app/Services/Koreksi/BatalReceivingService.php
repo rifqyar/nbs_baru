@@ -36,7 +36,7 @@ class BatalReceivingService
             $cek_gati = "SELECT * FROM GATE_IN WHERE NO_CONTAINER='$no_cont' AND NO_REQUEST = '$no_req'";
             $rw_gate = DB::connection('uster')->selectOne($cek_gati);
 
-            if ($rw_gate->no_container != NULL) {
+            if (!empty($rw_gate)) {
                 throw new Exception('Container Sudah Gate In', 400);
             }
 

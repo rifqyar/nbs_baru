@@ -215,10 +215,11 @@ class PerpanjanganStripping
         $count          = "SELECT COUNT(a.NO_CONTAINER) JUMLAH FROM CONTAINER_STRIPPING a WHERE a.NO_REQUEST = '$no_req' AND a.AKTIF = 'Y'";
         $row_count        = DB::connection('uster')->selectOne($count);
 
-        $get_tgl         = " SELECT a.NO_CONTAINER,
-                                TO_DATE (a.TGL_SELESAI, 'dd/mm/rrrr') + 1 TGL_SELESAI
+        $get_tgl         = "SELECT a.NO_CONTAINER,
+                                a.TGL_SELESAI + 1 AS TGL_SELESAI
                             FROM CONTAINER_STRIPPING a
-                            WHERE a.NO_REQUEST = '$no_req' AND AKTIF = 'Y'
+                            WHERE a.NO_REQUEST = '$no_req'
+                            AND a.AKTIF = 'Y'
                             ORDER BY a.NO_CONTAINER";
         $row_tgl        = DB::connection('uster')->selectOne($get_tgl);
 

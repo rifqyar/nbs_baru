@@ -598,7 +598,7 @@
 
             $('#COMMODITY').on('select2:select', function(e) {
                 var data = e.params.data;
-                $("#COMMODITY").val(data.nm_commodity);
+                // $("#COMMODITY").val(data.nm_commodity);
                 $("#KD_COMMODITY").val(data.kd_commodity);
                 $("#TGL_EMPTY").focus();
             })
@@ -742,7 +742,8 @@
             var type_ = $("#TYPE").val();
             var status = $("#STATUS").val();
             var berbahaya_ = $("#BERBAHAYA").val();
-            var commodity_ = $("#COMMODITY").val();
+            // var commodity_ = $("#COMMODITY").val();
+            var commodity_ = $("#COMMODITY option:selected").text();;
             var kd_commodity_ = $("#KD_COMMODITY").val();
             var jenis_ = $("#JENIS").val();
             var no_seal = $("#NO_SEAL").val();

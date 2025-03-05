@@ -139,6 +139,7 @@ Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' 
             Route::post('/save-cont', [PerencanaanStrippingController::class, 'saveCont']);
             Route::post('/approve-cont', [PerencanaanStrippingController::class, 'approveCont']);
             Route::post('/save-req', [PerencanaanStrippingController::class, 'saveReq']);
+            Route::get('/delete-cont/{no_cont}/{noReq}/{noReq2}', [PerencanaanStrippingController::class, 'deleteCont'])->name('.delcont');
 
             // Get master data
             Route::get('/data-pbm', [PerencanaanStrippingController::class, 'getDataPBM'])->name('data-pbm');

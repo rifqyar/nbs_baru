@@ -670,7 +670,7 @@ function updateTglApprove(noCont, index) {
                             Swal.close();
                             input_success(data);
                             setTimeout(() => {
-                                window.location.reload()
+                                window.location.reload();
                             }, 1000);
                         },
                     });
@@ -797,28 +797,28 @@ async function saveCont(formId) {
     }, 750);
 }
 
-function saveReq(total){
+function saveReq(total) {
     Swal.fire({
-        title: 'Approve Request',
+        title: "Approve Request",
         text: "Apakah Anda yakin ingin melakukan approve request ini?",
-        type: 'warning',
+        type: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, Approve',
-        cancelButtonText: 'Batal'
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Approve",
+        cancelButtonText: "Batal",
     }).then((result) => {
         if (result.value) {
             for (let i = 1; i <= total; i++) {
-                var formData = new FormData()
+                var formData = new FormData();
                 var remark = $(`input[name='remarks_${i}']`).val();
                 var no_cont = $(`input[name='no_cont_${i}']`).val();
-                var no_req = $('#no_req').val()
+                var no_req = $("#no_req").val();
 
-                formData.append('_token', $('input[name="_token"]').val());
-                formData.append('no_req', no_req);
-                formData.append('remark', remark);
-                formData.append('no_cont', no_cont);
+                formData.append("_token", $('input[name="_token"]').val());
+                formData.append("no_req", no_req);
+                formData.append("remark", remark);
+                formData.append("no_cont", no_cont);
 
                 ajaxPostFile(
                     "/request/stripping/stripping-plan/save-req",
@@ -827,11 +827,34 @@ function saveReq(total){
                 );
             }
 
-            window.location.href = '/request/stripping/stripping-plan'
+            window.location.href = "/request/stripping/stripping-plan";
         } else {
             return false;
         }
-    })
+    });
+}
+
+function delCont(noCont, noReq, noReq2) {
+    Swal.fire({
+        title: `Apakah anda yakin ingin menghapus data Container (${noCont})?`,
+        text: `Data yang sudah dihapus tidak dapat dikembalikan`,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        cancelButtonText: "Batal",
+        confirmButtonText: "Ya, Hapus Data",
+    }).then(async (result) => {
+        if (result.value == true) {
+            await ajaxGetJson(
+                `/request/stripping/stripping-plan/delete-cont/${noCont}/${noReq}/${noReq2}`,
+                "input_success",
+                "get_error"
+            );
+        } else {
+            return false;
+        }
+    });
 }
 /** End Of Post Data (Save / Edit / Delete) Section */
 /** =============================================== */

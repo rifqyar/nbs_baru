@@ -327,7 +327,7 @@
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-sm btn-danger"
-                                                        onclick="delCont(`{{ $cnt->no_container }}`)">Hapus</button>
+                                                        onclick="delCont(`{{ $cnt->no_container }}`, `{{ $request->row_request->no_request_plan }}`, `{{ $request->row_request->o_reqnbs }}`)">Hapus</button>
                                                 </td>
                                             </tr>
                                             @php

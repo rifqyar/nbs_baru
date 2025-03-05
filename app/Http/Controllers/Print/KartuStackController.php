@@ -49,12 +49,12 @@ class KartuStackController extends Controller
             if (count($data) > 0) {
                 if ($data["lunas"] == "YES" && $data["cetak_kartu"] == 0) {
                     $no_req    = $data["no_request"];
-                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK KARTU </a> <br/> ';
-                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded mt-2 w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK KARTU PDF </a>';
+                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK KARTU </a> <br/> ';
+                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded mt-2 w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK KARTU PDF </a>';
                 } else if ($data["cetak_kartu"] > 0 && $data["lunas"] == "YES") {
                     $no_req    = $data["no_request"];
-                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK ULANG</a> <br/>';
-                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded mt-2 w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK ULANG PDF </a>';
+                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK ULANG</a> <br/>';
+                    $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded mt-2 w-100" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK ULANG PDF </a>';
                 } else {
                     $html .= "BELUM LUNAS";
                 }
@@ -65,10 +65,10 @@ class KartuStackController extends Controller
             $kartu = $data["cetak_kartu"];
             if ($kartu == 0) {
                 $no_req    = $data["no_request"];
-                $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK KARTU </a>';
+                $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'view']) . '" target="_blank"> CETAK KARTU </a>';
             } else if ($kartu > 0) {
                 $no_req    = $data["no_request"];
-                $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded" href="' . route('uster.print.kartu_merah.print', ['no_req' => base64_encode($data['no_request']), 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK ULANG </a>';
+                $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded" href="' . route('uster.print.kartu_merah.print', ['no_req' => $data['no_request'], 'rec_from' => $data['receiving_dari'], 'type' => 'pdf']) . '" target="_blank"> CETAK ULANG </a>';
             }
         }
 
@@ -77,7 +77,7 @@ class KartuStackController extends Controller
 
     public function print(Request $request)
     {
-        $no_request = base64_decode($request->no_req);
+        $no_request = $request->no_req;
         $rec_dari = $request->rec_from;
 
         $statusLunas = $this->service->cekStatusLunas($no_request);

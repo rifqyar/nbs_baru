@@ -51,11 +51,11 @@ class CetakSP2Controller extends Controller
         $html = '';
         $data = json_decode(json_encode($data), true);
         if ($data['lunas'] == "YES") {
-            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => base64_encode($data['no_request']), 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
+            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => $data['no_request'], 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
         } else if (($data['lunas'] == 0) && ($data['peralihan'] == 'T') && ($data['delivery_ke'] == 'TPK')) {
-            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => base64_encode($data['no_request']), 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
+            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => $data['no_request'], 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
         } else if (($data['lunas'] == 0) && ($data['peralihan'] == 'NOTA_KIRIM')) {
-            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => base64_encode($data['no_request']), 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
+            $html .=  '<a class="btn btn-sm btn-outline-info btn-rounded w-100" href="' . route('uster.print.sp2.print', ['no_req' => $data['no_request'], 'peralihan' => $data['peralihan']]) . '" target="_blank"> Cetak Kartu SP2  </a> <br/> ';
         } else {
             $html .=  '<span class="text-danger">Nota Belum Lunas</span>';
         }
@@ -67,7 +67,6 @@ class CetakSP2Controller extends Controller
     {
         $name = Session::get('name');
         $no_req     = $request->no_req;
-        $no_req = base64_decode($no_req);
         $peralihan = $request->peralihan;
 
         if ($peralihan == 'NOTA_KIRIM') {

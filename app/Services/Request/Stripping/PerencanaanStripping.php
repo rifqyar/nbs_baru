@@ -800,7 +800,7 @@ class PerencanaanStripping
             DB::connection('uster')->statement($query_del3);
             DB::connection('uster')->statement($query_del4);
 
-            $req = $row['NO_REQUEST_APP_STRIPPING'];
+            $req = $row->no_request_app_stripping;
             $query_del6    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
             $query_del7    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";
             $query_del8    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";

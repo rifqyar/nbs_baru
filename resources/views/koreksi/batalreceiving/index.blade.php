@@ -180,7 +180,7 @@ Batal Container Receiving MTY
                 if (data.status['code'] == 200) {
                     sAlert('Berhasil!', data.status['msg'], 'success');
                 } else {
-                    sAlert('Gagal!', 'Container Sudah Gate in', 'danger');
+                    sAlert('Gagal!', data.status['msg'], 'error');
                 }
             },
             error: function(xhr, status, error) {

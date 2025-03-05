@@ -71,7 +71,7 @@ use App\Http\Controllers\Report\StuffingStrippingController;
 use App\Http\Controllers\Tca\TcaByCancelationController;
 use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
-
+use App\Http\Controllers\Print\CetakSP2Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -1241,9 +1241,7 @@ Route::group(['prefix' => 'print', 'as' => 'uster.print.', 'middleware' => 'chec
             ->name('GetTruckStuffing');
     });
 
-
     Route::group([], function () {
-
         Route::get('/rec_card_repo', [KartuRepoController::class, 'KartuRepo'])
             ->name('rec_card_repo');
 
@@ -1258,6 +1256,12 @@ Route::group(['prefix' => 'print', 'as' => 'uster.print.', 'middleware' => 'chec
         Route::get('/', [KartuStackController::class, 'index'])->name('');
         Route::post('/data', [KartuStackController::class, 'data'])->name('.data');
         Route::get('/print', [KartuStackController::class, 'print'])->name('.print');
+    });
+
+    Route::group(['prefix' => 'sp2', 'as' => 'sp2'], function () {
+        Route::get('/', [CetakSP2Controller::class, 'index'])->name('');
+        Route::post('/data', [CetakSP2Controller::class, 'data'])->name('.data');
+        Route::get('/print', [CetakSP2Controller::class, 'print'])->name('.print');
     });
 });
 

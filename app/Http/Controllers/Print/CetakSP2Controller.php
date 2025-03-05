@@ -136,10 +136,10 @@ class CetakSP2Controller extends Controller
                 $sp_id = "SELECT b.no_container, b.NAME, B.SLOT_, B.ROW_, B.TIER_ from (select placement.no_container,blocking_area.NAME, placement.SLOT_, 		placement.ROW_, placement.TIER_ from placement left join blocking_area on BLOCKING_AREA.ID = PLACEMENT.ID_BLOCKING_AREA
 			                left join yard_area on blocking_area.ID_YARD_AREA = yard_area.ID order by tgl_update desc) b where  rownum <= 1 and no_container = '$nocont'";
                 $r = DB::connection('uster')->selectOne($sp_id);
-                $val->name = $r->name;
-                $val->slot_ = $r->slot_;
-                $val->row_ = $r->row_;
-                $val->tier_ = $r->tier_;
+                $val->name = $r->name ?? '-';
+                $val->slot_ = $r->slot_ ?? '-';
+                $val->row_ = $r->row_ ?? '-';
+                $val->tier_ = $r->tier_ ?? '-';
             }
         }
 

@@ -116,7 +116,7 @@
                 <td colspan="2" style="padding-left:45px"></td>
             </tr>
             <tr>
-                <td height="44">User : {{ $name }}</td>
+                <td height="44">User : </td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>
                 <td>&nbsp;</td>

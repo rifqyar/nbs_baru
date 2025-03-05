@@ -392,32 +392,23 @@ $("#NO_CONT").autocomplete({
             var containerDischDate = new Date(
                 year,
                 month,
-                day,
-                hours,
-                minutes,
-                seconds
+                day
             );
 
             // Check if date creation is valid
             if (isNaN(containerDischDate.getTime())) {
                 console.error("Invalid date format");
             } else {
-                // Add 5 days
+                // Add 4 days
                 containerDischDate.setDate(containerDischDate.getDate() + 4);
 
-                // Format the date as DD-MM-YYYY HH:mm:ss
+                // Format the date as YYYY-MM-DD HH:mm:ss
                 var formattedDate =
-                    ("0" + containerDischDate.getDate()).slice(-2) +
+                    containerDischDate.getFullYear() +
                     "-" +
                     ("0" + (containerDischDate.getMonth() + 1)).slice(-2) +
                     "-" +
-                    containerDischDate.getFullYear() +
-                    " " +
-                    ("0" + containerDischDate.getHours()).slice(-2) +
-                    ":" +
-                    ("0" + containerDischDate.getMinutes()).slice(-2) +
-                    ":" +
-                    ("0" + containerDischDate.getSeconds()).slice(-2);
+                    ("0" + containerDischDate.getDate()).slice(-2)
             }
 
             $("#TGL_SELESAI").val(formattedDate);

@@ -381,7 +381,7 @@ class PerpanjanganDeliveryKeLuarService
                 if ($request['TGL_PERP_' . $g] != NULL) {
                     $query      = "SELECT a.NO_CONTAINER FROM container_delivery a WHERE  a.NO_CONTAINER = '$NO_CONT[$g]' AND NO_REQUEST = '$no_req_new'";
                     $cek        = DB::connection('uster')->selectOne($query);
-                    $no_cont_   = $cek->no_container;
+                    $no_cont_   = $cek->no_container ?? null;
 
                     if ($no_cont_ == NULL) {
 
@@ -400,6 +400,11 @@ class PerpanjanganDeliveryKeLuarService
                         $cek        = DB::connection('uster')->selectOne($query);
                         $end_stack    = $cek->tgl_end;
 
+                        $start_stack = date('d-m-Y H:i:s', strtotime($start_stack));
+                        $end_stack = date('d-m-Y H:i:s', strtotime($end_stack));
+                        $TGL_PERP[$g] = date('d-m-Y H:i:s', strtotime($TGL_PERP[$g]));
+
+
                         $query_insert           = DB::connection('uster')
                             ->table('CONTAINER_DELIVERY')
                             ->insert([
@@ -409,9 +414,9 @@ class PerpanjanganDeliveryKeLuarService
                                 'AKTIF' => 'Y',
                                 'KELUAR' => 'N',
                                 'HZ' => $hz,
-                                'START_STACK' => DB::raw("TO_DATE('$start_stack', 'yyyy/mm/dd hh24:mi:ss')"),
-                                'START_PERP' => DB::raw("TO_DATE('$end_stack', 'yyyy/mm/dd hh24:mi:ss')"),
-                                'TGL_DELIVERY' => DB::raw("TO_DATE('$TGL_PERP[$g]', 'yyyy/mm/dd')"),
+                                'START_STACK' => DB::raw("TO_DATE('$start_stack', 'DD-MM-YYYY HH24:MI:SS')"),
+                                'START_PERP' => DB::raw("TO_DATE('$end_stack', 'DD-MM-YYYY HH24:MI:SS')"),
+                                'TGL_DELIVERY' => DB::raw("TO_DATE('$TGL_PERP[$g]', 'DD-MM-YYYY HH24:MI:SS')"),
                                 'VIA' => $via,
                                 'NOREQ_PERALIHAN' => $noreq_per,
                                 'ID_YARD' => $id_yard_,

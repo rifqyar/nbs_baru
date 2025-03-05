@@ -179,7 +179,7 @@
                                         <div class="d-flex justify-content-end">
                                             @if ($request->row_request->approve != 'Y')
                                                 <a href="javascript:void(0)" class="btn btn-outline-info"
-                                                    onclick="addContainer()">Tambah Container</a>
+                                                    onclick="addContainer()">Tambah Container (F2)</a>
                                             @endif
                                         </div>
                                     </div>

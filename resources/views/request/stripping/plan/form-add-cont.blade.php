@@ -93,7 +93,7 @@
             <i class="mdi mdi-chevron-left"></i> Cancel
         </button>
         <button type="submit" class="btn btn-info btn-rounded">
-            <i class="mdi mdi-content-save"></i> Simpan Container
+            <i class="mdi mdi-content-save"></i> Simpan Container (Enter)
         </button>
     </div>
 </form>

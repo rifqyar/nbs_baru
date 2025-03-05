@@ -808,6 +808,11 @@ class PerencanaanStripping
             DB::connection('uster')->statement($query_del7);
             DB::connection('uster')->statement($query_del8);
 
+            $query_update    = "UPDATE PLAN_REQUEST_STRIPPING SET CLOSING = NULL WHERE NO_REQUEST = '$no_req'";
+            $query_update2    = "UPDATE REQUEST_STRIPPING SET CLOSING = NULL WHERE NO_REQUEST = '$req'";
+            DB::connection('uster')->statement($query_update);
+            DB::connection('uster')->statement($query_update2);
+
             if ($counter > 0) {
                 $new_counter = $counter - 1;
             } else {

@@ -737,4 +737,104 @@ class PerencanaanStripping
             ], 500);
         }
     }
+
+    function deleteCont($no_cont, $no_req, $no_req2)
+    {
+        DB::beginTransaction();
+        try {
+            $q_get = "SELECT O_IDVSB FROM REQUEST_STRIPPING WHERE NO_REQUEST = REPLACE('$no_req','P','S')";
+            $rget  = DB::connection('uster')->selectOne($q_get);
+            $idvsb = $rget->o_idvsb;
+
+            if ($no_req2 != NULL) {
+                //==============================================================Interface to OPUS==========================================================================//
+                //======================================================================================================================================================//
+                $query_del    = "DELETE FROM req_delivery_d WHERE (TRIM(NO_CONTAINER) = TRIM('$no_cont')) AND (TRIM(ID_REQ) = TRIM('$no_req2'))";
+                $qparam = "select a.vessel_code, a.voyage_in, b.carrier, b.voyage from m_vsb_voyage@dbint_link a, m_cyc_container@dbint_link b
+                    where a.vessel_code = b.vessel_code and a.voyage = b.voyage
+                    and b.no_container = TRIM('$no_cont') and a.ID_VSB_VOYAGE = '$idvsb'";
+                $rparam = DB::connection('default')->selectOne($qparam);
+                $vessel = $rparam->vessel_code ?? null;
+                $voyage = isset($rparam->voyage) ? $rparam->voyage : null;
+                $operatorId = $rparam->carrier ?? null;
+
+                $param_b_var = array(
+                    "v_nocont" => TRIM($no_cont),
+                    "v_req" => TRIM($no_req2),
+                    "flag" => "DEL",
+                    "vessel" => "$vessel",
+                    "voyage" => "$voyage",
+                    "operatorId" => "$operatorId",
+                    "v_response" => "",
+                    "v_msg" => ""
+                );
+                $query = "declare begin proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+                //harusnya ditambahkan untuk delete ke billing_ops
+                $execDel = DB::connection('default')->statement($query_del);
+                if ($execDel) {
+                    DB::connection('default')->statement($query, $param_b_var);
+                    $msgout = $param_b_var['v_response'];
+                }
+                //==============================================================End Of Interface to OPUS======================================================================//
+                //==========================================================================================================================================================//
+            }
+
+            $query_master    = "SELECT COUNTER, NO_BOOKING FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont'";
+            $data            = DB::connection('uster')->selectOne($query_master);
+            $counter        = $data->counter;
+            $book            = $data->no_booking;
+
+            $query_history    = "SELECT NO_REQUEST_APP_STRIPPING, NO_REQUEST_RECEIVING FROM PLAN_REQUEST_STRIPPING WHERE NO_REQUEST = '$no_req'";
+            $row            = DB::connection('uster')->selectOne($query_history);
+
+            $qrec = "SELECT NO_REQUEST FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_BOOKING = '$book' AND KEGIATAN = 'REQUEST RECEIVING'";
+            $rreq = DB::connection('uster')->selectOne($qrec);
+            //foreach ($data_ as $row){
+            $req = $row->no_request_app_stripping;
+            $req_rec = $rreq->no_request;
+            $query_del2    = "DELETE FROM CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
+            $query_del3    = "DELETE FROM PLAN_CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
+            $query_del4    = "DELETE FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";
+
+            DB::connection('uster')->statement($query_del2);
+            DB::connection('uster')->statement($query_del3);
+            DB::connection('uster')->statement($query_del4);
+
+            $req = $row['NO_REQUEST_APP_STRIPPING'];
+            $query_del6    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
+            $query_del7    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";
+            $query_del8    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
+            DB::connection('uster')->statement($query_del6);
+            DB::connection('uster')->statement($query_del7);
+            DB::connection('uster')->statement($query_del8);
+
+            if ($counter > 0) {
+                $new_counter = $counter - 1;
+            } else {
+                $new_counter = $counter;
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => [
+                    'code' => 200,
+                    'msg' => 'Success Processing Data',
+                ],
+                'data' => null
+            ], 200);
+        } catch (Exception $th) {
+            DB::rollBack();
+            $error = DB::connection('uster')->getPdo()->errorInfo();
+            Log::error("Error Delete Cont Stripping : " . implode(', ', $error));
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Delete Container, Harap Coba lagi!'
+            ], 500);
+        }
+    }
 }

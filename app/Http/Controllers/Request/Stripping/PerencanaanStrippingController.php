@@ -122,7 +122,7 @@ class PerencanaanStrippingController extends Controller
 
     public function view($noReq)
     {
-        if($noReq == 'test'){
+        if ($noReq == 'test') {
             dd(env('PRAYA_API_TOS'));
         }
         $noReq = base64_decode($noReq);
@@ -897,6 +897,36 @@ class PerencanaanStrippingController extends Controller
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ], $th->getCode() != '' ? $th->getCode() : 500);
+        }
+    }
+
+    public function deleteCont($no_cont, $no_req, $no_req2)
+    {
+        try {
+            $exec = $this->stripping_plan->deleteCont($no_cont, $no_req, $no_req2);
+            if ($exec->getStatusCode() != 200) {
+                throw new Exception("Gagal Menghapus Container Stripping", 500);
+            }
+
+            $noReq = base64_encode($no_req);
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Menghapus Container Stripping',
+                'redirect' => [
+                    'need' => true,
+                    'to' => route('uster.new_request.stripping.perencanaan.edit', $noReq),
+                ]
+            ], 200);
+        } catch (Exception $th) {
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',

@@ -2561,6 +2561,8 @@ class printNotaMTI
             "date" => $dt,
             "NO_BL" => $no_bl,
             "NO_DO" => $no_do,
+            "NOTA_MTI" => $row_nota->no_nota_mti,
+            "FAKTUR_MTI" => $row_nota->no_faktur_mti,
             "NO_FAKTUR" => $row_nota->no_faktur_,
         ]);
 

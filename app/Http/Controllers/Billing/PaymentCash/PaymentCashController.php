@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -36,6 +37,11 @@ class PaymentCashController extends Controller
 
     function print(Request $request)
     {
+        Session::remove('NOTA_MTI');
+        Session::remove('NO_FAKTUR');
+        Session::remove('emkl');
+        Session::remove('npwp');
+        Session::remove('alamat');
         $viewData = $this->paymentCash->print($request);
         return new Response($viewData, 200, [
             'Content-Type' => 'application/pdf',

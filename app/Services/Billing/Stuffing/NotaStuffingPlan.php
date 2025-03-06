@@ -125,7 +125,7 @@ class NotaStuffingPlan
                 } else if (($cetak == 'Y') and ($lunas <> 'Y') and ($cetak1 <> 'Y') and ($lunas <> 'Y')) {
                     return '<a class="btn btn-info btn-sm mb-2" href="' . route('uster.billing.nota_stuffing.print_proforma', ['no_req' => $no_req]) . '" target="_blank"><b><i> <i class="fas fa-print"> </i>Proforma Stuffing </i></b></a>' .
                         ' | <a onclick="recalc(\'' . $req . '\',\'' . $notas . '\')" title="recalculate stuffing"><img src="' . asset('assets/images/money2.png') . '" ></a> <br>' .
-                        '<a class="btn btn-info btn-sm mb-2" href=".' . route('uster.billing.nota_stuffing.print_nota_pnkn', ['no_req' => $no_req]) . '&n=999&koreksi=N" target="_blank"> <b><i> <i class="fas fa-search-dollar"> </i>Proforma Penumpukan</i></b></a> ';
+                        '<a class="btn btn-info btn-sm mb-2" href="' . route('uster.billing.nota_stuffing.print_nota_pnkn', ['no_req' => $no_req]) . '&n=999&koreksi=N" target="_blank"> <b><i> <i class="fas fa-search-dollar"> </i>Proforma Penumpukan</i></b></a> ';
                 } else if (($cetak <> 'Y') and ($lunas <> 'Y') and ($cetak1 == 'Y') and ($lunas <> 'Y')) {
                     return '<a class="btn btn-info btn-sm mb-2" href="' . route('uster.billing.nota_stuffing.print_nota_simple', ['no_req' => $no_req]) . '&n=999&koreksi=N" target="_blank"> <b><i> <i class="fas fa-search-dollar"> </i>Proforma Stuffing</i></b></a> <br/>' .
                         '<a class="btn btn-info btn-sm mb-2" href="' . route('uster.billing.nota_stuffing.print_proforma_pnkn', ['no_req' => $no_req]) . '" target="_blank"><b><i> <i class="fas fa-print"> </i>Proforma Penumpukan </i></b></a> ' .
@@ -436,6 +436,189 @@ class NotaStuffingPlan
         return $returnData;
     }
 
+    function previewProformaPNKN($no_req, $koreksi)
+    {
+        $rowNota = DB::connection('uster')
+            ->table('request_stuffing as b')
+            ->join('v_mst_pbm as c', 'b.id_penumpukan', '=', 'c.kd_pbm')
+            ->selectRaw("
+                c.nm_pbm AS emkl,
+                c.no_npwp_pbm AS npwp,
+                c.almt_pbm AS alamat,
+                c.no_account_pbm,
+                TO_CHAR(b.tgl_request, 'DD-MM-RRRR') AS tgl_request,
+                F_CORPORATE(b.tgl_request) AS corporate
+            ")
+            ->where('b.no_request', $no_req)
+            ->first();
+
+        if ($rowNota) {
+            $reqTgl = $rowNota->tgl_request;
+            $kdPbm = $rowNota->no_account_pbm;
+            $display = 1;
+        }
+
+        if ($rowNota->emkl == NULL) {
+            $data_nota = DB::connection('uster')
+                ->table('request_stuffing as b')
+                ->join('v_mst_pbm as c', 'b.kd_consignee', '=', 'c.kd_pbm')
+                ->select([
+                    'c.nm_pbm as emkl',
+                    'c.no_npwp_pbm as npwp',
+                    'c.almt_pbm as alamat'
+                ])
+                ->where('b.no_request', $no_req)
+                ->first();
+        }
+
+        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'dd/mon/yyyy') TGL_REQUEST FROM request_stuffing WHERE NO_REQUEST = '$no_req'";
+        $tgl_req    = DB::connection('uster')->selectOne($query_tgl);
+        $tgl_re         = $tgl_req->tgl_request;
+
+        $sql_xpi = "DECLARE
+                        id_nota NUMBER;
+                        tgl_req DATE;
+                        no_request VARCHAR2(100);
+                        jenis VARCHAR2(100);
+                        err_msg VARCHAR2(100);
+                    BEGIN
+                        id_nota := 3;
+                        tgl_req := TO_DATE('$tgl_re', 'DD/mon/YYYY');
+                        no_request := '$no_req';
+                        err_msg := 'NULL';
+                        jenis := 'pnkn_stuffing';
+
+                        pack_get_nota_stuffing_new.create_detail_nota(id_nota, tgl_req, no_request, jenis, err_msg);
+                    END;";
+
+        $execDetailNota = DB::connection('uster')->statement($sql_xpi);
+
+        // Detail Nota
+        $row_detail = DB::connection('uster')
+            ->table('temp_detail_nota_i as a')
+            ->join('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+            ->select(
+                'a.jml_hari',
+                DB::raw("TO_CHAR(a.tarif, '999,999,999,999') as tarif"),
+                DB::raw("TO_CHAR(a.biaya, '999,999,999,999') as biaya"),
+                'a.keterangan',
+                'a.hz',
+                'a.jml_cont',
+                DB::raw("TO_CHAR(a.start_stack, 'DD/MM/YYYY') as start_stack"),
+                DB::raw("TO_CHAR(a.end_stack, 'DD/MM/YYYY') as end_stack"),
+                'b.size_',
+                'b.type_',
+                'b.status',
+                'a.urut'
+            )
+            ->where('a.no_request', $no_req)
+            ->whereNotIn('a.keterangan', ['ADMIN NOTA', 'MATERAI']) // Sesuai dengan filter
+            ->orderBy('a.urut', 'ASC')
+            ->get();
+
+        // Jumlah Container
+        $jumlah_cont = DB::connection('uster')
+            ->table('container_stuffing')
+            ->where('no_request', $no_req)
+            ->count();
+
+        // Tarif Pass
+        $row_pass = DB::connection('uster')
+            ->table('master_tarif as a')
+            ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
+            ->select(
+                DB::raw("TO_CHAR(($jumlah_cont * a.tarif), '999,999,999,999') as pass"),
+                DB::raw("($jumlah_cont * a.tarif) as tarif")
+            )
+            ->whereRaw("TO_DATE(?, 'dd/mm/yyyy') BETWEEN b.start_period AND b.end_period", [$tgl_re])
+            ->where('a.id_iso', 'PASS')
+            ->first();
+
+        $tarif_pass = $row_pass ? $row_pass->tarif : 0;
+
+        // Total Biaya
+        $total2 = DB::connection('uster')
+            ->table('temp_detail_nota_i')
+            ->select(
+                DB::raw('SUM(biaya) as total'),
+                DB::raw('SUM(ppn) as ppn'),
+                DB::raw('SUM(biaya) + SUM(ppn) as total_tagihan')
+            )
+            ->where('no_request', $no_req)
+            ->whereNotIn('id_iso', ['MATERAI'])
+            ->first();
+
+        $total = $total2->total ?? 0;
+        $ppn = $total2->ppn ?? 0;
+        $total_bayar = $total2->total_tagihan ?? 0;
+
+        //Discount
+        $discount = 0;
+        $query_discount        = "SELECT TO_CHAR($discount , '999,999,999,999') AS DISCOUNT FROM DUAL";
+        $row_discount        = DB::connection('uster')->selectOne($query_discount);
+
+        // Biaya Administrasi
+        $row_adm = DB::connection('uster')
+            ->table('master_tarif as a')
+            ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
+            ->select('a.tarif as adm')
+            ->where('b.kategori_tarif', 'ADMIN_NOTA')
+            ->first();
+
+        $adm = $row_adm ? $row_adm->adm : 0;
+
+        // Menghitung Total Dasar Pengenaan Pajak
+        $total_ = $total + $adm;
+        $row_tot = number_format($total_, 0, ',', '.');
+
+        // Menghitung Jumlah PPN (10%)
+        $row_ppn = number_format($ppn, 0, ',', '.');
+
+        // Menghitung Bea Materai
+        $row_mtr = DB::connection('uster')
+            ->table('temp_detail_nota_i')
+            ->select('biaya as bea_materai')
+            ->where('no_request', $no_req)
+            ->where('keterangan', 'MATERAI')
+            ->first();
+
+        $bea_materai = $row_mtr && $row_mtr->bea_materai > 0 ? $row_mtr->bea_materai : 0;
+        $row_materai = number_format($bea_materai, 0, ',', '.');
+
+        // Menghitung Pass Truck
+        $row_pass = number_format($tarif_pass, 0, ',', '.');
+
+        // Menghitung Jumlah Dibayar (Total + Bea Materai)
+        $total_bayar = $total_bayar + $bea_materai;
+        $row_bayar = number_format($total_bayar, 0, ',', '.');
+
+        // Pegawai Aktif
+        $nama_peg = DB::connection('uster')
+            ->table('master_pegawai')
+            ->where('status', 'AKTIF')
+            ->first();
+
+        $returnData = [
+            "row_discount" => $row_discount,
+            "nama_peg" => $nama_peg,
+            "tgl_nota" => $tgl_re,
+            "row_adm" => $row_adm,
+            "row_tot" => $row_tot,
+            "row_ppn" => $row_ppn,
+            "row_pass" => $row_pass,
+            "row_materai" => $row_materai,
+            "bea_materai" => $bea_materai,
+            "row_bayar" => $row_bayar,
+            "row_nota" => $rowNota,
+            "no_req" => $no_req,
+            "row_detail" => $row_detail,
+            "koreksi" => $koreksi,
+            "pnkn" => "yes",
+        ];
+
+        return $returnData;
+    }
+
     function PrintProforma($no_req)
     {
         $no_req = request()->input('no_req');
@@ -626,7 +809,6 @@ class NotaStuffingPlan
 
     function PrintProformaPNKN($no_req)
     {
-
         // Ambil NO_NOTA dari tabel nota_stuffing
         $notanya = DB::connection('uster')->table('nota_pnkn_stuf')
             ->whereRaw("TRIM(NO_REQUEST) = TRIM('$no_req')")
@@ -1028,11 +1210,9 @@ class NotaStuffingPlan
 
     function InsertProformaPNKN($request)
     {
-        $req = $request->input('REQ');
-
         try {
             // Mulai transaksi
-            DB::connection('uster')->beginTransaction();
+            DB::beginTransaction();
 
             $nipp   = session('LOGGED_STORAGE');
             $no_req = $request->input("no_req");
@@ -1040,8 +1220,8 @@ class NotaStuffingPlan
 
             $query_cek_nota     = "SELECT NO_NOTA, STATUS FROM NOTA_PNKN_STUF WHERE NO_REQUEST = '$no_req'";
             $nota    = DB::connection('uster')->selectOne($query_cek_nota);
-            $no_nota_cek        = $nota->no_nota;
-            $st_nota        = $nota->status;
+            $no_nota_cek        = $nota->no_nota ?? null;
+            $st_nota        = $nota->status ?? null;
 
             //cek no nota sudah ada atau belom
             if (($no_nota_cek == NULL && $st_nota == NULL) || ($no_nota_cek != NULL && $st_nota == 'BATAL')) {
@@ -1265,15 +1445,15 @@ class NotaStuffingPlan
                     DB::connection('uster')->delete($delete_temp);
 
                     return "OK-INSERT";
-                    DB::connection('uster')->commit();
+                    DB::commit();
                 }
             } else {
-                DB::connection('uster')->rollback();
+                DB::rollBack();
                 return "OK";
             }
         } catch (\Exception $e) {
             // Rollback transaksi jika terjadi kesalahan
-            DB::connection('uster')->rollback();
+            DB::rollBack();
             return $e->getMessage();
         }
     }

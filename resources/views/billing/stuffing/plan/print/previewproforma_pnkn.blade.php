@@ -88,7 +88,7 @@
                                 <div class="col-12 mt-4 pt-3">
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h6 class="text-center font-medium">PERHITUNGAN PELAYANAN JASA <br> KEGIATAN
-                                            STUFFING</h6>
+                                            PENUMPUKAN STUFFING</h6>
                                     </div>
                                 </div>
                             </div>
@@ -194,7 +194,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_adm->tarif, 0, ',', '.') }}
+                                                {{ number_format($row_adm->adm, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -206,7 +206,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_tot, 0, ',', '.') }}
+                                                {{ $row_tot }}
                                             </span>
                                         </div>
                                     </div>
@@ -218,7 +218,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_ppn, 0, ',', '.') }}
+                                                {{ $row_ppn }}
                                             </span>
                                         </div>
                                     </div>
@@ -231,7 +231,7 @@
                                             <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                             <div class="col-lg-4 col-md-12 text-right">
                                                 <span class="text-dark font-medium">
-                                                    {{ number_format($row_materai->materai, 0, ',', '.') }}
+                                                    {{ $row_materai }}
                                                 </span>
                                             </div>
                                         </div>
@@ -294,7 +294,6 @@
 
     <script>
         function insertNota() {
-
             Swal.fire({
                 title: 'Simpan Nota?',
                 text: 'Apakah Anda Yakin Untuk Save Proforma {{ request()->input('no_req') }}?',
@@ -312,7 +311,7 @@
 
                     Swal.showLoading();
 
-                    var url = "{{ route('uster.billing.nota_stuffing.insert_proforma') }}";
+                    var url = "{{ route('uster.billing.nota_stuffing.insert_proforma_pnkn') }}";
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -330,8 +329,9 @@
                             }).then((result) => {
                                 if (result.value) {
                                     window.open(
-                                        "{{ route('uster.billing.nota_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}",
-                                        '_self');
+                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}",
+                                        '_self'
+                                    );
                                 }
                             });
                         } else if (data == 'OK-INSERT') {
@@ -342,8 +342,9 @@
                             }).then((result) => {
                                 if (result.value) {
                                     window.open(
-                                        "{{ route('uster.billing.nota_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}&first=1",
-                                        '_self');
+                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}&first=1",
+                                        '_self'
+                                    );
                                 }
                             });
                         } else {

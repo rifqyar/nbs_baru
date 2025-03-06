@@ -58,7 +58,6 @@ class NotaStuffingController extends Controller
 
         $generator = new BarcodeGeneratorPNG();
         $barcode = $generator->getBarcode($data['data']->no_nota_mti, $generator::TYPE_CODE_128);
-        $data['barcode'] = $barcode;
         $date = date("d M Y H:i:s");
         $data['barcode'] = $barcode;
         $data['date'] = $date;
@@ -69,7 +68,6 @@ class NotaStuffingController extends Controller
         $pdf->setOption('margin-right', 1);
         $pdf->setOption('margin-bottom', 1);
         $pdf->setOption('margin-left', 1);
-        return $pdf->stream('invoice.pdf');
         return $pdf->stream('invoice.pdf');
     }
 
@@ -93,8 +91,9 @@ class NotaStuffingController extends Controller
         }
         $generator = new BarcodeGeneratorPNG();
         $barcode = $generator->getBarcode($data['data']->no_nota_mti, $generator::TYPE_CODE_128);
+        $date = date("d M Y H:i:s");
         $data['barcode'] = $barcode;
-
+        $data['date'] = $date;
 
         $pdf = Pdf::loadView('billing.stuffing.plan.print.proforma_pnkn', $data);
         $pdf->setPaper('a7');
@@ -102,7 +101,6 @@ class NotaStuffingController extends Controller
         $pdf->setOption('margin-right', 1);
         $pdf->setOption('margin-bottom', 1);
         $pdf->setOption('margin-left', 1);
-        return $pdf->stream('invoice.pdf');
         return $pdf->stream('invoice.pdf');
     }
 
@@ -139,17 +137,8 @@ class NotaStuffingController extends Controller
         }
 
         $data = array();
-        $data =  $this->stuffing->PrintProformaPNKN($request->input('no_req'));
-        if($data == 'NOT_FOUND'){
-            return redirect()->route('uster.billing.nota_stuffing');
-        }
-        $generator = new BarcodeGeneratorPNG();
-        $barcode = $generator->getBarcode($data['data']->no_nota_mti, $generator::TYPE_CODE_128);
-        $data['barcode'] = $barcode;
-
-
-        return view('billing.stuffing.plan.print.cetak_nota_pnkn', $data);
-
+        $data =  $this->stuffing->previewProformaPNKN($request->input('no_req'), $request->koreksi);
+        return view('billing.stuffing.plan.print.previewproforma_pnkn', $data);
     }
 
     function recalcStuffing(Request $Request)

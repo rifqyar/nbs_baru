@@ -1,132 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nota Stuffing</title>
-    <style>
-        html {
-            margin: 10px
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 8px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th,
-        td {
-            border: 1px solid black;
-            padding: 3px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        .title {
-            font-size: 10px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 5px;
-        }
-
-        .info {
-            font-size: 7px;
-            margin-bottom: 5px;
-        }
-
-        .thanks {
-            font-size: 7px;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .barcode {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .barcode img {
-            width: 250px;
-            /* Atur lebar gambar */
-            height: auto;
-            /* Biarkan tinggi gambar disesuaikan secara proporsional */
-        }
-
-
-        .page-break {
-            page-break-after: always;
-        }
-
-        .border-box {
-            border: 1px solid #000;
-            padding: 10px;
-        }
-
-        .stamp {
-            position: absolute;
-            width: 100%;
-            height: 150px;
-            /* Adjust height according to your image */
-            background-image: url('data:image/png;base64,{{ base64_encode(file_get_contents(public_path('/assets/images/lunas.png'))) }}');
-            background-size: cover;
-            text-align: center;
-            top: 20%;
-            opacity: 0.3;
-            /* Atur transparansi menjadi 50% */
-        }
-    </style>
-</head>
-
-<body>
-    {{-- <div class="stamp"> </div> --}}
-    <div class="barcode">
-        <img src="data:image/png;base64,'.{{ base64_encode($barcode) }}.'" alt="barcode">
-        <span>{{ $data->no_nota_mti }}</span><br>
-        <span><strong>STUFFING</strong></span>
-    </div>
-    <span><strong>Nomor Nota</strong> : {{ $data->no_nota_mti }}</span><br>
-    <span><strong>Tanggal</strong> : {{ $date }}</span><br>
-    <span><strong>Nomor SFP</strong> : {{ $data->no_request }}</span><br>
-    <span><strong>Perusahaan</strong> : {{ $data->nama }}</span><br>
-    <span><strong>Deskripsi</strong> : {{ $data->npwp }}</span><br>
-    <span><strong>Alamat</strong> : {{ $data->alamat }}</span><br>
-    <table>
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Deskripsi</th>
-                <th>Tarif</th>
-                <th>HZ</th>
-                <th>Jumlah</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php
-                $i = 1;
-            @endphp
-            @foreach ($detail as $item)
-<tr>
-                    <td>{{ $i }}</td>
-                    <td>{{ $item->keterangan }}</td>
-                    <td>{{ $item->size_ . $item->type_ . $item->status }}</td>
-                    <td>{{ $item->hz }}</td>
-                    <td>{{ $item->tarif }}</td>
-                    <td>{{ $item->biaya }}</td>
-                </tr>
-                @php
-                    $i++;
-                @endphp
-@endforeach
--->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -295,7 +166,7 @@
             <td colspan="2" align="right"><b>0.00</b></td>
         </tr>
 
-        @if (intval($data_mtr = $data_mtr->biaya ?? 0) > 0)
+        @if (intval($bea_materai = $bea_materai ?? 0) > 0)
             <tr>
                 <td colspan="8" align="right"><b>Bea Materai :</b></td>
                 <td colspan="2" align="right"><b>{{ $bea_materai }}</b></td>
@@ -314,7 +185,7 @@
         </tr>
     </table>
     printed by {!! $nama_lengkap !!}
-    @if (intval($data_mtr = $data_mtr->biaya ?? 0) > 0)
+    @if (intval($bea_materai = $bea_materai ?? 0) > 0)
         <table>
             <tr>
                 <td colspan="8">&nbsp;</td>

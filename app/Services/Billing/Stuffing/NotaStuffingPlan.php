@@ -1238,7 +1238,7 @@ class NotaStuffingPlan
                 $month        = $jum_->month;
                 $year        = $jum_->year;
 
-                $no_nota    = "0405" . $month . $year . $jum;
+                $no_nota    = "1205" . $month . $year . $jum;
 
                 // Cek NO NOTA MTI
                 // firman 20 agustus 2020

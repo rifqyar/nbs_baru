@@ -55,10 +55,13 @@ class NotaStuffingController extends Controller
         if($data == 'NOT_FOUND'){
             return redirect()->route('uster.billing.nota_stuffing');
         }
+
         $generator = new BarcodeGeneratorPNG();
         $barcode = $generator->getBarcode($data['data']->no_nota_mti, $generator::TYPE_CODE_128);
         $data['barcode'] = $barcode;
-
+        $date = date("d M Y H:i:s");
+        $data['barcode'] = $barcode;
+        $data['date'] = $date;
 
         $pdf = Pdf::loadView('billing.stuffing.plan.print.proforma', $data);
         $pdf->setPaper('a7');
@@ -117,16 +120,9 @@ class NotaStuffingController extends Controller
         }
 
         $data = array();
-        $data =  $this->stuffing->PrintProforma($request->input('no_req'));
-        if($data == 'NOT_FOUND'){
-            return redirect()->route('uster.billing.nota_stuffing');
-        }
-        $generator = new BarcodeGeneratorPNG();
-        $barcode = $generator->getBarcode($data['data']->no_nota_mti, $generator::TYPE_CODE_128);
-        $data['barcode'] = $barcode;
+        $data =  $this->stuffing->previewProforma($request->input('no_req'), $request->koreksi);
 
-
-        return view('billing.stuffing.plan.print.cetak_nota', $data);
+        return view('billing.stuffing.plan.print.previewproforma', $data);
     }
 
     function PrintNotaPNKN(Request $request)
@@ -153,7 +149,7 @@ class NotaStuffingController extends Controller
 
 
         return view('billing.stuffing.plan.print.cetak_nota_pnkn', $data);
-        
+
     }
 
     function recalcStuffing(Request $Request)
@@ -167,7 +163,7 @@ class NotaStuffingController extends Controller
         $data =  $this->stuffing->recalcStuffingPNKN($Request);
         return response()->json($data);
     }
-    
+
     function InsertProforma(Request $Request)
     {
         $data =  $this->stuffing->InsertProforma($Request);

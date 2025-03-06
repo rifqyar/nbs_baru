@@ -458,7 +458,7 @@
                     </div>
                     <div id="button_save" class="text-center my-3">
                         <button class="btn btn-info" onClick="add_cont()"><i class="fas fa-plus"></i> Tambah
-                            Perencanaan
+                            Container
                             Stuffing</button>
                     </div>
                     <div class="card p-2">
@@ -1099,6 +1099,10 @@
                     }
                 }
             });
+        }
+
+        function save_request(total) {
+            window.location.href = '/request/stuffing/stuffing_plan'
         }
     </script>
 @endsection

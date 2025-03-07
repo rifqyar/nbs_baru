@@ -817,8 +817,6 @@ function saveReq(total) {
                     "input_success"
                 );
             }
-
-            window.location.href = "/request/stripping/stripping-plan";
         } else {
             return false;
         }

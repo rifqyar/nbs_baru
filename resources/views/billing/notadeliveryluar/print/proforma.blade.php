@@ -108,7 +108,7 @@
             <td style="text-align: right;">{{ $date }}</td>
         </tr>
     </table>
-    <b><span>{{ $data->no_request }}</span></b><br>
+    <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br>
     <b style="font-size: 6pt">DELIVERY KE LUAR</b><br />
     <b><span>{{ $data->nama }}</span></b><br>
     <b><span>{{ $data->npwp }}</span></b><br>

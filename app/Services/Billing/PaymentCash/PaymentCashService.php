@@ -3885,8 +3885,8 @@ class printNotaMTI
         $terbilang       = $row_nota->terbilang;
         $total_tagihan  = $row_nota->total_tagihan;
         $nama_lengkap  = $row_nota->nama_lengkap;
-        $no_do  = $row_nota->no_do;
-        $no_bl  = $row_nota->no_bl;
+        $no_do  = $row_nota->no_do ?? null;
+        $no_bl  = $row_nota->no_bl ?? null;
         $nota_mti          = $row_nota->no_nota_mti;
         $faktur_mti      = $row_nota->no_faktur_mti;
 

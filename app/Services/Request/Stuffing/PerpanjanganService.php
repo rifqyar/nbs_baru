@@ -66,11 +66,11 @@ class PerpanjanganService
                                 request_stuffing.NO_JPB,
                                request_stuffing.BPRP,
                                 container_stuffing.KETERANGAN,
-                                container_stuffing.COMMODITY COMMO 
+                                container_stuffing.COMMODITY COMMO
                                    FROM CONTAINER_STUFFING
-                                            INNER JOIN REQUEST_STUFFING            
+                                            INNER JOIN REQUEST_STUFFING
                                            ON CONTAINER_STUFFING.NO_REQUEST = REQUEST_STUFFING.NO_REQUEST
-                                            INNER JOIN v_mst_pbm e     
+                                            INNER JOIN v_mst_pbm e
                                            ON REQUEST_STUFFING.KD_CONSIGNEE =e.KD_PBM AND e.KD_CABANG = '05'
                                            WHERE CONTAINER_STUFFING.NO_REQUEST = '$no_req'";
 
@@ -88,7 +88,7 @@ class PerpanjanganService
                               FROM CONTAINER_STUFFING a, request_stuffing rs
                              WHERE     a.NO_REQUEST = '$no_req'
                                    AND AKTIF = 'Y'
-                                   AND a.no_request = rs.no_request 
+                                   AND a.no_request = rs.no_request
                              ORDER BY a.NO_CONTAINER";
 
         $row_tgl        = DB::connection('uster')->select($get_tgl);
@@ -132,8 +132,8 @@ class PerpanjanganService
                 $query_list = "SELECT * FROM (
 							SELECT rb.NO_REQUEST,
                                      emkl.NM_PBM AS NAMA_CONSIGNEE,
-                                    --pnmt.NM_PBM AS NAMA_PENUMPUK, 
-                                    NVL(rb.PERP_DARI,'-') AS EX_REQ, 
+                                    --pnmt.NM_PBM AS NAMA_PENUMPUK,
+                                    NVL(rb.PERP_DARI,'-') AS EX_REQ,
                                     rb.PERP_KE,
                                     rb.NOTA CETAK_NOTA_BARU,
                                     rl.NOTA CETAK_NOTA_LAMA,
@@ -146,30 +146,30 @@ class PerpanjanganService
 									rb.no_booking,
 									rb.stuffing_dari,
                                     rb.o_idvsb
-                            FROM request_stuffing rb, --request baru  
-                                      request_stuffing rl, --request lama 
-                                      V_MST_PBM emkl, 
-                                      container_stuffing, 
+                            FROM request_stuffing rb, --request baru
+                                      request_stuffing rl, --request lama
+                                      V_MST_PBM emkl,
+                                      container_stuffing,
                                       nota_stuffing nb,
                                       nota_stuffing nl
                             WHERE rb.KD_CONSIGNEE = emkl.KD_PBM AND emkl.KD_CABANG = '05'
-                                AND rb.NO_REQUEST = container_stuffing.NO_REQUEST 
+                                AND rb.NO_REQUEST = container_stuffing.NO_REQUEST
                                 AND rb.NO_REQUEST = nb.NO_REQUEST(+)
                                 AND rb.NO_REQUEST = '$no_req'
                                 AND rl.NO_REQUEST = nl.NO_REQUEST(+)
                                 AND container_stuffing.NO_REQUEST IS NOT NULL
                                 AND container_stuffing.AKTIF = 'Y'
                                 AND rb.PERP_DARI = rl.NO_REQUEST(+)
-                            GROUP BY  rb.NO_REQUEST,rb.TGL_REQUEST, 
+                            GROUP BY  rb.NO_REQUEST,rb.TGL_REQUEST,
                                             NVL(nl.LUNAS, 0),
                                             NVL(nb.LUNAS, 0),
                                             rb.NOTA,
                                             rl.NOTA,
                                             rb.NM_KAPAL,
                                             rb.VOYAGE,
-                                            emkl.NM_PBM, 
-                                            --pnmt.NM_PBM, 
-                                            rb.PERP_DARI, 
+                                            emkl.NM_PBM,
+                                            --pnmt.NM_PBM,
+                                            rb.PERP_DARI,
                                             rb.PERP_KE,
 											rb.no_booking,
 											rb.stuffing_dari,
@@ -186,7 +186,7 @@ class PerpanjanganService
                         (
                         SELECT
                             rb.NO_REQUEST,
-                            emkl.NM_PBM AS NAMA_CONSIGNEE, 
+                            emkl.NM_PBM AS NAMA_CONSIGNEE,
                             NVL(rb.PERP_DARI, '-') AS EX_REQ,
                             rb.PERP_KE,
                             rb.NOTA CETAK_NOTA_BARU,
@@ -201,7 +201,7 @@ class PerpanjanganService
                             rb.stuffing_dari,
                             rb.o_idvsb
                         FROM
-                            request_stuffing rb,  
+                            request_stuffing rb,
                             request_stuffing rl,
                             v_mst_pbm emkl,
                             container_stuffing,
@@ -245,7 +245,7 @@ class PerpanjanganService
                     (
                     SELECT
                         rb.NO_REQUEST,
-                        emkl.NM_PBM AS NAMA_CONSIGNEE, 
+                        emkl.NM_PBM AS NAMA_CONSIGNEE,
                         NVL(rb.PERP_DARI, '-') AS EX_REQ,
                         rb.PERP_KE,
                         rb.NOTA CETAK_NOTA_BARU,
@@ -260,7 +260,7 @@ class PerpanjanganService
                         rb.stuffing_dari,
                         rb.o_idvsb
                     FROM
-                        request_stuffing rb,  
+                        request_stuffing rb,
                         request_stuffing rl,
                         v_mst_pbm emkl,
                         container_stuffing,
@@ -303,8 +303,8 @@ class PerpanjanganService
             $query_list = "SELECT * FROM (
 							SELECT rb.NO_REQUEST,
                                      emkl.NM_PBM AS NAMA_CONSIGNEE,
-                                    --pnmt.NM_PBM AS NAMA_PENUMPUK, 
-                                    NVL(rb.PERP_DARI,'-') AS EX_REQ, 
+                                    --pnmt.NM_PBM AS NAMA_PENUMPUK,
+                                    NVL(rb.PERP_DARI,'-') AS EX_REQ,
                                     rb.PERP_KE,
                                     rb.NOTA CETAK_NOTA_BARU,
                                     rl.NOTA CETAK_NOTA_LAMA,
@@ -317,30 +317,30 @@ class PerpanjanganService
 									rb.no_booking,
 									rb.stuffing_dari,
                                     rb.o_idvsb
-                            FROM request_stuffing rb, --request baru  
-                                      request_stuffing rl, --request lama 
-                                      v_mst_pbm emkl, 
+                            FROM request_stuffing rb, --request baru
+                                      request_stuffing rl, --request lama
+                                      v_mst_pbm emkl,
                                       --V_MST_PBM pnmt,
-                                      container_stuffing, 
+                                      container_stuffing,
                                       nota_stuffing nb,
-                                      nota_stuffing nl 
+                                      nota_stuffing nl
                             WHERE rb.KD_CONSIGNEE = emkl.KD_PBM AND emkl.KD_CABANG = '05'
-                                AND rb.NO_REQUEST = container_stuffing.NO_REQUEST 
+                                AND rb.NO_REQUEST = container_stuffing.NO_REQUEST
                                 AND rb.NO_REQUEST = nb.NO_REQUEST(+)
                                 AND rl.NO_REQUEST = nl.NO_REQUEST(+)
                                 AND container_stuffing.NO_REQUEST IS NOT NULL
                                 AND container_stuffing.AKTIF = 'Y'
                                 AND rb.PERP_DARI = rl.NO_REQUEST(+)
-                            GROUP BY  rb.NO_REQUEST,rb.TGL_REQUEST, 
+                            GROUP BY  rb.NO_REQUEST,rb.TGL_REQUEST,
                                             NVL(nl.LUNAS, 0),
                                             NVL(nb.LUNAS, 0),
                                             rb.NOTA,
                                             rl.NOTA,
                                             rb.NM_KAPAL,
                                             rb.VOYAGE,
-                                            emkl.NM_PBM, 
-                                            --pnmt.NM_PBM, 
-                                            rb.PERP_DARI, 
+                                            emkl.NM_PBM,
+                                            --pnmt.NM_PBM,
+                                            rb.PERP_DARI,
                                             rb.PERP_KE,
 											rb.no_booking,
 											rb.stuffing_dari,
@@ -412,11 +412,11 @@ class PerpanjanganService
         $no_req_lama    = $result->perp_dari;
         if ($no_req_lama == NULL) {
             $query_list        = "SELECT DISTINCT CONTAINER_STUFFING.NO_CONTAINER,
-											   CONTAINER_STUFFING.HZ, 
-											   CONTAINER_STUFFING.START_PERP_PNKN+1 TGL_MULAI, 
-                                               CONTAINER_STUFFING.END_STACK_PNKN, 
+											   CONTAINER_STUFFING.HZ,
+											   CONTAINER_STUFFING.START_PERP_PNKN+1 TGL_MULAI,
+                                               CONTAINER_STUFFING.END_STACK_PNKN,
 											   CONTAINER_STUFFING.COMMODITY, M.SIZE_ KD_SIZE, M.TYPE_ KD_TYPE
-							   FROM CONTAINER_STUFFING LEFT JOIN MASTER_CONTAINER M        
+							   FROM CONTAINER_STUFFING LEFT JOIN MASTER_CONTAINER M
 							   ON CONTAINER_STUFFING.NO_CONTAINER = M.NO_CONTAINER
 							   WHERE CONTAINER_STUFFING.NO_REQUEST = '$no_req'
 							   AND AKTIF = 'Y'";
@@ -424,14 +424,14 @@ class PerpanjanganService
             $query_list        = "SELECT DISTINCT CB.NO_REQUEST NO_BARU,
 							   CL.NO_REQUEST NO_LAMA,
 							   CB.NO_CONTAINER,
-							   CB .HZ, 
-							   CB.END_STACK_PNKN+1 TGL_MULAI, 
-                               CB.END_STACK_PNKN, 
+							   CB .HZ,
+							   CB.END_STACK_PNKN+1 TGL_MULAI,
+                               CB.END_STACK_PNKN,
 							   CB.COMMODITY, M.SIZE_ KD_SIZE, M.TYPE_ KD_TYPE
 							   FROM CONTAINER_STUFFING CB
 											INNER JOIN CONTAINER_STUFFING CL
 										ON CB.NO_CONTAINER = CL.NO_CONTAINER
-											LEFT JOIN MASTER_CONTAINER M        
+											LEFT JOIN MASTER_CONTAINER M
 										ON CB.NO_CONTAINER = M.NO_CONTAINER
 							   WHERE CB.NO_REQUEST = '$no_req'
 							   AND CL.NO_REQUEST = '$no_req_lama'
@@ -764,25 +764,26 @@ class PerpanjanganService
 
     function addContainer($request)
     {
+        // Mulai transaksi database
+        DB::beginTransaction();
         try {
-            // Mulai transaksi database
-            DB::connection('uster')->beginTransaction();
-
             $no_cont         = $request->input('NO_CONT');
             $no_req            = $request->input('NO_REQ');
             $keterangan        = $request->input('KETERANGAN');
 
             // Query untuk mengambil nomor request terbaru
-            $query_cek    = "SELECT NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM, 
-                TO_CHAR(SYSDATE, 'MM') AS MONTH, 
-                TO_CHAR(SYSDATE, 'YY') AS YEAR 
+            $query_cek    = "SELECT NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM,
+                TO_CHAR(SYSDATE, 'MM') AS MONTH,
+                TO_CHAR(SYSDATE, 'YY') AS YEAR
                 FROM REQUEST_STUFFING
                 WHERE TGL_REQUEST BETWEEN TRUNC(SYSDATE,'MONTH') AND LAST_DAY(SYSDATE)
                 AND request_stuffing.NO_REQUEST LIKE '%SFP%'";
             $row_select     = DB::connection('uster')->selectOne($query_cek);
             $no_req_s        = "SFP" . $row_select->year . $row_select->month . $row_select->jum;
 
-
+            $get_jumlah        = "SELECT COUNT(NO_CONTAINER) COUNT FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_req' AND AKTIF = 'Y'";
+            $result_cont_     = DB::connection('uster')->selectOne($get_jumlah);
+            $jml             = $result_cont_->count;
 
             // Query untuk insert data ke tabel REQUEST_STUFFING
             $query_ir = "INSERT INTO REQUEST_STUFFING (NO_REQUEST,
@@ -864,10 +865,11 @@ class PerpanjanganService
                 $result_cont_     = DB::connection('uster')->selectOne($get_jumlah);
                 $jml             = $result_cont_->count;
 
-                for ($i = 1; $i <= $jml; $i++) {
-                    if ($request->input('TGL_PERP_' . $i) != NULL) {
-                        $NO_CONT[$i] = $request->input('NO_CONT_' . $i);
-                        $TGL_PERP[$i] = $request->input('TGL_PERP_' . $i);
+                for ($i = 0; $i < $jml; $i++) {
+                    if ($request->TGL_APPROVE[$i] != NULL) {
+                        $x = $i + 1;
+                        $NO_CONT[$i] = $request->input('NO_CONT_' . $x);
+                        $TGL_PERP[$i] = $request->TGL_APPROVE[$i];
                     }
                 }
 
@@ -879,51 +881,51 @@ class PerpanjanganService
 
                 // Ini berarti merupakan perpanjangan pertama
                 if ($no_req_lama != NULL) {
-                    for ($i = 1; $i <= $jml; $i++) {
-                        if ($request->input('TGL_PERP_' . $i) != NULL) {
+                    for ($i = 0; $i < $jml; $i++) {
+                        if ($request->TGL_APPROVE[$i] != NULL) {
                             // Query untuk insert data ke tabel CONTAINER_STUFFING
                             $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
-                            NO_REQUEST,
-                            AKTIF,
-                            HZ,
-                            COMMODITY,
-                            KD_COMMODITY,
-                            TYPE_STUFFING,
-                            START_STACK,
-                            ASAL_CONT,
-                            NO_SEAL,
-                            BERAT,
-                            KETERANGAN,
-                            STATUS_REQ,                                   
-                            TGL_APPROVE,
-                            TGL_GATE,                                   
-                            START_PERP_PNKN,
-                            END_STACK_PNKN,
-                            TGL_MULAI_FULL,
-                            TGL_SELESAI_FULL)
-                            SELECT NO_CONTAINER,
-                                    '$no_req_s',
-                                    'Y',
-                                    HZ,
-                                    COMMODITY,
-                                    KD_COMMODITY,
-                                    TYPE_STUFFING,
-                                    START_STACK,
-                                    ASAL_CONT,
-                                    NO_SEAL,
-                                    BERAT,
-                                    KETERANGAN,
-                                    'PERP',                                    
-                                    TGL_APPROVE,
-                                    '',                                   
-                                    START_PERP_PNKN+1,
-                                    TO_DATE('$TGL_PERP[$i]','dd-mm-rrrr'),
-                                    TGL_MULAI_FULL,
-                                    TGL_SELESAI_FULL
-                                    FROM CONTAINER_STUFFING
-                                    WHERE NO_CONTAINER = '$NO_CONT[$i]'
-                                    AND NO_REQUEST = '$no_req'
-                                    AND AKTIF = 'Y'";
+                                NO_REQUEST,
+                                AKTIF,
+                                HZ,
+                                COMMODITY,
+                                KD_COMMODITY,
+                                TYPE_STUFFING,
+                                START_STACK,
+                                ASAL_CONT,
+                                NO_SEAL,
+                                BERAT,
+                                KETERANGAN,
+                                STATUS_REQ,
+                                TGL_APPROVE,
+                                TGL_GATE,
+                                START_PERP_PNKN,
+                                END_STACK_PNKN,
+                                TGL_MULAI_FULL,
+                                TGL_SELESAI_FULL)
+                                SELECT NO_CONTAINER,
+                                        '$no_req_s',
+                                        'Y',
+                                        HZ,
+                                        COMMODITY,
+                                        KD_COMMODITY,
+                                        TYPE_STUFFING,
+                                        START_STACK,
+                                        ASAL_CONT,
+                                        NO_SEAL,
+                                        BERAT,
+                                        KETERANGAN,
+                                        'PERP',
+                                        TGL_APPROVE,
+                                        '',
+                                        START_PERP_PNKN+1,
+                                        TO_DATE('$TGL_PERP[$i]','YYYY-MM-DD'),
+                                        TGL_MULAI_FULL,
+                                        TGL_SELESAI_FULL
+                                        FROM CONTAINER_STUFFING
+                                        WHERE NO_CONTAINER = '$NO_CONT[$i]'
+                                        AND NO_REQUEST = '$no_req'
+                                        AND AKTIF = 'Y'";
                             DB::connection('uster')->insert($query_ic);
 
                             // Nonaktifkan container_stuffing dengan nomor request lama
@@ -938,7 +940,7 @@ class PerpanjanganService
 
                             // Cek counter dan status history container
                             $q_getcounter = "SELECT NO_BOOKING, COUNTER
-                                            FROM MASTER_CONTAINER 
+                                            FROM MASTER_CONTAINER
                                             WHERE NO_CONTAINER = '$NO_CONT[$i]' ORDER BY COUNTER DESC";
                             $rw_getcounter =  DB::connection('uster')->selectOne($q_getcounter);
                             $cur_booking  = $rw_getcounter->no_booking ?? '';
@@ -949,17 +951,17 @@ class PerpanjanganService
 
                             // Query untuk insert data ke tabel history_container
                             $history = "INSERT INTO history_container
-                                    (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT ) 
+                                    (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT )
                                 VALUES ('$NO_CONT[$i]','$no_req_s','PERPANJANGAN STUFFING',SYSDATE,'$ID_USER','$id_yard','$cur_counter','$cur_booking','$cur_status')";
                             DB::connection('uster')->insert($history);
                         } else {
-                            DB::connection('uster')->rollBack();
-                            throw new Exception("No Container tidak boleh kosong");
+                            DB::rollBack();
+                            throw new Exception("Tgl Perpanjangan tidak boleh kosong");
                         }
                     }
                 } else {
-                    for ($i = 1; $i <= $jml; $i++) {
-                        if ($_POST['TGL_PERP_' . $i] != NULL) {
+                    for ($i = 0; $i < $jml; $i++) {
+                        if ($request->TGL_APPROVE[$i] != NULL) {
 
                             $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
 										NO_REQUEST,
@@ -973,9 +975,9 @@ class PerpanjanganService
 										NO_SEAL,
 										BERAT,
 										KETERANGAN,
-										STATUS_REQ,									
+										STATUS_REQ,
 										TGL_APPROVE,
-										TGL_GATE,									
+										TGL_GATE,
 										START_PERP_PNKN,
 										END_STACK_PNKN,
 										TGL_MULAI_FULL,
@@ -992,9 +994,9 @@ class PerpanjanganService
 										NO_SEAL,
 										BERAT,
 										KETERANGAN,
-										'PERP',									
+										'PERP',
 										TGL_APPROVE,
-										'',								
+										'',
 										END_STACK_PNKN+1,
 										TO_DATE('$TGL_PERP[$i]','dd-mm-rrrr'),
 										TGL_MULAI_FULL,
@@ -1023,7 +1025,7 @@ class PerpanjanganService
                             $cur_status = $r_getstatus->status_cont;
                             //cek counter dan status history container
                             $q_getcounter = "SELECT NO_BOOKING, COUNTER
-											FROM MASTER_CONTAINER 
+											FROM MASTER_CONTAINER
 											WHERE NO_CONTAINER = '$NO_CONT[$i]' ORDER BY COUNTER DESC";
                             $rw_getcounter =   DB::connection('uster')->selectOne($query_update);
                             $cur_booking  = $rw_getcounter->no_booking;
@@ -1033,13 +1035,13 @@ class PerpanjanganService
                             $id_yard = session("IDYARD_STORAGE");
 
                             $history = "INSERT INTO history_container
-									(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT ) 
+									(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT )
 							 VALUES ('$NO_CONT[$i]','$no_req_s','PERPANJANGAN STUFFING',SYSDATE,'$ID_USER','$id_yard','$cur_counter','$cur_booking','$cur_status')";
 
                             DB::connection('uster')->insert($history);
                         } else {
-                            DB::connection('uster')->rollBack();
-                            throw new Exception("No Container tidak boleh kosong");
+                            DB::rollBack();
+                            throw new Exception("Tgl Perpanjangan tidak boleh kosong");
                         }
                     }
                 }
@@ -1057,14 +1059,14 @@ class PerpanjanganService
 
                 if ($msg == 'OK') {
                     return response()->json('OK');
-                    DB::connection('uster')->commit();
+                    DB::commit();
                 } else {
-                    return response()->json('Gagal insert req strip');
-                    DB::connection('uster')->rollBack();
+                    return response()->json('Gagal insert Perpanjangan Stuffing');
+                    DB::rollBack();
                 }
             } else {
                 // Kembalikan respon JSON jika gagal insert req strip
-                return response()->json('Gagal insert req strip');
+                return response()->json('Gagal insert Perpanjangan Stuffing');
             }
         } catch (\Exception $e) {
             // Rollback transaksi database jika terjadi exception

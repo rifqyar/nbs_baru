@@ -335,7 +335,7 @@ class PerencanaanStrippingController extends Controller
                 'message' => 'Berhasil Simpan Data Container',
                 'redirect' => [
                     'need' => true,
-                    'to' => route('uster.new_request.stripping.stripping_plan.view', $request->no_req),
+                    'to' => route('uster.new_request.stripping.stripping_plan.view', base64_encode($request->no_req)),
                 ]
             ], 200);
         } catch (Exception $th) {

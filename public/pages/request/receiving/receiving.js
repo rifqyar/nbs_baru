@@ -477,10 +477,6 @@ async function saveContainerData(formId) {
             "input_success"
         );
 
-        setTimeout(() => {
-            window.location.reload();
-        }, 750);
-
         // var no_req = $(formId).find('input[name="no_req"]').val();
         // ajaxGetJson(
         //     `/request/receiving/get-contlist/${no_req}`,

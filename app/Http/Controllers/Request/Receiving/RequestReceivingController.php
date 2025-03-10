@@ -224,8 +224,8 @@ class RequestReceivingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Tambah Container',
                 'redirect' => [
-                    'need' => false,
-                    'to' => null,
+                    'need' => true,
+                    'to' => route('uster.new_request.receiving.view', base64_encode($request->no_req)),
                 ]
             ]);
         } catch (Exception $th) {

@@ -872,6 +872,14 @@ class PerencanaanStrippingController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Cek Approval Container dulu
+            $totalCont = DB::connection('uster')->selectOne("SELECT COUNT(1) AS TOTAL_CONT FROM PLAN_CONTAINER_STRIPPING WHERE NO_REQUEST = '$request->no_req'");
+            $totalApprovedCont = DB::connection('uster')->selectOne("SELECT COUNT(1) AS TOTAL_CONT FROM PLAN_CONTAINER_STRIPPING WHERE NO_REQUEST = '$request->no_req' AND TGL_APPROVE IS NOT NULL");
+
+            if ($totalCont > $totalApprovedCont) {
+                throw new Exception('Harap Approve Container Terlebih Dahulu', 400);
+            }
+
             $updatePlanContStrip = "UPDATE PLAN_CONTAINER_STRIPPING SET REMARK = '$request->remark' WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
             $updateContStrip = "UPDATE CONTAINER_STRIPPING SET REMARK = '$request->remark' WHERE NO_REQUEST = REPLACE('$request->no_req', 'P' , 'S') AND NO_CONTAINER = '$request->no_cont'";
 

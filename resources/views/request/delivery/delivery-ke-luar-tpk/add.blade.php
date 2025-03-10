@@ -488,7 +488,7 @@
         });
 
         function input_success(res) {
-            if (res.status != 200) {
+            if (res.status.code != 200) {
                 input_error(res);
                 return false;
             }

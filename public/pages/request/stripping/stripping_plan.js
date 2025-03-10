@@ -782,10 +782,6 @@ async function saveCont(formId) {
         form,
         "input_success"
     );
-
-    setTimeout(() => {
-        window.location.reload();
-    }, 750);
 }
 
 function saveReq(total) {

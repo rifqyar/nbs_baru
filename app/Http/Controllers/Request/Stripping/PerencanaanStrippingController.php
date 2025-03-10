@@ -334,8 +334,8 @@ class PerencanaanStrippingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Simpan Data Container',
                 'redirect' => [
-                    'need' => false,
-                    'to' => null,
+                    'need' => true,
+                    'to' => route('uster.new_request.stripping.stripping_plan.view', $request->no_req),
                 ]
             ], 200);
         } catch (Exception $th) {

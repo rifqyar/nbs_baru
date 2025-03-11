@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use GuzzleHttp\Psr7\Request;
 use Exception;
+use Illuminate\Support\Facades\Session;
 
 class PerpanjanganService
 {
@@ -771,291 +772,268 @@ class PerpanjanganService
             $no_req            = $request->input('NO_REQ');
             $keterangan        = $request->input('KETERANGAN');
 
-            // Query untuk mengambil nomor request terbaru
-            $query_cek    = "SELECT NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM,
-                TO_CHAR(SYSDATE, 'MM') AS MONTH,
-                TO_CHAR(SYSDATE, 'YY') AS YEAR
-                FROM REQUEST_STUFFING
-                WHERE TGL_REQUEST BETWEEN TRUNC(SYSDATE,'MONTH') AND LAST_DAY(SYSDATE)
-                AND request_stuffing.NO_REQUEST LIKE '%SFP%'";
-            $row_select     = DB::connection('uster')->selectOne($query_cek);
-            $no_req_s        = "SFP" . $row_select->year . $row_select->month . $row_select->jum;
+            // Menggunakan koneksi "uster"
+            $connection = DB::connection('uster');
 
-            $get_jumlah        = "SELECT COUNT(NO_CONTAINER) COUNT FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_req' AND AKTIF = 'Y'";
-            $result_cont_     = DB::connection('uster')->selectOne($get_jumlah);
-            $jml             = $result_cont_->count;
+            // Query untuk mendapatkan nomor request terbaru
+            $row_select = $connection->table('REQUEST_STUFFING')
+                ->selectRaw("NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0), '000001') AS jum")
+                ->selectRaw("TO_CHAR(SYSDATE, 'MM') AS month")
+                ->selectRaw("TO_CHAR(SYSDATE, 'YY') AS year")
+                ->whereBetween('TGL_REQUEST', [DB::raw("TRUNC(SYSDATE, 'MONTH')"), DB::raw("LAST_DAY(SYSDATE)")])
+                ->where('NO_REQUEST', 'like', '%SFP%')
+                ->first();
+
+            // Menggabungkan komponen nomor request
+            $no_req_s = "SFP" . $row_select->year . $row_select->month . $row_select->jum;
+
+            // Query untuk menghitung jumlah container yang aktif berdasarkan nomor request
+            $jml = $connection->table('CONTAINER_STUFFING')
+                ->where('NO_REQUEST', $no_req)
+                ->where('AKTIF', 'Y')
+                ->count();
 
             // Query untuk insert data ke tabel REQUEST_STUFFING
-            $query_ir = "INSERT INTO REQUEST_STUFFING (NO_REQUEST,
-            ID_YARD,
-            CETAK_KARTU_SPPS,
-            KETERANGAN,
-            NO_BOOKING,
-            TGL_REQUEST,
-            NO_DOKUMEN,
-            NO_JPB,
-            BPRP,
-            ID_PEMILIK,
-            ID_EMKL,
-            NO_REQUEST_RECEIVING,
-            ID_USER,
-            NO_REQUEST_DELIVERY,
-            KD_CONSIGNEE,
-            KD_PENUMPUKAN_OLEH,
-            NM_KAPAL,
-            NO_PEB,
-            NO_NPE,
-            VOYAGE,
-            STUFFING_DARI,
-            NOTA,
-            STATUS_REQ,
-            PERP_DARI,
-            PERP_KE,
-            ID_PENUMPUKAN,
-            O_VESSEL,
-            O_VOYIN,
-            O_VOYOUT,
-            O_IDVSB,
-            O_REQNBS,
-            DI)
-            SELECT '$no_req_s',
-            ID_YARD,
-            CETAK_KARTU_SPPS,
-            KETERANGAN,
-            NO_BOOKING,
-            SYSDATE,
-            NO_DOKUMEN,
-            NO_JPB,
-            BPRP,
-            ID_PEMILIK,
-            ID_EMKL,
-            NO_REQUEST_RECEIVING,
-            ID_USER,
-            NO_REQUEST_DELIVERY,
-            CASE ID_PENUMPUKAN
-            WHEN NULL THEN KD_CONSIGNEE
-            ELSE ID_PENUMPUKAN
-            END,
-            CASE ID_PENUMPUKAN
-            WHEN NULL THEN KD_CONSIGNEE
-            ELSE ID_PENUMPUKAN
-            END,
-            NM_KAPAL,
-            NO_PEB,
-            NO_NPE,
-            VOYAGE,
-            STUFFING_DARI,
-            'T',
-            'PERP',
-            '$no_req',
-            NVL (PERP_KE + 1, 1),
-            ID_PENUMPUKAN,
-            O_VESSEL,
-            O_VOYIN,
-            O_VOYOUT,
-            O_IDVSB,
-            O_REQNBS,
-            DI
-            FROM REQUEST_STUFFING
-            WHERE NO_REQUEST = '$no_req'";
-            $result = DB::connection('uster')->insert($query_ir);
+            $query = "
+                INSERT INTO REQUEST_STUFFING (
+                    NO_REQUEST,
+                    ID_YARD,
+                    CETAK_KARTU_SPPS,
+                    KETERANGAN,
+                    NO_BOOKING,
+                    TGL_REQUEST,
+                    NO_DOKUMEN,
+                    NO_JPB,
+                    BPRP,
+                    ID_PEMILIK,
+                    ID_EMKL,
+                    NO_REQUEST_RECEIVING,
+                    ID_USER,
+                    NO_REQUEST_DELIVERY,
+                    KD_CONSIGNEE,
+                    KD_PENUMPUKAN_OLEH,
+                    NM_KAPAL,
+                    NO_PEB,
+                    NO_NPE,
+                    VOYAGE,
+                    STUFFING_DARI,
+                    NOTA,
+                    STATUS_REQ,
+                    PERP_DARI,
+                    PERP_KE,
+                    ID_PENUMPUKAN,
+                    O_VESSEL,
+                    O_VOYIN,
+                    O_VOYOUT,
+                    O_IDVSB,
+                    O_REQNBS,
+                    DI
+                )
+                SELECT
+                    :no_req_s,
+                    ID_YARD,
+                    CETAK_KARTU_SPPS,
+                    KETERANGAN,
+                    NO_BOOKING,
+                    SYSDATE,
+                    NO_DOKUMEN,
+                    NO_JPB,
+                    BPRP,
+                    ID_PEMILIK,
+                    ID_EMKL,
+                    NO_REQUEST_RECEIVING,
+                    ID_USER,
+                    NO_REQUEST_DELIVERY,
+                    CASE WHEN ID_PENUMPUKAN IS NULL THEN KD_CONSIGNEE ELSE ID_PENUMPUKAN END,
+                    CASE WHEN ID_PENUMPUKAN IS NULL THEN KD_CONSIGNEE ELSE ID_PENUMPUKAN END,
+                    NM_KAPAL,
+                    NO_PEB,
+                    NO_NPE,
+                    VOYAGE,
+                    STUFFING_DARI,
+                    'T',
+                    'PERP',
+                    :no_req,
+                    NVL(PERP_KE + 1, 1),
+                    ID_PENUMPUKAN,
+                    O_VESSEL,
+                    O_VOYIN,
+                    O_VOYOUT,
+                    O_IDVSB,
+                    O_REQNBS,
+                    DI
+                FROM REQUEST_STUFFING
+                WHERE NO_REQUEST = :no_req
+            ";
+
+            $result = DB::connection('uster')->insert($query, [
+                'no_req_s' => $no_req_s,
+                'no_req'   => $no_req,
+            ]);
 
             if ($result) {
-                $get_jumlah        = "SELECT COUNT(NO_CONTAINER) COUNT FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_req' AND AKTIF = 'Y'";
-                $result_cont_     = DB::connection('uster')->selectOne($get_jumlah);
-                $jml             = $result_cont_->count;
+                // Mengambil jumlah container yang aktif berdasarkan NO_REQUEST
+                $jml = DB::connection('uster')
+                    ->table('CONTAINER_STUFFING')
+                    ->where('NO_REQUEST', $no_req)
+                    ->where('AKTIF', 'Y')
+                    ->count();
+                $NO_CONT = [];
+                $TGL_PERP = [];
 
+                // Loop untuk memproses data berdasarkan jumlah container
                 for ($i = 0; $i < $jml; $i++) {
-                    if ($request->TGL_APPROVE[$i] != NULL) {
+                    if (!empty($request->TGL_APPROVE[$i])) { // Pastikan tidak NULL
                         $x = $i + 1;
-                        $NO_CONT[$i] = $request->input('NO_CONT_' . $x);
+                        $NO_CONT[$i] = $request->input("NO_CONT_$x");
                         $TGL_PERP[$i] = $request->TGL_APPROVE[$i];
                     }
                 }
 
-                $query_cek_perp = "SELECT PERP_DARI
-                    FROM REQUEST_STUFFING
-                    WHERE NO_REQUEST='$no_req'";
-                $result_perp    = DB::connection('uster')->selectOne($query_cek_perp);
-                $no_req_lama        =  $result_perp->perp_dari;
+                // Mengambil nilai PERP_DARI berdasarkan NO_REQUEST
+                $no_req_lama = DB::connection('uster')
+                    ->table('REQUEST_STUFFING')
+                    ->where('NO_REQUEST', $no_req)
+                    ->value('PERP_DARI');
 
                 // Ini berarti merupakan perpanjangan pertama
                 if ($no_req_lama != NULL) {
                     for ($i = 0; $i < $jml; $i++) {
-                        if ($request->TGL_APPROVE[$i] != NULL) {
-                            // Query untuk insert data ke tabel CONTAINER_STUFFING
-                            $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
-                                NO_REQUEST,
-                                AKTIF,
-                                HZ,
-                                COMMODITY,
-                                KD_COMMODITY,
-                                TYPE_STUFFING,
-                                START_STACK,
-                                ASAL_CONT,
-                                NO_SEAL,
-                                BERAT,
-                                KETERANGAN,
-                                STATUS_REQ,
-                                TGL_APPROVE,
-                                TGL_GATE,
-                                START_PERP_PNKN,
-                                END_STACK_PNKN,
-                                TGL_MULAI_FULL,
-                                TGL_SELESAI_FULL)
-                                SELECT NO_CONTAINER,
-                                        '$no_req_s',
-                                        'Y',
-                                        HZ,
-                                        COMMODITY,
-                                        KD_COMMODITY,
-                                        TYPE_STUFFING,
-                                        START_STACK,
-                                        ASAL_CONT,
-                                        NO_SEAL,
-                                        BERAT,
-                                        KETERANGAN,
-                                        'PERP',
-                                        TGL_APPROVE,
-                                        '',
-                                        START_PERP_PNKN+1,
-                                        TO_DATE('$TGL_PERP[$i]','YYYY-MM-DD'),
-                                        TGL_MULAI_FULL,
-                                        TGL_SELESAI_FULL
-                                        FROM CONTAINER_STUFFING
-                                        WHERE NO_CONTAINER = '$NO_CONT[$i]'
-                                        AND NO_REQUEST = '$no_req'
-                                        AND AKTIF = 'Y'";
-                            DB::connection('uster')->insert($query_ic);
+                        if (!empty($request->TGL_APPROVE[$i])) {
+                            $NO_CONT = $request->input("NO_CONT_" . ($i + 1));
+                            $TGL_PERP = $request->TGL_APPROVE[$i];
 
-                            // Nonaktifkan container_stuffing dengan nomor request lama
-                            $query_update    = "UPDATE CONTAINER_STUFFING SET AKTIF = 'T' WHERE NO_CONTAINER = '$NO_CONT[$i]' AND NO_REQUEST = '$no_req'";
-                            DB::connection('uster')->update($query_update);
+                            // **1. Insert ke CONTAINER_STUFFING (Insert-Select)**
+                            $exec = DB::connection('uster')->insert("
+                                INSERT INTO CONTAINER_STUFFING (
+                                    NO_CONTAINER, NO_REQUEST, AKTIF, HZ, COMMODITY, KD_COMMODITY, TYPE_STUFFING, START_STACK,
+                                    ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, STATUS_REQ, TGL_APPROVE, TGL_GATE, START_PERP_PNKN,
+                                    END_STACK_PNKN, TGL_MULAI_FULL, TGL_SELESAI_FULL
+                                )
+                                SELECT NO_CONTAINER, ?, 'Y', HZ, COMMODITY, KD_COMMODITY, TYPE_STUFFING, START_STACK,
+                                       ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, 'PERP', ?, '', START_PERP_PNKN + 1,
+                                       TO_DATE(?, 'YYYY-MM-DD'), TGL_MULAI_FULL, TGL_SELESAI_FULL
+                                FROM CONTAINER_STUFFING
+                                WHERE NO_CONTAINER = ? AND NO_REQUEST = ? AND AKTIF = 'Y'
+                            ", [$no_req_s, $TGL_PERP, $TGL_PERP, $NO_CONT, $no_req]);
 
-                            // Cek status terakhir container pada kegiatan sebelumnya
-                            $q_getstatus = "SELECT STATUS_CONT FROM HISTORY_CONTAINER
-                                            WHERE NO_CONTAINER = '$NO_CONT[$i]' AND NO_REQUEST = '$no_req'";
-                            $r_getstatus =  DB::connection('uster')->selectOne($q_getstatus);
-                            $cur_status = $r_getstatus->status_cont ?? '';
+                            if (!$exec) {
+                                throw new Exception('Gagal Simpan Container Perpanjangan Stuffing');
+                            }
 
-                            // Cek counter dan status history container
-                            $q_getcounter = "SELECT NO_BOOKING, COUNTER
-                                            FROM MASTER_CONTAINER
-                                            WHERE NO_CONTAINER = '$NO_CONT[$i]' ORDER BY COUNTER DESC";
-                            $rw_getcounter =  DB::connection('uster')->selectOne($q_getcounter);
-                            $cur_booking  = $rw_getcounter->no_booking ?? '';
-                            $cur_counter  = $rw_getcounter->counter ?? '';
+                            // **2. Update Status ke 'T' untuk Request Lama**
+                            DB::connection('uster')->table('CONTAINER_STUFFING')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->where('NO_REQUEST', $no_req)
+                                ->update(['AKTIF' => 'T']);
 
-                            $ID_USER = session('PENGGUNA_ID');
-                            $id_yard = session("IDYARD_STORAGE");
+                            // **3. Ambil STATUS_CONT dari HISTORY_CONTAINER**
+                            $cur_status = DB::connection('uster')->table('HISTORY_CONTAINER')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->where('NO_REQUEST', $no_req)
+                                ->value('STATUS_CONT');
 
-                            // Query untuk insert data ke tabel history_container
-                            $history = "INSERT INTO history_container
-                                    (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT )
-                                VALUES ('$NO_CONT[$i]','$no_req_s','PERPANJANGAN STUFFING',SYSDATE,'$ID_USER','$id_yard','$cur_counter','$cur_booking','$cur_status')";
-                            DB::connection('uster')->insert($history);
+                            // **4. Ambil NO_BOOKING dan COUNTER dari MASTER_CONTAINER**
+                            $counterData = DB::connection('uster')->table('MASTER_CONTAINER')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->orderByDesc('COUNTER')
+                                ->first();
+
+                            $cur_booking = $counterData->NO_BOOKING ?? '';
+                            $cur_counter = $counterData->COUNTER ?? '';
+
+                            // **5. Insert ke HISTORY_CONTAINER**
+                            DB::connection('uster')->insert("
+                                INSERT INTO HISTORY_CONTAINER (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT)
+                                VALUES (?, ?, 'PERPANJANGAN STUFFING', SYSDATE, ?, ?, ?, ?, ?)
+                            ", [$NO_CONT, $no_req_s, Session::get('PENGGUNA_ID'), Session::get('IDYARD_STORAGE'), $cur_counter, $cur_booking, $cur_status]);
                         } else {
-                            DB::rollBack();
                             throw new Exception("Tgl Perpanjangan tidak boleh kosong");
                         }
                     }
                 } else {
                     for ($i = 0; $i < $jml; $i++) {
-                        if ($request->TGL_APPROVE[$i] != NULL) {
+                        if (!empty($request->TGL_APPROVE[$i])) {
+                            $NO_CONT = $request->input("NO_CONT_" . ($i + 1));
+                            $TGL_PERP = $request->TGL_APPROVE[$i];
 
-                            $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
-										NO_REQUEST,
-										AKTIF,
-										HZ,
-										COMMODITY,
-										KD_COMMODITY,
-										TYPE_STUFFING,
-										START_STACK,
-										ASAL_CONT,
-										NO_SEAL,
-										BERAT,
-										KETERANGAN,
-										STATUS_REQ,
-										TGL_APPROVE,
-										TGL_GATE,
-										START_PERP_PNKN,
-										END_STACK_PNKN,
-										TGL_MULAI_FULL,
-										TGL_SELESAI_FULL)
-								   SELECT NO_CONTAINER,
-										  '$no_req_s',
-										  'Y',
-										  HZ,
-										  COMMODITY,
-										  KD_COMMODITY,
-										  TYPE_STUFFING,
-										START_STACK,
-										ASAL_CONT,
-										NO_SEAL,
-										BERAT,
-										KETERANGAN,
-										'PERP',
-										TGL_APPROVE,
-										'',
-										END_STACK_PNKN+1,
-										TO_DATE('$TGL_PERP[$i]','dd-mm-rrrr'),
-										TGL_MULAI_FULL,
-										TGL_SELESAI_FULL
-									 FROM CONTAINER_STUFFING
-									WHERE NO_CONTAINER = '$NO_CONT[$i]'
-										  AND NO_REQUEST = '$no_req'
-										  AND AKTIF = 'Y'";
+                            // **1. Insert ke CONTAINER_STUFFING**
+                            $exec = DB::connection('uster')->insert("
+                                INSERT INTO CONTAINER_STUFFING (
+                                    NO_CONTAINER, NO_REQUEST, AKTIF, HZ, COMMODITY, KD_COMMODITY, TYPE_STUFFING,
+                                    START_STACK, ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, STATUS_REQ,
+                                    TGL_APPROVE, TGL_GATE, START_PERP_PNKN, END_STACK_PNKN, TGL_MULAI_FULL, TGL_SELESAI_FULL
+                                )
+                                SELECT NO_CONTAINER, ?, 'Y', HZ, COMMODITY, KD_COMMODITY, TYPE_STUFFING,
+                                       START_STACK, ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, 'PERP',
+                                       ?, '', END_STACK_PNKN + 1, TO_DATE(?, 'YYYY-MM-DD'),
+                                       TGL_MULAI_FULL, TGL_SELESAI_FULL
+                                FROM CONTAINER_STUFFING
+                                WHERE NO_CONTAINER = ? AND NO_REQUEST = ? AND AKTIF = 'Y'
+                            ", [$no_req_s, $TGL_PERP, $TGL_PERP, $NO_CONT, $no_req]);
 
+                            if (!$exec) {
+                                throw new Exception('Gagal Simpan Container Perpanjangan Stuffing');
+                            }
 
-                            DB::connection('uster')->insert($query_ic);
+                            // **2. Nonaktifkan CONTAINER_STUFFING dengan request lama**
+                            DB::connection('uster')->table('CONTAINER_STUFFING')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->where('NO_REQUEST', $no_req)
+                                ->update(['AKTIF' => 'T']);
 
-
-                            //non aktifkan container_stuffing dengan nomor request lama
-                            $query_update    = "UPDATE CONTAINER_STUFFING SET AKTIF = 'T' WHERE NO_CONTAINER = '$NO_CONT[$i]' AND NO_REQUEST = '$no_req'";
-                            DB::connection('uster')->update($query_update);
+                            // **3. Nonaktifkan PLAN_CONTAINER_STUFFING dengan request lama**
                             $no_req_plan = str_replace('S', 'P', $no_req);
-                            $query_update_plan    = "UPDATE PLAN_CONTAINER_STUFFING SET AKTIF = 'T' WHERE NO_CONTAINER = '$NO_CONT[$i]' AND NO_REQUEST = '$no_req_plan'";
-                            DB::connection('uster')->update($query_update_plan);
+                            DB::connection('uster')->table('PLAN_CONTAINER_STUFFING')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->where('NO_REQUEST', $no_req_plan)
+                                ->update(['AKTIF' => 'T']);
 
+                            // **4. Ambil STATUS_CONT dari HISTORY_CONTAINER**
+                            $cur_status = DB::connection('uster')->table('HISTORY_CONTAINER')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->where('NO_REQUEST', $no_req)
+                                ->value('STATUS_CONT');
 
-                            //cek status terakhir container pada kegiatan sebelumnya
-                            $q_getstatus = "SELECT STATUS_CONT FROM HISTORY_CONTAINER
-											WHERE NO_CONTAINER = '$NO_CONT[$i]' AND NO_REQUEST = '$no_req'";
-                            $r_getstatus = DB::connection('uster')->selectOne($query_cek_perp);
-                            $cur_status = $r_getstatus->status_cont;
-                            //cek counter dan status history container
-                            $q_getcounter = "SELECT NO_BOOKING, COUNTER
-											FROM MASTER_CONTAINER
-											WHERE NO_CONTAINER = '$NO_CONT[$i]' ORDER BY COUNTER DESC";
-                            $rw_getcounter =   DB::connection('uster')->selectOne($query_update);
-                            $cur_booking  = $rw_getcounter->no_booking;
-                            $cur_counter  = $rw_getcounter->counter;
+                            // **5. Ambil NO_BOOKING dan COUNTER dari MASTER_CONTAINER**
+                            $counterData = DB::connection('uster')->table('MASTER_CONTAINER')
+                                ->where('NO_CONTAINER', $NO_CONT)
+                                ->orderByDesc('COUNTER')
+                                ->first();
 
-                            $ID_USER = session('PENGGUNA_ID');
-                            $id_yard = session("IDYARD_STORAGE");
+                            $cur_booking = $counterData->NO_BOOKING ?? '';
+                            $cur_counter = $counterData->COUNTER ?? '';
 
-                            $history = "INSERT INTO history_container
-									(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT )
-							 VALUES ('$NO_CONT[$i]','$no_req_s','PERPANJANGAN STUFFING',SYSDATE,'$ID_USER','$id_yard','$cur_counter','$cur_booking','$cur_status')";
+                            $ID_USER = Session::get('PENGGUNA_ID');
+                            $id_yard = Session::get("IDYARD_STORAGE");
 
-                            DB::connection('uster')->insert($history);
+                            // **6. Insert ke HISTORY_CONTAINER**
+                            DB::connection('uster')->insert("
+                                INSERT INTO HISTORY_CONTAINER (
+                                    NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, COUNTER, NO_BOOKING, STATUS_CONT
+                                )
+                                VALUES (?, ?, 'PERPANJANGAN STUFFING', SYSDATE, ?, ?, ?, ?, ?)
+                            ", [$NO_CONT, $no_req_s, $ID_USER, $id_yard, $cur_counter, $cur_booking, $cur_status]);
                         } else {
-                            DB::rollBack();
                             throw new Exception("Tgl Perpanjangan tidak boleh kosong");
                         }
                     }
                 }
 
-                $qparam = array(
+                $qparam = [
                     "in_req_old" => $no_req,
                     "in_req_new" => $no_req_s,
                     "in_iduser" => $ID_USER,
                     "in_ket" => $keterangan,
                     "p_ErrMsg" => "",
-                );
-                $queryif = "declare begin pack_create_req_stuffing.perpanjangan(:in_req_old,:in_req_new,:in_iduser,:in_ket,:p_ErrMsg); end;";
-                DB::connection('uster')->statement($queryif, $qparam);
-                $msg = $qparam["p_ErrMsg"];
+                ];
+
+                $queryif = "DECLARE BEGIN pack_create_req_stuffing.perpanjangan(:in_req_old, :in_req_new, :in_iduser, :in_ket, :p_ErrMsg); END;";
+                // Eksekusi stored procedure dengan output parameter
+                DB::connection('uster')->getPdo()->prepare($queryif)->execute($qparam);
+
+                // Ambil pesan error dari output parameter
+                $msg = $qparam["p_ErrMsg"] ?? null;
 
                 if ($msg == 'OK') {
                     return response()->json('OK');
@@ -1070,7 +1048,7 @@ class PerpanjanganService
             }
         } catch (\Exception $e) {
             // Rollback transaksi database jika terjadi exception
-            DB::connection('uster')->rollBack();
+            DB::rollBack();
             // Lakukan penanganan exception
             return response()->json('Terjadi kesalahan: ' . $e->getMessage());
         }

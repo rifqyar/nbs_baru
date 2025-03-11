@@ -5,6 +5,7 @@ $(document).bind("keydown", function (e) {
 });
 
 $(function () {
+    addContainer();
     if ($("#data-section").length > 0 && $(".alert").css("display") == "none") {
         $("html, body").animate(
             {
@@ -389,11 +390,7 @@ $("#NO_CONT").autocomplete({
             var seconds = parseInt(containerDischDateStr.substring(12, 14));
 
             // Create the date object
-            var containerDischDate = new Date(
-                year,
-                month,
-                day
-            );
+            var containerDischDate = new Date(year, month, day);
 
             // Check if date creation is valid
             if (isNaN(containerDischDate.getTime())) {
@@ -408,7 +405,7 @@ $("#NO_CONT").autocomplete({
                     "-" +
                     ("0" + (containerDischDate.getMonth() + 1)).slice(-2) +
                     "-" +
-                    ("0" + containerDischDate.getDate()).slice(-2)
+                    ("0" + containerDischDate.getDate()).slice(-2);
             }
 
             $("#TGL_SELESAI").val(formattedDate);

@@ -153,8 +153,8 @@
                                         @foreach ($row_detail as $rows)
                                             <tr>
                                                 <td>{{ $rows->keterangan }}</td>
-                                                <td>{{ $rows->start_stack }}</td>
-                                                <td>{{ $rows->end_stack }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($rows->start_stack)->format('Y-m-d') }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($rows->end_stack)->format('Y-m-d') }}</td>
                                                 <td>{{ $rows->jml_cont }}</td>
                                                 <td>{{ $rows->size_ }}</td>
                                                 <td>{{ $rows->type_ }}</td>
@@ -182,7 +182,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_discount->discount, 0, ',', '.') }}
+                                                {{ number_format($row_discount, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -194,7 +194,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_adm->adm, 0, ',', '.') }}
+                                                {{ number_format($row_adm, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -294,24 +294,24 @@
 
     <script>
         function insertNota() {
+
             Swal.fire({
-                title: 'Simpan Nota?',
-                text: 'Apakah Anda Yakin Untuk Save Proforma {{ request()->input('no_req') }}?',
-                type: 'info',
+                title: 'Are you sure?',
+                text: 'You are about to save nota {{ request()->input('no_req') }} . This action cannot be undone.',
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Simpan',
-                cancelButtonText: 'Batal'
+                confirmButtonText: 'Yes, save nota',
+                cancelButtonText: 'No, cancel'
             }).then((result) => {
                 if (result.value) {
                     Swal.fire({
-                        html: "<h5>Menyimpan Data Proforma...</h5>",
-                        showConfirmButton: false,
+                        title: 'Saving Nota Request...',
                         allowOutsideClick: false,
+                        didOpen: function() {
+                            Swal.showLoading();
+                        }
                     });
-
-                    Swal.showLoading();
-
-                    var url = "{{ route('uster.billing.nota_stuffing.insert_proforma_pnkn') }}";
+                    var url = "{{ route('uster.billing.nota_ext_pnkn_stuffing.insert_proforma') }}";
                     $.ajaxSetup({
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -323,33 +323,31 @@
                     }, function(data) {
                         if (data == 'OK') {
                             Swal.fire({
-                                type: 'success',
+                                icon: 'success',
                                 text: 'Save Nota Success',
                                 title: 'Success',
                             }).then((result) => {
-                                if (result.value) {
+                                if (result.isConfirmed) {
                                     window.open(
-                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}",
-                                        '_self'
-                                    );
+                                        "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}",
+                                        '_blank');
                                 }
                             });
                         } else if (data == 'OK-INSERT') {
                             Swal.fire({
-                                type: 'success',
+                                icon: 'success',
                                 text: 'Save Nota Success',
                                 title: 'Success',
                             }).then((result) => {
-                                if (result.value) {
+                                if (result.isConfirmed) {
                                     window.open(
-                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}&first=1",
-                                        '_self'
-                                    );
+                                        "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}&first=1",
+                                        '_blank');
                                 }
                             });
                         } else {
                             Swal.fire({
-                                type: 'error',
+                                icon: 'error',
                                 title: 'Save Nota Failed',
                                 text: data,
                             });

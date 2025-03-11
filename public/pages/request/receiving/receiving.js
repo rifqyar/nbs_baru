@@ -6,6 +6,7 @@ $(document).bind("keydown", function (e) {
 });
 
 $(function () {
+    addContainer();
     if ($("#data-section").length > 0 && $(".alert").css("display") == "none") {
         $("html, body").animate(
             {

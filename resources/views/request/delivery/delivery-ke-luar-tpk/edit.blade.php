@@ -545,7 +545,6 @@ Perencanaan Kegiatan Delivery
 
         $('#carrier').on('select2:select', function(e) {
             var data = e.params.data;
-            console.log(data)
             $("#carrier").val(data.operatorCode);
             $("#cardet").val(data.operatorName);
         });
@@ -706,7 +705,6 @@ Perencanaan Kegiatan Delivery
 
         $('#KOMODITI').on('select2:select', function(e) {
             var data = e.params.data;
-            console.log(data)
             $("#ID_KOMODITI").val(data.kd_commodity);
         });
 

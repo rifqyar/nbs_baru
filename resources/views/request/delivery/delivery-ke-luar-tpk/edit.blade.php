@@ -384,7 +384,8 @@ Perencanaan Kegiatan Delivery
                                 <label for="tb-fname">Carrier : </label>
                             </div>
                             <div class="col-md-4">
-                                <input class="form-control" type="text" name="carrier" ID="carrier" />
+                                <select name="carrier" id="carrier" class="form-control w-100"></select>
+                                {{-- <input class="form-control" type="text" name="carrier" ID="carrier" /> --}}
                             </div>
                             <div class="col-md-2 py-2">
                                 <label for="tb-fname">Keterangan : </label>

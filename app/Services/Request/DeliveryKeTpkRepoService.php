@@ -569,7 +569,7 @@ class DeliveryKeTpkRepoService
             if ($asal == 'TPK') {
                 $location = 'IN_YARD';
             }
-            $req_dev        = $row_cek2->no_container;
+            $req_dev        = $row_cek2->no_container ?? null;
             //ECHO $query_cek;
             if (($no_cont <> NULL) && ($location == 'IN_YARD') && ($req_dev <> NULL)) {
                 echo "SDH_REQUEST";

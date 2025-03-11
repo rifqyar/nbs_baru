@@ -989,7 +989,8 @@ class DeliveryService
             $kegiatan        = $row_cek1->kegiatan;
 
             if ($kegiatan == 'RECEIVING_LUAR') {
-                $query_cek1        = " SELECT SUBSTR(TO_CHAR(b.TGL_IN,'dd/mm/rrrr'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
+                // $query_cek1        = " SELECT SUBSTR(TO_CHAR(b.TGL_IN,'dd/mm/rrrr'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
+                $query_cek1        = " SELECT TGL_IN as START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
                 // $result_cek1    = $db->query($query_cek1);
                 $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
                 $tgl_stack    = $row_cek1->start_stack;

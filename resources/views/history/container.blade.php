@@ -41,11 +41,6 @@
                             <div class="col-md-2 py-2">
                                 <label for="tb-fname">No Container : </label>
                             </div>
-                            {{-- <div class="col-md-6">
-                                <select name="NO_CONT" id="NO_CONT" class="form-control" style="width: 100%"></select>
-                                <div class="invalid-feedback">Harap Masukan Nomor Container</div>
-                                <input type="hidden" id="NO_CONT2">
-                            </div> --}}
                             <div class="col-md-6">
                                 <select name="NO_CONT" id="NO_CONT" class="form-control" style="width: 100%"></select>
                                 <div class="invalid-feedback">Harap Masukan Nomor Container</div>
@@ -353,27 +348,7 @@
         });
 
         $(document).ready(function() {
-            // Existing Select2 initialization
-            // $('#NO_CONT').select2({
-            //     minimumInputLength: 3, // Set the minimum input length
-            //     ajax: {
-            //         url: '{!! route('uster.monitoring.listContainer') !!}',
-            //         dataType: 'json',
-            //         processResults: function(data) {
-            //             const dataArray = Array.isArray(data) ? data : [data];
-
-            //             return {
-            //                 results: dataArray.map((item) => ({
-            //                     id: item.no_container + item.counter,
-            //                     text: ' [ ' + item.counter + ' ] ' + item.no_container +
-            //                         ' ' + item.ie +
-            //                         ' ' + item.nm_kapal,
-            //                     ...item
-            //                 }))
-            //             };
-            //         }
-            //     }
-            // });
+            
 
             $('#NO_CONT').select2({
                 minimumInputLength: 3,

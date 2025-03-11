@@ -50,8 +50,8 @@
                                 <select name="NO_CONT" id="NO_CONT" class="form-control" style="width: 100%"></select>
                                 <div class="invalid-feedback">Harap Masukan Nomor Container</div>
                                 <input type="hidden" id="NO_CONT2">
-                                <div id="copyArea" contenteditable="true" 
-                                    style="border: 1px solid #ccc; padding: 5px; margin-top: 10px; width: 100%; min-height: 30px; background-color: #ffffff;">
+                                <div id="copyArea" readonly contenteditable="true" 
+                                    style="border: 1px solid #ccc; padding: 5px; margin-top: 10px; width: 100%; min-height: 30px; background-color: #f8f9fa;">
                                 </div></p>
                             </div>
                         </div>
@@ -348,13 +348,10 @@
             $("#LOCATION").val('');
         }
 
-        document.getElementById('copyArea').addEventListener('keydown', function (e) {
-            e.preventDefault(); // Mencegah input tambahan
+        document.getElementById('copyArea').addEventListener('keypress', function (e) {
+            e.preventDefault(); // Mencegah input manual, tapi tetap bisa copy-paste
         });
 
-        document.getElementById('copyArea').addEventListener('paste', function (e) {
-            e.preventDefault(); // Mencegah paste teks tambahan
-        });
         $(document).ready(function() {
             // Existing Select2 initialization
             // $('#NO_CONT').select2({
@@ -402,12 +399,14 @@
             $('#NO_CONT').on('select2:select', function (e) {
                 let selectedText = e.params.data.text;
                 $('#NO_CONT2').val(e.params.data.id); // Simpan ID opsi terpilih di input hidden
-                $('#copyArea').text(selectedText); // Tampilkan teks opsi terpilih yang bisa dicopy
+                $('#copyArea').text(selectedText); // Ganti teks pada copyArea dengan pilihan baru
             });
 
             $('#NO_CONT').on('select2:unselect', function () {
-                $('#copyArea').text(''); // Kosongkan area copy jika tidak ada yang dipilih
+                $('#copyArea').text(''); // Kosongkan area copy jika opsi di-unselect
             });
+
+
 
             // Get the 'container' parameter from the URL
             const urlParams = new URLSearchParams(window.location.search);

@@ -581,7 +581,7 @@ class DeliveryKeTpkRepoService
 
                 // =========================================== NBS_OPUS ==============================================//
                 $di = 'D';
-                $pdo = DB::getPdo();
+                $pdo = DB::connection('uster')->getPdo();
                 $param_detail = array(
                     'in_nocont' => $no_cont,
                     'in_noreq' => $no_req,
@@ -618,7 +618,7 @@ class DeliveryKeTpkRepoService
                 );
 
                 $msgout = "";
-                $querydet = "declare begin pack_create_req_delivery_repo.create_detail_repo_praya(:in_nocont,:in_noreq,
+                $querydet = "declare begin USTER.PACK_CREATE_REQ_DELIVERY_REPO.CREATE_DETAIL_REPO_PRAYA(:in_nocont,:in_noreq,
                             :in_reqnbs,:in_user,:in_jnrepo,:in_status,:in_hz,:in_komoditi,:in_kdkomoditi,:in_keterangan,:in_noseal,:in_berat,:in_via,
                             :in_idyard,:in_startstack,:in_tgldelivery,:in_asalcont,:in_bpid,:in_nobooking,:in_idvsb,:in_counter,:in_imo,:in_hg,
                             :in_ship,:in_car,:in_temp,:in_oh,:in_ow,:in_ol,:in_un,:in_contlimit,:out_msgdet); end;";
@@ -627,10 +627,8 @@ class DeliveryKeTpkRepoService
                 foreach ($param_detail as $key => &$value) {
                     $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
                 }
-
                 $stmt->bindParam(":out_msgdet", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
                 $stmt->execute();
-                // $msgout = $param_detail['out_msgdet'];
 
                 echo ($msgout);
                 die;

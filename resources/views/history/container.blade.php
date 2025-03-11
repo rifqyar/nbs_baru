@@ -41,10 +41,18 @@
                             <div class="col-md-2 py-2">
                                 <label for="tb-fname">No Container : </label>
                             </div>
+                            {{-- <div class="col-md-6">
+                                <select name="NO_CONT" id="NO_CONT" class="form-control" style="width: 100%"></select>
+                                <div class="invalid-feedback">Harap Masukan Nomor Container</div>
+                                <input type="hidden" id="NO_CONT2">
+                            </div> --}}
                             <div class="col-md-6">
                                 <select name="NO_CONT" id="NO_CONT" class="form-control" style="width: 100%"></select>
                                 <div class="invalid-feedback">Harap Masukan Nomor Container</div>
                                 <input type="hidden" id="NO_CONT2">
+                                <div id="copyArea" contenteditable="true" 
+                                    style="border: 1px solid #ccc; padding: 5px; margin-top: 10px; width: 100%; min-height: 30px; background-color: #ffffff;">
+                                </div></p>
                             </div>
                         </div>
                         <div class="row">
@@ -340,10 +348,38 @@
             $("#LOCATION").val('');
         }
 
+        document.getElementById('copyArea').addEventListener('keydown', function (e) {
+            e.preventDefault(); // Mencegah input tambahan
+        });
+
+        document.getElementById('copyArea').addEventListener('paste', function (e) {
+            e.preventDefault(); // Mencegah paste teks tambahan
+        });
         $(document).ready(function() {
             // Existing Select2 initialization
+            // $('#NO_CONT').select2({
+            //     minimumInputLength: 3, // Set the minimum input length
+            //     ajax: {
+            //         url: '{!! route('uster.monitoring.listContainer') !!}',
+            //         dataType: 'json',
+            //         processResults: function(data) {
+            //             const dataArray = Array.isArray(data) ? data : [data];
+
+            //             return {
+            //                 results: dataArray.map((item) => ({
+            //                     id: item.no_container + item.counter,
+            //                     text: ' [ ' + item.counter + ' ] ' + item.no_container +
+            //                         ' ' + item.ie +
+            //                         ' ' + item.nm_kapal,
+            //                     ...item
+            //                 }))
+            //             };
+            //         }
+            //     }
+            // });
+
             $('#NO_CONT').select2({
-                minimumInputLength: 3, // Set the minimum input length
+                minimumInputLength: 3,
                 ajax: {
                     url: '{!! route('uster.monitoring.listContainer') !!}',
                     dataType: 'json',
@@ -361,6 +397,16 @@
                         };
                     }
                 }
+            });
+
+            $('#NO_CONT').on('select2:select', function (e) {
+                let selectedText = e.params.data.text;
+                $('#NO_CONT2').val(e.params.data.id); // Simpan ID opsi terpilih di input hidden
+                $('#copyArea').text(selectedText); // Tampilkan teks opsi terpilih yang bisa dicopy
+            });
+
+            $('#NO_CONT').on('select2:unselect', function () {
+                $('#copyArea').text(''); // Kosongkan area copy jika tidak ada yang dipilih
             });
 
             // Get the 'container' parameter from the URL
@@ -914,3 +960,4 @@
         }
     </script>
 @endsection
+	

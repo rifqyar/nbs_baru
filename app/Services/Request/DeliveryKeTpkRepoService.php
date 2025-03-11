@@ -487,7 +487,7 @@ class DeliveryKeTpkRepoService
 
             $cek_gati = "SELECT AKTIF FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$no_cont' order by AKTIF DESC";
             $rw_gati = DB::connection('uster')->selectOne($cek_gati);
-            $aktif_rec = $rw_gati->aktif;
+            $aktif_rec = $rw_gati->aktif ?? null;
             if ($aktif_rec == 'Y') {
                 echo 'EXIST_REC';
                 exit();
@@ -506,7 +506,7 @@ class DeliveryKeTpkRepoService
                 FROM CONTAINER_STUFFING
                WHERE NO_CONTAINER = '$no_cont' AND AKTIF = 'Y'";
             $r_stuf = DB::connection('uster')->selectOne($cek_stuf);
-            $l_stuf = $r_stuf->aktif;
+            $l_stuf = $r_stuf->aktif ?? null;
             if ($l_stuf == 'Y') {
                 echo "EXIST_STUF";
                 exit();
@@ -516,7 +516,7 @@ class DeliveryKeTpkRepoService
                 FROM CONTAINER_STRIPPING
                WHERE NO_CONTAINER = '$no_cont' AND AKTIF = 'Y'";
             $r_strip = DB::connection('uster')->selectOne($cek_strip);
-            $l_strip = $r_strip->aktif;
+            $l_strip = $r_strip->aktif ?? null;
             if ($l_strip == 'Y') {
                 echo "EXIST_STRIP";
                 exit();
@@ -527,8 +527,8 @@ class DeliveryKeTpkRepoService
 											WHERE NO_CONTAINER ='$no_cont'
 											";
             $row_cek_cont     = DB::connection('uster')->selectOne($query_cek_cont);
-            $cek_book         = $row_cek_cont->no_booking;
-            $cek_counter    = $row_cek_cont->counter;
+            $cek_book         = $row_cek_cont->no_booking ?? null;
+            $cek_counter    = $row_cek_cont->counter ?? null;
 
             //if($cek_book == NULL){
             $q_update_book = "UPDATE MASTER_CONTAINER SET NO_BOOKING = '$no_booking' WHERE NO_CONTAINER = '$no_cont'";
@@ -536,8 +536,8 @@ class DeliveryKeTpkRepoService
             //}
             $q_getcounter = "SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont'";
             $rw_getcounter = DB::connection('uster')->selectOne($q_getcounter);
-            $cur_counter = $rw_getcounter->counter;
-            $cur_booking = $rw_getcounter->no_booking;
+            $cur_counter = $rw_getcounter->counter ?? null;
+            $cur_booking = $rw_getcounter->no_booking ?? null;
 
 
             if ($cur_booking == NULL) {

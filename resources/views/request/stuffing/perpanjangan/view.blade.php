@@ -426,7 +426,7 @@
                                 '{{ route('uster.new_request.stuffing.perpanjangan.addContainer') }}';
                             $.post(url, formData, function(response) {
                                 // Lakukan sesuatu dengan respons jika perlu
-                                windows.location.href = '/request/stuffing/perpanjangan'
+                                window.location.href = '/request/stuffing/perpanjangan'
                             });
 
                         } else {

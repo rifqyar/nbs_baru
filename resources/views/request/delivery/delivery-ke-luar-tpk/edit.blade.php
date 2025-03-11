@@ -495,6 +495,7 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $(document).ready(function() {
+            var contDataTable
             $('#NM_PELANGGAN2').select2({
                 minimumInputLength: 3, // Set the minimum input length
                 ajax: {
@@ -770,7 +771,7 @@
                 $("#ID_KOMODITI").val(data.kd_commodity);
             });
 
-            $('#container-table').DataTable({
+            contDataTable = $('#container-table').DataTable({
                 // responsive: true,
                 processing: true,
                 serverSide: true,
@@ -999,7 +1000,7 @@
                                     return false;
                                 } else if (size_ == '' || tipe_ == '' || status_ == '') {
                                     sAlert("Peringatan", 'Size, Type, dan Status tidak boleh kosong',
-                                    "warning");
+                                        "warning");
                                     return false;
                                 } else if (hz_ == 'Y') {
                                     if (imo_ == '' || unnumber_ == '') {
@@ -1055,49 +1056,50 @@
                                             });
                                         },
                                         success: function(data) {
+                                            console.log(data)
                                             Swal.close();
-                                            if (data == "NOT_EXIST") {
+                                            if (data.message == "NOT_EXIST") {
                                                 sAlert("Peringatan", "Container Belum Terdaftar",
                                                     "warning");
-                                            } else if (data == "CLOSING_TIME") {
+                                            } else if (data.message == "CLOSING_TIME") {
                                                 sAlert("Peringatan",
                                                     "Masa Closing Time Sudah Habis, Silakan Lakukan Booking Stack Pada Kapal Lain",
                                                     "warning");
-                                            } else if (data == "BLM_PLACEMENT") {
+                                            } else if (data.message == "BLM_PLACEMENT") {
                                                 sAlert("Peringatan", "Container Belum Placement",
                                                     "warning");
-                                            } else if (data == "SDH_REQUEST") {
+                                            } else if (data.message == "SDH_REQUEST") {
                                                 sAlert("Peringatan",
                                                     "Container Sudah Mengajukan Request Delivery",
                                                     "warning");
-                                            } else if (data == "EXIST_REC") {
+                                            } else if (data.message == "EXIST_REC") {
                                                 sAlert("Peringatan",
                                                     "Container Masih Aktif di Req Receiving / Belum Gate In",
                                                     "warning");
-                                            } else if (data == "EXIST_DEL_BY_BOOKING") {
+                                            } else if (data.message == "EXIST_DEL_BY_BOOKING") {
                                                 sAlert("Peringatan",
                                                     "Container Sudah Di Request Pada Voyage Tersebut",
                                                     "warning");
-                                            } else if (data == "EXIST_MUAT") {
+                                            } else if (data.message == "EXIST_MUAT") {
                                                 sAlert("Peringatan", "Container Dalam Proses Muat",
                                                     "warning");
-                                            } else if (data == "EXIST_TPK") {
+                                            } else if (data.message == "EXIST_TPK") {
                                                 sAlert("Peringatan", "Container Masih Aktif di TPK",
                                                     "warning");
-                                            } else if (data == "EXIST_STRIP") {
+                                            } else if (data.message == "EXIST_STRIP") {
                                                 sAlert("Peringatan",
                                                     "Container Masih Aktif di Req Stripping / Belum Realisasi",
                                                     "warning");
-                                            } else if (data == "EXIST_STUF") {
+                                            } else if (data.message == "EXIST_STUF") {
                                                 sAlert("Peringatan",
                                                     "Container Masih Aktif di Req Stuffing / Belum Realisasi",
                                                     "warning");
                                             }
 
-                                            if (data.status['code'] == 200) {
-                                                sAlert('Berhasil!', data.status['msg'], 'success');
+                                            if (data.status.code == 200) {
+                                                sAlert('Berhasil!', data.status.msg, 'success');
                                             } else {
-                                                sAlert('Gagal!', data.status['msg'], 'error');
+                                                sAlert('Gagal!', data.status.msg, 'error');
                                             }
 
                                             $('#container-table').DataTable().ajax.reload();

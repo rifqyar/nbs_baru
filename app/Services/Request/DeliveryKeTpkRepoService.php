@@ -484,13 +484,13 @@ class DeliveryKeTpkRepoService
             $cont_limit     = $request->CONT_LIMIT;
 
             $bp_id = $ex_pmb;
+            $returnMsg = '';
 
             $cek_gati = "SELECT AKTIF FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$no_cont' order by AKTIF DESC";
             $rw_gati = DB::connection('uster')->selectOne($cek_gati);
             $aktif_rec = $rw_gati->aktif ?? null;
             if ($aktif_rec == 'Y') {
-                echo 'EXIST_REC';
-                exit();
+                $returnMsg = 'EXIST_REC';
             }
 
             $cek_req_satu_kapal = "select no_booking from container_delivery, request_delivery where container_delivery.no_request = request_delivery.no_request
@@ -498,8 +498,7 @@ class DeliveryKeTpkRepoService
             $rw_cekkpl = DB::connection('uster')->selectOne($cek_req_satu_kapal);
             $nobokk_lama =  $rw_cekkpl->no_booking ?? null;
             if ($nobokk_lama != NULL) {
-                echo 'EXIST_DEL_BY_BOOKING';
-                exit();
+                $returnMsg = 'EXIST_DEL_BY_BOOKING';
             }
 
             $cek_stuf = "SELECT AKTIF
@@ -508,8 +507,7 @@ class DeliveryKeTpkRepoService
             $r_stuf = DB::connection('uster')->selectOne($cek_stuf);
             $l_stuf = $r_stuf->aktif ?? null;
             if ($l_stuf == 'Y') {
-                echo "EXIST_STUF";
-                exit();
+                $returnMsg = "EXIST_STUF";
             }
 
             $cek_strip = "SELECT AKTIF
@@ -518,8 +516,7 @@ class DeliveryKeTpkRepoService
             $r_strip = DB::connection('uster')->selectOne($cek_strip);
             $l_strip = $r_strip->aktif ?? null;
             if ($l_strip == 'Y') {
-                echo "EXIST_STRIP";
-                exit();
+                $returnMsg = "EXIST_STRIP";
             }
 
             $query_cek_cont            = "SELECT NO_BOOKING, COUNTER
@@ -572,9 +569,9 @@ class DeliveryKeTpkRepoService
             $req_dev        = $row_cek2->no_container ?? null;
             //ECHO $query_cek;
             if (($no_cont <> NULL) && ($location == 'IN_YARD') && ($req_dev <> NULL)) {
-                echo "SDH_REQUEST";
+                $returnMsg = "SDH_REQUEST";
             } else if (($no_cont <> NULL) && ($location == 'GATI') && ($req_dev == NULL)) {
-                echo "BLM_PLACEMENT";
+                $returnMsg = "BLM_PLACEMENT";
             } else if (($no_cont <> NULL) && ($location == 'IN_YARD') && ($req_dev == NULL)) {
 
 
@@ -630,8 +627,6 @@ class DeliveryKeTpkRepoService
                 $stmt->bindParam(":out_msgdet", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
                 $stmt->execute();
 
-                echo ($msgout);
-                die;
                 // ===========================================  NBS_OPUS ==============================================//
                 if ($msgout == 'OK1') {
 
@@ -778,21 +773,21 @@ class DeliveryKeTpkRepoService
                     $q_getc = "SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont' ORDER BY COUNTER DESC";
                     $rw_getc = DB::connection('uster')->selectOne($q_getc);
                     $cur_c = $rw_getc->counter;
-                    echo $msgout;
-                    exit();
+                    $returnMsg = $msgout;
                 } else {
-                    echo $msgout;
-                    exit();
+                    $returnMsg = $msgout;
                 }
             } else if (($no_cont <> null) && ($location == 'GATO') && ($req_dev <> NULL)) {
-                echo "NOT_EXIST";
+                $returnMsg = "NOT_EXIST";
             }
-            DB::commit();
+
+            DB::rollBack();
             return [
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
                 ],
+                'message' => $returnMsg
             ];
         } catch (Exception $th) {
             DB::rollBack();

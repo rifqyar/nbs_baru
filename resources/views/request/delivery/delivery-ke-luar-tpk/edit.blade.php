@@ -704,6 +704,12 @@ Perencanaan Kegiatan Delivery
             }
         });
 
+        $('#KOMODITI').on('select2:select', function(e) {
+            var data = e.params.data;
+            console.log(data)
+            $("#ID_KOMODITI").val(data.operatorCode);
+        });
+
         $('#container-table').DataTable({
             // responsive: true,
             processing: true,

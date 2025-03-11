@@ -278,18 +278,18 @@ class PerencaanService
         $lunas        = $rowCheck->lunas;
 
         if ($lunas == 'NO') {
-            return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-primary w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
+            return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" class="btn btn-primary w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
         } else {
             if (($rowCheck->nota <> 'Y') and ($rowCheck->koreksi <> 'Y')) {
-                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-primary w-100 "><b><i class="fas fa-edit"></i> Edit Request</b></a>';
+                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" class="btn btn-primary w-100 "><b><i class="fas fa-edit"></i> Edit Request</b></a>';
             } else if (($rowCheck->nota == NULL) and ($rowCheck->koreksi == NULL)) {
-                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-primary w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
+                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" class="btn btn-primary w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
             } else if (($rowCheck->nota == 'Y') and ($rowCheck->koreksi <> 'Y')) {
                 return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.overview', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-success w-100"><i class="fas fa-print"></i> Nota sudah cetak</a>';
             } else if (($rowCheck->nota == 'Y') and ($rowCheck->koreksi == 'Y')) {
                 return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.overview', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-success w-100"><i class="fas fa-print"></i> Nota sudah cetak</a>';
             } else if (($rowCheck->nota <> 'Y') and ($rowCheck->koreksi == 'Y')) {
-                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" target="_blank" class="btn btn-danger w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
+                return '<a href="' . route('uster.new_request.stuffing.stuffing_plan.view', ['no_req' => $noReq]) . '" class="btn btn-danger w-100"><b><i class="fas fa-edit"></i> Edit Request</b></a>';
             }
         }
     }

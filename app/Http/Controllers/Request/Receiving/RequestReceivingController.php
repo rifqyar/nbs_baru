@@ -38,8 +38,8 @@ class RequestReceivingController extends Controller
             ->editColumn('tgl_request', function ($data) {
                 return '<span class="badge badge-pill badge-success p-2"><i class="mdi mdi-calendar"></i> ' . Carbon::parse($data->tgl_request)->translatedFormat('d M Y H:i') . ' </span>';
             })
-            ->editColumn('nama_emkl', function($data){
-                return Str::length($data->nama_emkl) > 40 ? Str::substr($data->nama_emkl, 0, 40).'...' : $data->nama_emkl;
+            ->editColumn('nama_emkl', function ($data) {
+                return Str::length($data->nama_emkl) > 40 ? Str::substr($data->nama_emkl, 0, 40) . '...' : $data->nama_emkl;
             })
             ->editColumn('action', function ($data) {
                 return self::renderAction($data);
@@ -57,26 +57,26 @@ class RequestReceivingController extends Controller
         $html = '';
 
         if ($lunas == 'NO') {
-            $html = '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-warning p-2 w-100"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
+            $html = '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-warning p-2 w-100"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
         } else {
             if ($nota != 'Y' && $koreksi != 'Y') {
-                $html = '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-warning p-2 w-100">  Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
+                $html = '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-warning p-2 w-100">  Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
             } else if ($nota == 'Y' && $koreksi != 'Y') {
                 if ($data->status_nota_header = '2') {
-                    $html = '<a href="'.url('/request/receiving/overview/'.$noReq).'" class="badge badge-pill badge-success p-2 w-100"> Nota sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a> ';
+                    $html = '<a href="' . url('/request/receiving/overview/' . $noReq) . '" class="badge badge-pill badge-success p-2 w-100"> Nota sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a> ';
                 } else {
-                    $html = '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-info p-2 w-100"> Proforma sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a>';
+                    $html = '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-info p-2 w-100"> Proforma sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a>';
                     $html .= '<br>';
-                    $html .= '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-warning py-2 w-100 px-3 mt-2"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
+                    $html .= '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-warning py-2 w-100 px-3 mt-2"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
                 }
             } else if ($nota == 'Y' && $koreksi == 'Y') {
-                $html = '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-info p-2 w-100"> Proforma sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a>';
+                $html = '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-info p-2 w-100"> Proforma sudah cetak <i class="mdi mdi-check-circle ml-1"></i> </a>';
                 $html .= '<br>';
-                $html .= '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-warning py-2 w-100 px-3 mt-2"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
+                $html .= '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-warning py-2 w-100 px-3 mt-2"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
             } else if ($nota == 'F' && $koreksi != 'Y') {
-                $html = '<a href="'.url('/request/receiving/overview/'.$noReq).'" class="badge badge-pill badge-success p-2 w-100"> Nota sudah cetak <i class="mdi mdi-check-circle ml-1"></i>  </a> ';
+                $html = '<a href="' . url('/request/receiving/overview/' . $noReq) . '" class="badge badge-pill badge-success p-2 w-100"> Nota sudah cetak <i class="mdi mdi-check-circle ml-1"></i>  </a> ';
             } else if ($nota != 'Y' && $koreksi == 'Y') {
-                $html = '<a href="'.url('/request/receiving/view/'.$noReq).'" class="badge badge-pill badge-warning p-2 w-100"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
+                $html = '<a href="' . url('/request/receiving/view/' . $noReq) . '" class="badge badge-pill badge-warning p-2 w-100"> Edit <i class="mdi mdi-pencil-box ml-1"></i> </a> ';
             }
         }
 
@@ -131,15 +131,15 @@ class RequestReceivingController extends Controller
         DB::beginTransaction();
         try {
             $noReq = '';
-            if($request->type == 'edit'){
+            if ($request->type == 'edit') {
                 $data = array(
                     'KD_CONSIGNEE' => $request->kd_consignee,
                     'KD_PENUMPUKAN_OLEH' => $request->kd_consignee,
                     'NM_CONSIGNEE' => $request->consignee,
                     'RECEIVING_DARI' => 'LUAR',
-                    'NO_RO'	   => $request->no_ro,
+                    'NO_RO'       => $request->no_ro,
                     'KETERANGAN' => $request->keterangan,
-                    'DI' 		   => $request->di
+                    'DI'            => $request->di
                 );
             } else {
                 $noReq = generateNoReqReceiving();
@@ -162,8 +162,8 @@ class RequestReceivingController extends Controller
             $process = $this->receiving->addEdit($data, $request->no_req);
             $statusCode = $process->getData()->status->code;
 
-            if($statusCode != 200){
-                throw new Exception('Gagal Update Data',500);
+            if ($statusCode != 200) {
+                throw new Exception('Gagal Update Data', 500);
             }
 
             return response()->json([
@@ -193,6 +193,10 @@ class RequestReceivingController extends Controller
     {
         DB::beginTransaction();
         try {
+            $this->validate($request, [
+                'NO_CONTAINER' => 'max:11'
+            ]);
+
             $validate = $this->validasiSaveCont($request);
             $ukk = $validate['ukk'];
             $ex_kapal = $validate['ex_kapal'];
@@ -220,8 +224,8 @@ class RequestReceivingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Tambah Container',
                 'redirect' => [
-                    'need' => false,
-                    'to' => null,
+                    'need' => true,
+                    'to' => route('uster.new_request.receiving.view', base64_encode($request->no_req)),
                 ]
             ]);
         } catch (Exception $th) {
@@ -241,10 +245,10 @@ class RequestReceivingController extends Controller
     function cekCont($request)
     {
         // Cek Container
-        $queryCekCont = "SELECT NO_CONTAINER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '".$request->no_cont."'";
+        $queryCekCont = "SELECT NO_CONTAINER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '" . $request->no_cont . "'";
         $result_cek_cont = DB::connection('uster')->selectOne($queryCekCont);
-        $cek_cont		 = $result_cek_cont;
-        if($cek_cont == null){
+        $cek_cont         = $result_cek_cont;
+        if ($cek_cont == null) {
             // insert into master
             $queryInsertCont = generateQuerySimpan([
                 'NO_CONTAINER' => $request->no_cont,
@@ -255,7 +259,7 @@ class RequestReceivingController extends Controller
                 'COUNTER' => 1
             ]);
 
-            $query_insert_mstr	= "INSERT INTO MASTER_CONTAINER $queryInsertCont";
+            $query_insert_mstr    = "INSERT INTO MASTER_CONTAINER $queryInsertCont";
             DB::connection('uster')->statement($query_insert_mstr);
         } else {
             $query_counter = "SELECT COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$request->no_cont'";
@@ -300,21 +304,21 @@ class RequestReceivingController extends Controller
                             FROM CONTAINER_DELIVERY
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y' ORDER BY AKTIF DESC";
         $cekGato = DB::connection('uster')->select($queryCekGato);
-        if(count($cekGato) > 0 && $cekGato[0]->aktif == 'Y'){
+        if (count($cekGato) > 0 && $cekGato[0]->aktif == 'Y') {
             throw new Exception('Container Masih Aktif di Request SP2 / Belum Gate Out, Cek History', 400);
         }
         $queryCekStuf = "SELECT AKTIF
                             FROM CONTAINER_STUFFING
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y' ORDER BY AKTIF DESC";
         $cekStuf = DB::connection('uster')->select($queryCekStuf);
-        if(count($cekStuf) > 0 && $cekStuf[0]->aktif == 'Y'){
+        if (count($cekStuf) > 0 && $cekStuf[0]->aktif == 'Y') {
             throw new Exception('Container Masih Aktif di Request Stuffing', 400);
         }
         $queryCekStrip = "SELECT AKTIF
                             FROM CONTAINER_STRIPPING
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y'";
         $cekStrip = DB::connection('uster')->select($queryCekStrip);
-        if(count($cekStrip) > 0 && $cekStrip[0]->aktif == 'Y'){
+        if (count($cekStrip) > 0 && $cekStrip[0]->aktif == 'Y') {
             throw new Exception('Container Masih Aktif di Request Stripping', 400);
         }
 
@@ -323,7 +327,7 @@ class RequestReceivingController extends Controller
                     WHERE NO_CONTAINER = '$request->no_cont'";
         $cekMaster = DB::connection('uster')->selectOne($cekMaster);
         $aktif = '';
-        if($cekMaster->cek == 0){
+        if ($cekMaster->cek == 0) {
             $aktif == 'T';
         } else {
             $cek_locate = "SELECT LOCATION, MLO, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$request->no_cont'";
@@ -333,7 +337,7 @@ class RequestReceivingController extends Controller
                 throw new Exception('Container Masih Aktif di Siklus Sebelumnya / Belum GATO', 400);
             }
 
-            $query_cek1		= " SELECT CONTAINER_RECEIVING.AKTIF
+            $query_cek1        = " SELECT CONTAINER_RECEIVING.AKTIF
 					   FROM CONTAINER_RECEIVING, REQUEST_RECEIVING
 					   WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
 					   AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont'
@@ -342,25 +346,25 @@ class RequestReceivingController extends Controller
 					   WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
 					   AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont')";
 
-            $query_rec_dari ="SELECT RECEIVING_DARI
+            $query_rec_dari = "SELECT RECEIVING_DARI
                                     FROM REQUEST_RECEIVING
                                     WHERE NO_REQUEST = '$request->no_req'";
 
             $result_rec_dari = DB::connection('uster')->selectOne($query_rec_dari);
             $rec_dari = $result_rec_dari->receiving_dari;
 
-            $result_cek1	= DB::connection('uster')->selectOne($query_cek1);
-            $aktif			= $result_cek1->aktif ?? 'T';
+            $result_cek1    = DB::connection('uster')->selectOne($query_cek1);
+            $aktif            = $result_cek1->aktif ?? 'T';
         }
 
-        if($aktif == 'Y'){
+        if ($aktif == 'Y') {
             throw new Exception('Container Sudah Terdaftar Receiving', 400);
-        } else if(($aktif != "Y") &&  ($request->berbahaya != NULL) && $request->status != NULL ){
+        } else if (($aktif != "Y") &&  ($request->berbahaya != NULL) && $request->status != NULL) {
             $ukk_ = $request->id_vsb;
             $ex_kapal = $request->vessel;
-            if ($ukk_=="") {
+            if ($ukk_ == "") {
                 $ukk_ = "NO";
-                $ex_kapal="VESSEL_NOTHING";
+                $ex_kapal = "VESSEL_NOTHING";
             }
 
             return ['ukk' => $ukk_, 'ex_kapal' => $ex_kapal, 'canInsert' => true];

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
-
+use PDO;
 
 class DeliveryKeTpkRepoService
 {
@@ -854,7 +854,7 @@ class DeliveryKeTpkRepoService
 
             $vessel_code = $rves->vessel_code;
             $voyage = $rves->voyage;
-            $qcekop = "SELECT CARRIER from BILLING.REQ_RECEIVING_D WHERE ID_REQ = '$no_req2' AND NO_CONTAINER = '$no_cont'";
+            $qcekop = "SELECT CARRIER from BILLING_NBS.REQ_RECEIVING_D WHERE ID_REQ = '$no_req2' AND NO_CONTAINER = '$no_cont'";
             $rcekop = DB::connection('uster')->selectOne($qcekop);
             $operatorid = $rcekop->carrier;
             $param_b_var = array(
@@ -869,7 +869,7 @@ class DeliveryKeTpkRepoService
             );
 
             // echo var_dump($param_b_var);die;
-            $query_ops = "declare begin BILLING.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+            $query_ops = "declare begin BILLING_NBS.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
 
             $query_del    = "DELETE FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
 
@@ -929,7 +929,7 @@ class DeliveryKeTpkRepoService
 
     function addDoTpk($request)
     {
-        DB::beginTransaction();;
+        DB::beginTransaction();
         try {
 
             // debug($request->di;
@@ -974,6 +974,7 @@ class DeliveryKeTpkRepoService
             $CLOSING_TIME_DOC           = $request->CLOSING_TIME_DOC;
             $VOYAGE                     = $request->VOYAGE;
 
+            $pdo = DB::connection('uster')->getPdo();
 
             //Cek tipe delivery TPK, apakah eks stuffing atau empty
             if ($JN_REPO == "EMPTY") {
@@ -1016,15 +1017,38 @@ class DeliveryKeTpkRepoService
                     "out_msg" => ''
                 );
 
+                $stmt = $pdo->prepare(
+                    "DECLARE BEGIN PACK_CREATE_REQ_DELIVERY_REPO.CREATE_HEADER_REPO_PRAYA(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;"
+                );
+
+                foreach ($param as $key => &$value) {
+                    $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+                }
+
+                $outNoReq = "";
+                $outNoReqNbs = "";
+                $outMsg = "";
+
+                $stmt->bindParam(":out_noreq", $outNoReq, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->bindParam(":out_reqnbs", $outNoReqNbs, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->bindParam(":out_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->execute();
+
                 // echo var_dump($param);
                 // die;
 
-                $query_int = "declare begin pack_create_req_delivery_repo.create_header_repo_praya(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;";
+                // $query_int = "declare begin pack_create_req_delivery_repo.create_header_repo_praya(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;";
 
-                DB::connection('uster')->statement($query_int, $param);
-                $msg = $param["out_msg"];
-                $no_req = $param["out_noreq"];
-                $no_req2 = $param["out_reqnbs"];
+                // DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'DD-MM-YYYY HH24:MI:SS'");
+
+                // DB::connection('uster')->statement($query_int, $param);
+
+                // $msg = $param["out_msg"];
+                // $no_req = $param["out_noreq"];
+                // $no_req2 = $param["out_reqnbs"];
+                $msg = $outMsg;
+                $no_req = $outNoReq;
+                $no_req2 = $outNoReqNbs;
                 //-------------------------------------------------- END INSERT TPK's RECEIVING -------------------------------------------------------//
             } else {
 
@@ -1071,12 +1095,32 @@ class DeliveryKeTpkRepoService
                 // echo var_dump($param);
                 // die;
 
-                $query_int = "declare begin pack_create_req_delivery_repo.create_header_repo_praya(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;";
-                DB::connection('uster')->statement($query_int, $param);
-                $msg = $param["out_msg"];
-                $no_req = $param["out_noreq"];
-                $no_req2 = $param["out_reqnbs"];
+                // $query_int = "declare begin pack_create_req_delivery_repo.create_header_repo_praya(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;";
+                // DB::connection('uster')->statement($query_int, $param);
+                // $msg = $param["out_msg"];
+                // $no_req = $param["out_noreq"];
+                // $no_req2 = $param["out_reqnbs"];
 
+                $stmt = $pdo->prepare(
+                    "DECLARE BEGIN PACK_CREATE_REQ_DELIVERY_REPO.CREATE_HEADER_REPO_PRAYA(:in_accpbm,:in_pbm,:in_peb,:in_npe,:in_noro,:in_keterangan,:in_jenis ,:in_user,:in_di ,:in_vessel,:in_voyin ,:in_voyout,:in_idvsb,:in_nobooking,:in_callsign,:in_pod,:in_pol,:in_shift,:in_plin,:in_plout,:in_nostuf,:in_kdkapal,:in_etd, :in_eta,:in_openstack,:in_nmagen, :in_kdagen,:in_closingtime,:in_closingtimedoc,:in_voyage,:out_noreq,:out_reqnbs,:out_msg); end;"
+                );
+
+                foreach ($param as $key => &$value) {
+                    $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+                }
+
+                $outNoReq = "";
+                $outNoReqNbs = "";
+                $outMsg = "";
+
+                $stmt->bindParam(":out_noreq", $outNoReq, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->bindParam(":out_reqnbs", $outNoReqNbs, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->bindParam(":out_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                $stmt->execute();
+
+                $msg = $outMsg;
+                $no_req = $outNoReq;
+                $no_req2 = $outNoReqNbs;
                 //-------------------------------------------------- END INSERT TPK's RECEIVING -------------------------------------------------------//
 
 
@@ -1090,7 +1134,6 @@ class DeliveryKeTpkRepoService
 
             }
 
-
             if ($msg == 'OK') {
                 DB::commit();
                 return [
@@ -1098,6 +1141,10 @@ class DeliveryKeTpkRepoService
                         'code' => 200,
                         'msg' => 'Success Processing Data',
                     ],
+                    'redirect' => [
+                        'need' => true,
+                        'to' => route('uster.new_request.delivery.delivery_ke_luar_tpk.edit', ['no_req' => $no_req, 'no_req2' => $no_req2]),
+                    ]
                 ];
             } else {
                 echo $msg;

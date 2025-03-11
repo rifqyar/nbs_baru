@@ -616,6 +616,11 @@ class DeliveryService
                     $asal_cont         = 'DEPO';
                 }
 
+                // $start_stack = Carbon::parse($start_stack)->format('d/m/Y');
+                // $formattedStartStack = Carbon::parse('Y-m-d H:i:s', trim($start_stack))->format('d/m/Y');
+                // $formattedEndPnkn = Carbon::parse('Y-m-d', trim($end_pnkn))->format('d/m/Y');
+                $formattedStartStack = date('d/m/Y', strtotime($start_pnkn));
+                $formattedEndPnkn = date('d/m/Y', strtotime($end_pnkn));
                 // $query_insert   = "INSERT INTO CONTAINER_DELIVERY(NO_CONTAINER, NO_REQUEST, STATUS, AKTIF, KELUAR,HZ, KOMODITI,KETERANGAN,NO_SEAL,BERAT,VIA, ID_YARD, NOREQ_PERALIHAN, START_STACK, ASAL_CONT, TGL_DELIVERY)
                 // VALUES('$no_cont', '$no_req', '$status','Y','N','$hz','$komoditi','$keterangan','$no_seal','$berat','$via','$id_yard','$no_request',TO_DATE('$start_stack','dd/mm/rrrr'),'$asal_cont', TO_DATE('$end_pnkn','dd/mm/rrrr'))";
 
@@ -635,9 +640,9 @@ class DeliveryService
                         'VIA' => $via,
                         'ID_YARD' => $id_yard,
                         'NOREQ_PERALIHAN' => $no_request,
-                        'START_STACK' => DB::raw("TO_DATE('$start_stack', 'DD/MM/YYYY')"),
+                        'START_STACK' => DB::raw("TO_DATE('$formattedStartStack', 'DD/MM/YYYY')"),
                         'ASAL_CONT' => $asal_cont,
-                        'TGL_DELIVERY' => DB::raw("TO_DATE('$end_pnkn', 'YYYY-MM-DD')")
+                        'TGL_DELIVERY' => DB::raw("TO_CHAR(TO_DATE('$formattedEndPnkn', 'DD-MM-YYYY'), 'YYYY-MM-DD')")
                     ]);
 
 
@@ -894,7 +899,7 @@ class DeliveryService
     function commodity($term)
     {
         $nama            = strtoupper($term);
-        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
+        $query             = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$nama%'";
         $result_query    = DB::connection('uster')->select($query);
         return $result_query;
     }

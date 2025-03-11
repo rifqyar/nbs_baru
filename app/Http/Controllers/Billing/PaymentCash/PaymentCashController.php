@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -36,6 +37,11 @@ class PaymentCashController extends Controller
 
     function print(Request $request)
     {
+        Session::remove('NOTA_MTI');
+        Session::remove('NO_FAKTUR');
+        Session::remove('emkl');
+        Session::remove('npwp');
+        Session::remove('alamat');
         $viewData = $this->paymentCash->print($request);
         return new Response($viewData, 200, [
             'Content-Type' => 'application/pdf',
@@ -153,7 +159,7 @@ class PaymentCashController extends Controller
         $tgl = $request->tgl;
         $tgl_new = strtotime($tgl);
 
-        // $getorgid = "select org_id from BILLING.TTH_NOTA_ALL2 where trim(NO_NOTA)=trim('" . $nota . "')";
+        // $getorgid = "select org_id from BILLING_NBS.TTH_NOTA_ALL2 where trim(NO_NOTA)=trim('" . $nota . "')";
         // $rorg     = DB::connection('uster')->selectOne($getorgid);
         // $org_id = $rorg->ORG_ID;
 
@@ -163,7 +169,7 @@ class PaymentCashController extends Controller
                                       ELSE 'IPTK BANK'
                                    END
                                       receipt_method
-                              from BILLING.mst_bank_simkeu
+                              from BILLING_NBS.mst_bank_simkeu
                               where org_id = '88'";
         $rwsql_bank            = DB::connection('uster')->select($query_nota);
 

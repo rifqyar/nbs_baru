@@ -71,7 +71,7 @@ use App\Http\Controllers\Report\StuffingStrippingController;
 use App\Http\Controllers\Tca\TcaByCancelationController;
 use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
-
+use App\Http\Controllers\Print\CetakSP2Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -134,17 +134,20 @@ Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' 
             Route::get('/overview/{noReq}', [PerencanaanStrippingController::class, 'overview']);
             Route::get('/view/{noReq}', [PerencanaanStrippingController::class, 'view'])->name('view');
             Route::get('/cetak-saldo/{kd_consignee}', [PerencanaanStrippingController::class, 'cetakSaldo']);
-            Route::post('/post-praya', [PerencanaanStrippingController::class, 'postPraya']);
-            Route::post('/save-edit', [PerencanaanStrippingController::class, 'saveEdit']);
-            Route::post('/save-cont', [PerencanaanStrippingController::class, 'saveCont']);
+            Route::post('/post-praya', [PerencanaanStrippingController::class, 'postPraya'])->name('post-praya');
+            Route::post('/save-edit', [PerencanaanStrippingController::class, 'saveEdit'])->name('save-edit');
+            Route::post('/save-cont', [PerencanaanStrippingController::class, 'saveCont'])->name('save-cont');
+            Route::post('/approve-cont', [PerencanaanStrippingController::class, 'approveCont'])->name('approve-cont');
+            Route::post('/save-req', [PerencanaanStrippingController::class, 'saveReq'])->name('save-req');
+            Route::get('/delete-cont/{no_cont}/{noReq}/{noReq2}', [PerencanaanStrippingController::class, 'deleteCont'])->name('.delcont');
 
             // Get master data
             Route::get('/data-pbm', [PerencanaanStrippingController::class, 'getDataPBM'])->name('data-pbm');
-            Route::get('/data-kapal', [PerencanaanStrippingController::class, 'getDataKapal']);
-            Route::POST('/data-cont', [PerencanaanStrippingController::class, 'getDataCont']);
+            Route::get('/data-kapal', [PerencanaanStrippingController::class, 'getDataKapal'])->name('data-kapal');
+            Route::POST('/data-cont', [PerencanaanStrippingController::class, 'getDataCont'])->name('data-cont');
             Route::get('/data-komoditi', [PerencanaanStrippingController::class, 'getDataKomoditi'])->name('data-komoditi');
-            Route::get('/data-voyage', [PerencanaanStrippingController::class, 'getDataVoyage']);
-            Route::get('/cek-saldo-emkl/{idConsignee}', [PerencanaanStrippingController::class, 'cekSaldoEmkl']);
+            Route::get('/data-voyage', [PerencanaanStrippingController::class, 'getDataVoyage'])->name('data-voy');
+            Route::get('/cek-saldo-emkl/{idConsignee}', [PerencanaanStrippingController::class, 'cekSaldoEmkl'])->name('cek-saldo');
         });
 
         // Perpanjangan
@@ -1239,9 +1242,7 @@ Route::group(['prefix' => 'print', 'as' => 'uster.print.', 'middleware' => 'chec
             ->name('GetTruckStuffing');
     });
 
-
     Route::group([], function () {
-
         Route::get('/rec_card_repo', [KartuRepoController::class, 'KartuRepo'])
             ->name('rec_card_repo');
 
@@ -1256,6 +1257,12 @@ Route::group(['prefix' => 'print', 'as' => 'uster.print.', 'middleware' => 'chec
         Route::get('/', [KartuStackController::class, 'index'])->name('');
         Route::post('/data', [KartuStackController::class, 'data'])->name('.data');
         Route::get('/print', [KartuStackController::class, 'print'])->name('.print');
+    });
+
+    Route::group(['prefix' => 'sp2', 'as' => 'sp2'], function () {
+        Route::get('/', [CetakSP2Controller::class, 'index'])->name('');
+        Route::post('/data', [CetakSP2Controller::class, 'data'])->name('.data');
+        Route::get('/print', [CetakSP2Controller::class, 'print'])->name('.print');
     });
 });
 

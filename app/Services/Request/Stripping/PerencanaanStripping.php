@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use PDO;
 
@@ -210,7 +211,7 @@ class PerencanaanStripping
 
         $cek_save = "SELECT CLOSING FROM PLAN_REQUEST_STRIPPING WHERE NO_REQUEST = '$noReq'";
         $r_cek = DB::connection('uster')->selectOne($cek_save);
-        $close = !empty($r_cek) ?? $r_cek->closing;
+        $close = !empty($r_cek) ? $r_cek->closing : '';
 
         return [$rowList, $close];
     }
@@ -274,7 +275,7 @@ class PerencanaanStripping
                         M_VSB_VOYAGE_PALAPA
                     WHERE
                         TML_CD = 'PNK'
-                        AND SYSDATE BETWEEN TO_DATE(OPEN_STACK, 'YYYYMMDDHH24MISS') AND TO_DATE(CLOSSING_TIME, 'YYYYMMDDHH24MISS')
+                        -- AND TO_DATE(TO_CHAR(SYSDATE, 'YYYYMMDD'), 'YYYYMMDD') BETWEEN TO_DATE(TO_CHAR(TO_DATE(OPEN_STACK, 'YYYYMMDDHH24MISS'), 'YYYYMMDD'), 'YYYYMMDD') AND TO_DATE(TO_CHAR(TO_DATE(CLOSSING_TIME, 'YYYYMMDDHH24MISS'), 'YYYYMMDD'), 'YYYYMMDD')
                         AND (VESSEL LIKE '%$nama_kapal%'
                         OR VOYAGE_IN LIKE '%$nama_kapal%'
                         OR VOYAGE_OUT LIKE '%$nama_kapal%'
@@ -315,7 +316,7 @@ class PerencanaanStripping
 
     function getKomoditi($search)
     {
-        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
+        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$search%'";
         $data = DB::connection('uster')->select($query);
         return $data;
     }
@@ -558,7 +559,8 @@ class PerencanaanStripping
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
-                ], 'data' => [
+                ],
+                'data' => [
                     'outmsg' => $outMsg,
                     'out_noreq' => $outNoReq
                 ]
@@ -664,7 +666,8 @@ class PerencanaanStripping
                 'status' => [
                     'code' => 200,
                     'msg' => 'Success Processing Data',
-                ], 'data' => [
+                ],
+                'data' => [
                     'outmsg' => $outMsg,
                 ]
             ], 200);
@@ -678,6 +681,164 @@ class PerencanaanStripping
                 'data' => null,
                 'err_detail' => $th,
                 'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ], 500);
+        }
+    }
+
+    function approveContTPK(Request $request, $param)
+    {
+        DB::beginTransaction();
+        try {
+            $pdo = DB::getPdo();
+
+            $outMsg = "";
+
+            $queryProc = "
+                DECLARE BEGIN USTER.PACK_CREATE_REQ_STRIPPING.CREATE_APPROVE_STRIP_PRAYA2 (:in_nocont,:in_planreq,:in_reqnbs,:in_asalcont,
+                            :in_container_size,:in_container_type,:in_container_status,:in_container_hz,:in_container_imo,
+                            :in_container_iso_code,:in_container_height,:in_container_carrier,:in_container_reefer_temp,
+                            :in_container_booking_sl,:in_container_over_width,:in_container_over_length,:in_container_over_height,
+                            :in_container_over_front,:in_container_over_rear,:in_container_over_left,:in_container_over_right,
+                            :in_container_un_number,:in_container_pod,:in_container_pol,:in_container_vessel_confirm,
+                            :in_container_comodity,:in_container_c_type_code,:p_ErrMsg);
+                        end;
+            ";
+
+            $stmt = $pdo->prepare($queryProc);
+            foreach ($param as $key => &$value) {
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+            }
+
+            $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+            $stmt->execute();
+
+            DB::commit();
+            return response()->json([
+                'status' => [
+                    'code' => 200,
+                    'msg' => 'Success Processing Data',
+                ],
+                'data' => [
+                    'outmsg' => $outMsg,
+                ]
+            ], 200);
+        } catch (Exception $th) {
+            DB::rollBack();
+            $error = DB::connection('uster')->getPdo()->errorInfo();
+            Log::error("Error inserting data into nota_stripping_d: " . implode(', ', $error));
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ], 500);
+        }
+    }
+
+    function deleteCont($no_cont, $no_req, $no_req2)
+    {
+        DB::beginTransaction();
+        try {
+            $q_get = "SELECT O_IDVSB FROM REQUEST_STRIPPING WHERE NO_REQUEST = REPLACE('$no_req','P','S')";
+            $rget  = DB::connection('uster')->selectOne($q_get);
+            $idvsb = $rget->o_idvsb;
+
+            if ($no_req2 != NULL) {
+                //==============================================================Interface to OPUS==========================================================================//
+                //======================================================================================================================================================//
+                $query_del    = "DELETE FROM req_delivery_d WHERE (TRIM(NO_CONTAINER) = TRIM('$no_cont')) AND (TRIM(ID_REQ) = TRIM('$no_req2'))";
+                $qparam = "select a.vessel_code, a.voyage_in, b.carrier, b.voyage from m_vsb_voyage@dbint_link a, m_cyc_container@dbint_link b
+                    where a.vessel_code = b.vessel_code and a.voyage = b.voyage
+                    and b.no_container = TRIM('$no_cont') and a.ID_VSB_VOYAGE = '$idvsb'";
+                $rparam = DB::connection('default')->selectOne($qparam);
+                $vessel = $rparam->vessel_code ?? null;
+                $voyage = isset($rparam->voyage) ? $rparam->voyage : null;
+                $operatorId = $rparam->carrier ?? null;
+
+                $param_b_var = array(
+                    "v_nocont" => TRIM($no_cont),
+                    "v_req" => TRIM($no_req2),
+                    "flag" => "DEL",
+                    "vessel" => "$vessel",
+                    "voyage" => "$voyage",
+                    "operatorId" => "$operatorId",
+                    "v_response" => "",
+                    "v_msg" => ""
+                );
+                $query = "declare begin proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+                //harusnya ditambahkan untuk delete ke billing_ops
+                $execDel = DB::connection('default')->statement($query_del);
+                if ($execDel) {
+                    DB::connection('default')->statement($query, $param_b_var);
+                    $msgout = $param_b_var['v_response'];
+                }
+                //==============================================================End Of Interface to OPUS======================================================================//
+                //==========================================================================================================================================================//
+            }
+
+            $query_master    = "SELECT COUNTER, NO_BOOKING FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont'";
+            $data            = DB::connection('uster')->selectOne($query_master);
+            $counter        = $data->counter;
+            $book            = $data->no_booking;
+
+            $query_history    = "SELECT NO_REQUEST_APP_STRIPPING, NO_REQUEST_RECEIVING FROM PLAN_REQUEST_STRIPPING WHERE NO_REQUEST = '$no_req'";
+            $row            = DB::connection('uster')->selectOne($query_history);
+
+            $qrec = "SELECT NO_REQUEST FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_BOOKING = '$book' AND KEGIATAN = 'REQUEST RECEIVING'";
+            $rreq = DB::connection('uster')->selectOne($qrec);
+            //foreach ($data_ as $row){
+            $req = $row->no_request_app_stripping;
+            $req_rec = $rreq->no_request;
+            $query_del2    = "DELETE FROM CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
+            $query_del3    = "DELETE FROM PLAN_CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
+            $query_del4    = "DELETE FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";
+
+            DB::connection('uster')->statement($query_del2);
+            DB::connection('uster')->statement($query_del3);
+            DB::connection('uster')->statement($query_del4);
+
+            $req = $row->no_request_app_stripping;
+            $query_del6    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
+            $query_del7    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";
+            $query_del8    = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
+            DB::connection('uster')->statement($query_del6);
+            DB::connection('uster')->statement($query_del7);
+            DB::connection('uster')->statement($query_del8);
+
+            $query_update    = "UPDATE PLAN_REQUEST_STRIPPING SET CLOSING = NULL WHERE NO_REQUEST = '$no_req'";
+            $query_update2    = "UPDATE REQUEST_STRIPPING SET CLOSING = NULL WHERE NO_REQUEST = '$req'";
+            DB::connection('uster')->statement($query_update);
+            DB::connection('uster')->statement($query_update2);
+
+            if ($counter > 0) {
+                $new_counter = $counter - 1;
+            } else {
+                $new_counter = $counter;
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => [
+                    'code' => 200,
+                    'msg' => 'Success Processing Data',
+                ],
+                'data' => null
+            ], 200);
+        } catch (Exception $th) {
+            DB::rollBack();
+            $error = DB::connection('uster')->getPdo()->errorInfo();
+            Log::error("Error Delete Cont Stripping : " . implode(', ', $error));
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Delete Container, Harap Coba lagi!'
             ], 500);
         }
     }

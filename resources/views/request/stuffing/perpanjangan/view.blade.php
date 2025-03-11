@@ -352,7 +352,7 @@
         });
 
         function info_lapangan() {
-           
+
             Swal.fire({
                 title: 'Mendapatkan Data...',
                 allowOutsideClick: false,
@@ -415,7 +415,7 @@
                         showCancelButton: true,
                         confirmButtonColor: '#3085d6',
                         cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ya, hapus!',
+                        confirmButtonText: 'Ya, Perpanjang!',
                         cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -426,6 +426,7 @@
                                 '{{ route('uster.new_request.stuffing.perpanjangan.addContainer') }}';
                             $.post(url, formData, function(response) {
                                 // Lakukan sesuatu dengan respons jika perlu
+                                windows.location.href = '/request/stuffing/perpanjangan'
                             });
 
                         } else {

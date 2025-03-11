@@ -140,13 +140,13 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
+                                            <th class="text-center" width="200px">&nbsp;</th>
                                             <th class="text-center">No. Rencana</th>
                                             <th class="text-center">No. Request</th>
                                             <th class="text-center">Tgl. Pengajuan</th>
                                             <th class="text-center">Pemilik</th>
                                             <th class="text-center">No DO | BL</th>
                                             <th class="text-center">Type Stripping</th>
-                                            <th class="text-center" width="200px">&nbsp;</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

@@ -458,7 +458,7 @@
                     </div>
                     <div id="button_save" class="text-center my-3">
                         <button class="btn btn-info" onClick="add_cont()"><i class="fas fa-plus"></i> Tambah
-                            Perencanaan
+                            Container
                             Stuffing</button>
                     </div>
                     <div class="card p-2">
@@ -598,7 +598,7 @@
 
             $('#COMMODITY').on('select2:select', function(e) {
                 var data = e.params.data;
-                $("#COMMODITY").val(data.nm_commodity);
+                // $("#COMMODITY").val(data.nm_commodity);
                 $("#KD_COMMODITY").val(data.kd_commodity);
                 $("#TGL_EMPTY").focus();
             })
@@ -742,7 +742,8 @@
             var type_ = $("#TYPE").val();
             var status = $("#STATUS").val();
             var berbahaya_ = $("#BERBAHAYA").val();
-            var commodity_ = $("#COMMODITY").val();
+            // var commodity_ = $("#COMMODITY").val();
+            var commodity_ = $("#COMMODITY option:selected").text();;
             var kd_commodity_ = $("#KD_COMMODITY").val();
             var jenis_ = $("#JENIS").val();
             var no_seal = $("#NO_SEAL").val();
@@ -1029,12 +1030,12 @@
             // Menampilkan konfirmasi sebelum penghapusan
             Swal.fire({
                 title: 'Konfirmasi',
-                text: "Apakah Anda yakin ingin menghapus kontainer?",
+                text: "Apakah Anda yakin ingin approve container?",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, hapus!',
+                confirmButtonText: 'Ya, approve container!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -1098,6 +1099,10 @@
                     }
                 }
             });
+        }
+
+        function save_request(total) {
+            window.location.href = '/request/stuffing/stuffing_plan'
         }
     </script>
 @endsection

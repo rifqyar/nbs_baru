@@ -85,7 +85,7 @@
         </div>
         <div class="col-12 col-md-6 form-group">
             <label for="TGL_SELESAI">Tgl. Selesai Stripping</label>
-            <input type="text" name="tgl_selesai" ID="TGL_SELESAI" class="form-control" />
+            <input type="date" name="tgl_selesai" ID="TGL_SELESAI" class="form-control" />
         </div>
     </div>
     <div class="d-flex justify-content-end">
@@ -93,7 +93,7 @@
             <i class="mdi mdi-chevron-left"></i> Cancel
         </button>
         <button type="submit" class="btn btn-info btn-rounded">
-            <i class="mdi mdi-content-save"></i> Simpan Container
+            <i class="mdi mdi-content-save"></i> Simpan Container (Enter)
         </button>
     </div>
 </form>

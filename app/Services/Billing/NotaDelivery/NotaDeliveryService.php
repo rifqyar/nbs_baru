@@ -126,7 +126,7 @@ class NotaDeliveryService
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
          THEN a.NO_NOTA
          ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                             FROM nota_delivery a, request_delivery c, BILLING.tb_user mu where
+                             FROM nota_delivery a, request_delivery c, BILLING_NBS.tb_user mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery d WHERE d.NO_REQUEST = '$no_req' )
                              and c.NO_REQUEST = '$no_req'
@@ -284,11 +284,41 @@ class NotaDeliveryService
 
         if ($delivery_ke == 'TPK') {
             // $sql_xpi = "DECLARE id_nota NUMBER; tgl_req DATE; no_request VARCHAR2(100); jenis VARCHAR2 (100); err_msg VARCHAR2(100); BEGIN id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL'; jenis := 'delivery'; pack_get_nota_delivery_tpk.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg); END;";
-            // DB::connection('uster')->statement($sql_xpi);
+            $sql_xpi = "
+            DECLARE
+                id_nota NUMBER;
+                tgl_req DATE;
+                no_request VARCHAR2(100);
+                jenis VARCHAR2(100);
+                err_msg VARCHAR2(100);
+            BEGIN
+                id_nota := 4;
+                tgl_req := TO_DATE('$tgl_re', 'DD/MON/YYYY');
+                no_request := '$no_req';
+                err_msg := 'NULL';
+                jenis := 'delivery';
+                pack_get_nota_delivery_tpk.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg);
+            END;";
+            DB::connection('uster')->statement($sql_xpi);
             //  echo $sql_xpi;die;
         } else {
             // $sql_xpi = "DECLARE id_nota NUMBER; tgl_req DATE; no_request VARCHAR2(100); jenis VARCHAR2 (100); err_msg VARCHAR2(100); BEGIN id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL'; jenis := 'delivery'; pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg); END;";
-            // DB::connection('uster')->statement($sql_xpi);
+            $sql_xpi = "
+            DECLARE
+                id_nota NUMBER;
+                tgl_req DATE;
+                no_request VARCHAR2(100);
+                jenis VARCHAR2(100);
+                err_msg VARCHAR2(100);
+            BEGIN
+                id_nota := 4;
+                tgl_req := TO_DATE('$tgl_re', 'DD/MON/YYYY');
+                no_request := '$no_req';
+                err_msg := 'NULL';
+                jenis := 'delivery';
+                pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg);
+            END;";
+            DB::connection('uster')->statement($sql_xpi);
         }
 
         $detail_nota  = "SELECT * from (SELECT a.JML_HARI,

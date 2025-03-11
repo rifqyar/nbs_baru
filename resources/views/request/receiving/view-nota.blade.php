@@ -106,7 +106,7 @@
                                     </div>
                                     <div class="col-12 col-md-6 order-md-2 order-first">
                                         <div class="d-flex justify-content-end">
-                                            <a href="javascript:void(0)" class="btn btn-outline-info" onclick="addContainer()">Tambah Container</a>
+                                            <a href="javascript:void(0)" class="btn btn-outline-info" onclick="addContainer()">Tambah Container (F2)</a>
                                         </div>
                                     </div>
                                 </div>

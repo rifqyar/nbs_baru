@@ -455,11 +455,12 @@
 
 
         function cekearly() {
+            var formData = $('#dataCont').serialize();
             $NO_BOOKING = $("#NO_BOOKING").val();
             $KD_PBM = $("#KD_PELANGGAN").val();
             $KD_PELABUHAN_ASAL = $("#KD_PELABUHAN_ASAL").val();
             $KD_PELABUHAN_TUJUAN = $("#KD_PELABUHAN_TUJUAN").val();
-            //$KD_PBM2    = $("#KD_PELANGGAN2").val(); 
+            //$KD_PBM2    = $("#KD_PELANGGAN2").val();
             $NO_UKK = $("#NO_UKK").val();
             $JN_REPO = $("#JN_REPO").val();
 
@@ -485,6 +486,52 @@
         $('#calculate').on('click', function(e) {
             calculator(e); // Panggil fungsi calculator
         });
+
+        function input_success(res) {
+            if (res.status.code != 200) {
+                input_error(res);
+                return false;
+            }
+
+            $.toast({
+                heading: "Berhasil!",
+                text: res.message,
+                position: "top-right",
+                icon: "success",
+                hideAfter: 2500,
+                beforeHide: function() {
+                    if (res.redirect.need) {
+                        Swal.fire({
+                            html: "<h5>Berhasil input SP2 Ke TPK / Repo,<br> Mengembalikan Anda ke halaman sebelumnya...</h5>",
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                        });
+
+                        Swal.showLoading();
+                    } else {
+                        return false;
+                    }
+                },
+                afterHidden: function() {
+                    if (res.redirect.need) {
+                        window.location.href = res.redirect.to;
+                    } else {
+                        return false;
+                    }
+                },
+            });
+        }
+
+        function input_error(err) {
+            console.log(err);
+            $.toast({
+                heading: "Gagal memproses data!",
+                text: err.message,
+                position: "top-right",
+                icon: "error",
+                hideAfter: 5000,
+            });
+        }
 
         function calculator(e) {
             // Mencegah tindakan default (refresh halaman atau post data secara tradisional)

@@ -47,7 +47,7 @@ class PerpanjanganStuffingController extends Controller
         return $this->stuffing->checkClose($request->input('no_booking'));
     }
 
-    
+
     public function addContainer(Request $request)
     {
         return $this->stuffing->addContainer($request);
@@ -73,7 +73,7 @@ class PerpanjanganStuffingController extends Controller
         return Datatables::of($listStuffing)
             ->addColumn('tgl_approve_input', function ($listStuffing) {
                 $date = $listStuffing->end_stack_pnkn ?? '';
-                return "<input class='form-control'  type='date' name='TGL_APPROVE' value='$date'  />";
+                return "<input class='form-control'  type='date' name='TGL_APPROVE[]' value='$date'  />";
             })
             ->addColumn('action', function ($listStuffing) {
                 return '<submit class="btn btn-info w-100" onclick="info_lapangan();">Info</submit>';

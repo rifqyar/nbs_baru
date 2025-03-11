@@ -15,60 +15,60 @@ class PerpanjanganDeliveryKeLuarService
 
         $from       = $request->has('from') ? $request->from : null;
         $to         = $request->has('to') ? $request->to : null;
-        $no_req    = isset($request->search['value']) ? $request->search['value'] : null; //$_POST["no_req"];        
-        // $id_yard    =    session()->get('IDYARD_STORAGE"];     ') 
+        $no_req    = isset($request->search['value']) ? $request->search['value'] : null; //$_POST["no_req"];
+        // $id_yard    =    session()->get('IDYARD_STORAGE"];     ')
         // if (isset($from) || isset($to) || isset($no_req)) {
         if (($no_req == NULL) && (isset($from)) && (isset($to))) {
-            $query_list = " SELECT 
-                                    t.*, 
-                                    (SELECT LUNAS 
-                                    FROM NOTA_DELIVERY 
-                                    WHERE NO_REQUEST = t.NO_REQUEST 
-                                    AND TGL_NOTA = (SELECT MAX(a.TGL_NOTA) 
-                                                    FROM NOTA_DELIVERY a 
+            $query_list = " SELECT
+                                    t.*,
+                                    (SELECT LUNAS
+                                    FROM NOTA_DELIVERY
+                                    WHERE NO_REQUEST = t.NO_REQUEST
+                                    AND TGL_NOTA = (SELECT MAX(a.TGL_NOTA)
+                                                    FROM NOTA_DELIVERY a
                                                     WHERE a.NO_REQUEST = t.NO_REQUEST)
                                     ) AS LUNAS
-                                FROM 
+                                FROM
                                     (
-                                        SELECT 
-                                            a.NO_REQUEST, 
-                                            a.KOREKSI, 
-                                            a.NOTA, 
-                                            NVL(a.PERP_DARI, '-') PERP_DARI, 
+                                        SELECT
+                                            a.NO_REQUEST,
+                                            a.KOREKSI,
+                                            a.NOTA,
+                                            NVL(a.PERP_DARI, '-') PERP_DARI,
                                             TO_CHAR(TGL_REQUEST, 'dd-MON-yyyy') AS TGL_REQUEST,
-                                            TO_CHAR(TGL_REQUEST_DELIVERY, 'dd-MON-yyyy') AS TGL_REQUEST_DELIVERY, 
-                                            b.NM_PBM, 
+                                            TO_CHAR(TGL_REQUEST_DELIVERY, 'dd-MON-yyyy') AS TGL_REQUEST_DELIVERY,
+                                            b.NM_PBM,
                                             COUNT(d.no_container) JUMLAH
-                                        FROM 
-                                            request_delivery a 
-                                            JOIN v_mst_pbm b ON a.KD_EMKL = b.KD_PBM 
+                                        FROM
+                                            request_delivery a
+                                            JOIN v_mst_pbm b ON a.KD_EMKL = b.KD_PBM
                                             JOIN container_delivery d ON a.no_request = d.no_request
-                                        WHERE 
-                                            b.KD_CABANG = '05' 
-                                            AND a.DELIVERY_KE = 'LUAR' 
+                                        WHERE
+                                            b.KD_CABANG = '05'
+                                            AND a.DELIVERY_KE = 'LUAR'
                                             AND a.TGL_REQUEST BETWEEN TO_DATE('$from','yyyy-mm-dd') AND TO_DATE('$to','yyyy-mm-dd')
-                                        GROUP BY 
-                                            a.NO_REQUEST, 
-                                            a.KOREKSI, 
-                                            a.NOTA, 
-                                            NVL(a.PERP_DARI,'-'), 
-                                            TGL_REQUEST, 
-                                            TGL_REQUEST_DELIVERY, 
+                                        GROUP BY
+                                            a.NO_REQUEST,
+                                            a.KOREKSI,
+                                            a.NOTA,
+                                            NVL(a.PERP_DARI,'-'),
+                                            TGL_REQUEST,
+                                            TGL_REQUEST_DELIVERY,
                                             b.NM_PBM
-                                        ORDER BY 
+                                        ORDER BY
                                             TGL_REQUEST DESC
-                                    ) t            
+                                    ) t
                                 ";
         } else {
 
             $query_list = "SELECT
                                 t.*,
-                                (SELECT LUNAS 
-                                FROM NOTA_DELIVERY 
-                                WHERE NO_REQUEST = t.NO_REQUEST 
+                                (SELECT LUNAS
+                                FROM NOTA_DELIVERY
+                                WHERE NO_REQUEST = t.NO_REQUEST
                                 AND TGL_NOTA = (SELECT MAX(a.TGL_NOTA) FROM NOTA_DELIVERY a WHERE a.NO_REQUEST = t.NO_REQUEST)
                                 ) AS LUNAS
-                            FROM 
+                            FROM
                                 (
                                     SELECT
                                         a.NO_REQUEST,
@@ -111,7 +111,7 @@ class PerpanjanganDeliveryKeLuarService
 
     function view($noReq)
     {
-        $query_request    = "SELECT REQUEST_DELIVERY.NO_REQUEST, TO_CHAR(REQUEST_DELIVERY.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, emkl.NM_PBM AS NAMA_EMKL, REQUEST_DELIVERY.NO_RO 
+        $query_request    = "SELECT REQUEST_DELIVERY.NO_REQUEST, TO_CHAR(REQUEST_DELIVERY.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, emkl.NM_PBM AS NAMA_EMKL, REQUEST_DELIVERY.NO_RO
 		FROM REQUEST_DELIVERY INNER JOIN v_mst_pbm emkl ON REQUEST_DELIVERY.KD_EMKL = emkl.KD_PBM
 		WHERE REQUEST_DELIVERY.NO_REQUEST = '$noReq'";
         $row_request    = DB::connection('uster')->selectOne($query_request);
@@ -144,7 +144,7 @@ class PerpanjanganDeliveryKeLuarService
 
     function contList($noReq)
     {
-        $query_list = "SELECT MASTER_CONTAINER.*, CONTAINER_DELIVERY.* FROM MASTER_CONTAINER INNER JOIN CONTAINER_DELIVERY ON MASTER_CONTAINER.NO_CONTAINER = CONTAINER_DELIVERY.NO_CONTAINER WHERE 
+        $query_list = "SELECT MASTER_CONTAINER.*, CONTAINER_DELIVERY.* FROM MASTER_CONTAINER INNER JOIN CONTAINER_DELIVERY ON MASTER_CONTAINER.NO_CONTAINER = CONTAINER_DELIVERY.NO_CONTAINER WHERE
 		CONTAINER_DELIVERY.NO_REQUEST = '$noReq' AND CONTAINER_DELIVERY.AKTIF = 'Y' ORDER BY CONTAINER_DELIVERY.NO_CONTAINER";
         $result_table    = DB::connection('uster')->select($query_list);
 
@@ -180,9 +180,9 @@ class PerpanjanganDeliveryKeLuarService
             $id_vessel   = $cek->vessel;
             $dev_ke      = $cek->delivery_ke;
 
-            $query_cek    = "select NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM, 
-                              TO_CHAR(SYSDATE, 'MM') AS MONTH, 
-                              TO_CHAR(SYSDATE, 'YY') AS YEAR 
+            $query_cek    = "select NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM,
+                              TO_CHAR(SYSDATE, 'MM') AS MONTH,
+                              TO_CHAR(SYSDATE, 'YY') AS YEAR
                        FROM REQUEST_DELIVERY
                        WHERE TGL_REQUEST BETWEEN TRUNC(SYSDATE,'MONTH') AND LAST_DAY(SYSDATE)
                        AND SUBSTR(request_delivery.NO_REQUEST,0,3) = 'DEL'";
@@ -309,7 +309,7 @@ class PerpanjanganDeliveryKeLuarService
     {
 
 
-        $query_request    = "SELECT REQUEST_DELIVERY.NO_REQUEST, TO_CHAR(REQUEST_DELIVERY.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, emkl.NM_PBM AS NAMA_EMKL 
+        $query_request    = "SELECT REQUEST_DELIVERY.NO_REQUEST, TO_CHAR(REQUEST_DELIVERY.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, emkl.NM_PBM AS NAMA_EMKL
                             FROM REQUEST_DELIVERY INNER JOIN v_mst_pbm emkl ON REQUEST_DELIVERY.KD_EMKL = emkl.KD_PBM
                             WHERE REQUEST_DELIVERY.NO_REQUEST = '$no_req'";
 
@@ -348,7 +348,7 @@ class PerpanjanganDeliveryKeLuarService
     }
     function editContList($noReq)
     {
-        $query_list = "SELECT MASTER_CONTAINER.*, CONTAINER_DELIVERY.* FROM MASTER_CONTAINER INNER JOIN CONTAINER_DELIVERY ON MASTER_CONTAINER.NO_CONTAINER = CONTAINER_DELIVERY.NO_CONTAINER WHERE 
+        $query_list = "SELECT MASTER_CONTAINER.*, CONTAINER_DELIVERY.* FROM MASTER_CONTAINER INNER JOIN CONTAINER_DELIVERY ON MASTER_CONTAINER.NO_CONTAINER = CONTAINER_DELIVERY.NO_CONTAINER WHERE
 		CONTAINER_DELIVERY.NO_REQUEST = '$noReq' AND CONTAINER_DELIVERY.AKTIF = 'Y' ORDER BY CONTAINER_DELIVERY.NO_CONTAINER";
         $result_table    = DB::connection('uster')->select($query_list);
 
@@ -357,7 +357,7 @@ class PerpanjanganDeliveryKeLuarService
     function editPerpanjangan($request)
     {
 
-        DB::transaction();
+        DB::beginTransaction();
         try {
             $tgl_perp   = $request->tgl_perpanjangan;
             $tgl_dev    = $request->tgl_dev;
@@ -381,7 +381,7 @@ class PerpanjanganDeliveryKeLuarService
                 if ($request['TGL_PERP_' . $g] != NULL) {
                     $query      = "SELECT a.NO_CONTAINER FROM container_delivery a WHERE  a.NO_CONTAINER = '$NO_CONT[$g]' AND NO_REQUEST = '$no_req_new'";
                     $cek        = DB::connection('uster')->selectOne($query);
-                    $no_cont_   = $cek->no_container;
+                    $no_cont_   = $cek->no_container ?? null;
 
                     if ($no_cont_ == NULL) {
 
@@ -400,6 +400,11 @@ class PerpanjanganDeliveryKeLuarService
                         $cek        = DB::connection('uster')->selectOne($query);
                         $end_stack    = $cek->tgl_end;
 
+                        $start_stack = date('d-m-Y H:i:s', strtotime($start_stack));
+                        $end_stack = date('d-m-Y H:i:s', strtotime($end_stack));
+                        $TGL_PERP[$g] = date('d-m-Y H:i:s', strtotime($TGL_PERP[$g]));
+
+
                         $query_insert           = DB::connection('uster')
                             ->table('CONTAINER_DELIVERY')
                             ->insert([
@@ -409,9 +414,9 @@ class PerpanjanganDeliveryKeLuarService
                                 'AKTIF' => 'Y',
                                 'KELUAR' => 'N',
                                 'HZ' => $hz,
-                                'START_STACK' => DB::raw("TO_DATE('$start_stack', 'yyyy/mm/dd hh24:mi:ss')"),
-                                'START_PERP' => DB::raw("TO_DATE('$end_stack', 'yyyy/mm/dd hh24:mi:ss')"),
-                                'TGL_DELIVERY' => DB::raw("TO_DATE('$TGL_PERP[$g]', 'yyyy/mm/dd')"),
+                                'START_STACK' => DB::raw("TO_DATE('$start_stack', 'DD-MM-YYYY HH24:MI:SS')"),
+                                'START_PERP' => DB::raw("TO_DATE('$end_stack', 'DD-MM-YYYY HH24:MI:SS')"),
+                                'TGL_DELIVERY' => DB::raw("TO_DATE('$TGL_PERP[$g]', 'DD-MM-YYYY HH24:MI:SS')"),
                                 'VIA' => $via,
                                 'NOREQ_PERALIHAN' => $noreq_per,
                                 'ID_YARD' => $id_yard_,

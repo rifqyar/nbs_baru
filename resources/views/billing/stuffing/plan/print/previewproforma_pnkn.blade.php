@@ -1,13 +1,8 @@
 @extends('layouts.app')
 
 @section('title')
-    Nota Stripping
+    Nota Stuffing
 @endsection
-
-@push('after-style')
-    <link href="{{ asset('assets/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css') }}"
-        rel="stylesheet">
-@endpush
 
 @section('content')
     @if (Session::has('error'))
@@ -23,11 +18,11 @@
 
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
-            <h3 class="text-themecolor">Nota Stripping</h3>
+            <h3 class="text-themecolor">Nota Stuffing</h3>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Billing</a></li>
-                <li class="breadcrumb-item">Stripping</li>
-                <li class="breadcrumb-item">Nota Stripping</li>
+                <li class="breadcrumb-item">Stuffing</li>
+                <li class="breadcrumb-item">Nota Stuffing</li>
                 <li class="breadcrumb-item active">Preview Nota</li>
             </ol>
         </div>
@@ -85,7 +80,7 @@
                                             <span>:</span>
                                         </div>
                                         <div class="col-lg-6 col-md-12 text-right">
-                                            {{ $tgl_req }}
+                                            {{ $tgl_nota }}
                                         </div>
                                     </div>
                                 </div>
@@ -93,7 +88,7 @@
                                 <div class="col-12 mt-4 pt-3">
                                     <div class="d-flex justify-content-center align-items-center">
                                         <h6 class="text-center font-medium">PERHITUNGAN PELAYANAN JASA <br> KEGIATAN
-                                            RECEIVING</h6>
+                                            PENUMPUKAN STUFFING</h6>
                                     </div>
                                 </div>
                             </div>
@@ -155,20 +150,20 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($row_detail as $detail)
+                                        @foreach ($row_detail as $rows)
                                             <tr>
-                                                <td>{{ $detail['keterangan'] ?? '-' }}</td>
-                                                <td> {{ $detail['start_stack'] ?? '-' }} </td>
-                                                <td> {{ $detail['end_stack'] ?? '-' }} </td>
-                                                <td>{{ $detail['jml_cont'] ?? '-' }}</td>
-                                                <td>{{ $detail['size_'] ?? '-' }}</td>
-                                                <td>{{ $detail['type_'] ?? '-' }}</td>
-                                                <td>{{ $detail['status'] ?? '-' }}</td>
-                                                <td>{{ $detail['hz'] ?? '-' }}</td>
-                                                <td>{{ $detail['jml_hari'] ?? '-' }}</td>
-                                                <td>{{ $detail['tarif'] ?? '-' }}</td>
+                                                <td>{{ $rows->keterangan }}</td>
+                                                <td>{{ $rows->start_stack }}</td>
+                                                <td>{{ $rows->end_stack }}</td>
+                                                <td>{{ $rows->jml_cont }}</td>
+                                                <td>{{ $rows->size_ }}</td>
+                                                <td>{{ $rows->type_ }}</td>
+                                                <td>{{ $rows->status }}</td>
+                                                <td>{{ $rows->hz }}</td>
+                                                <td>{{ $rows->jml_hari }}</td>
+                                                <td>{{ $rows->tarif }}</td>
                                                 <td>IDR</td>
-                                                <td>{{ $detail['biaya'] }}</td>
+                                                <td>{{ $rows->biaya }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -187,7 +182,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ $row_discount }}
+                                                {{ number_format($row_discount->discount, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -199,7 +194,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ $row_adm }}
+                                                {{ number_format($row_adm->adm, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     </div>
@@ -223,7 +218,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ $row_ppn['ppn'] }}
+                                                {{ $row_ppn }}
                                             </span>
                                         </div>
                                     </div>
@@ -266,7 +261,7 @@
                                     <div class="row justify-align-center">
                                         <div class="col-lg-2 col-md-12"></div>
                                         <div class="col-lg-8 col-md-12 text-center">
-                                            <span class="text-dark">{{$pegawai['jabatan']}}</span>
+                                            <span class="text-dark">{{ $nama_peg->jabatan }}</span>
                                         </div>
                                         <div class="col-lg-2 col-md-12"></div>
                                     </div>
@@ -274,7 +269,7 @@
                                     <div class="row justify-align-center mt-5 pt-3">
                                         <div class="col-lg-2 col-md-12"></div>
                                         <div class="col-lg-8 col-md-12 text-center">
-                                            <span class="text-dark">{{$pegawai['nama_pegawai']}}</span>
+                                            <span class="text-dark">{{ $nama_peg->nama_pegawai }}</span>
                                         </div>
                                         <div class="col-lg-2 col-md-12"></div>
                                     </div>
@@ -285,14 +280,84 @@
                 </div>
 
                 <div class="row justify-content-center">
-                    <a href="{{route('uster.billing.nota_stripping.insert_proforma_strip', [base64_encode($no_req), 'koreksi='.$koreksi])}}" class="btn btn-outline-info w-50 mb-5 row align-items-center">
+                    <button type="submit" onclick="insertNota()"
+                        class="btn btn-outline-info w-50 mb-5 row align-items-center">
                         <i class="mdi mdi-content-save mdi-18px"></i>
                         <span>
                             Save Nota
                         </span>
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        function insertNota() {
+            Swal.fire({
+                title: 'Simpan Nota?',
+                text: 'Apakah Anda Yakin Untuk Save Proforma {{ request()->input('no_req') }}?',
+                type: 'info',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Simpan',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.value) {
+                    Swal.fire({
+                        html: "<h5>Menyimpan Data Proforma...</h5>",
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                    });
+
+                    Swal.showLoading();
+
+                    var url = "{{ route('uster.billing.nota_stuffing.insert_proforma_pnkn') }}";
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    $.post(url, {
+                        no_req: '{{ request()->input('no_req') }}',
+                        koreksi: '{{ request()->input('koreksi') }}',
+                    }, function(data) {
+                        if (data == 'OK') {
+                            Swal.fire({
+                                type: 'success',
+                                text: 'Save Nota Success',
+                                title: 'Success',
+                            }).then((result) => {
+                                if (result.value) {
+                                    window.open(
+                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}",
+                                        '_self'
+                                    );
+                                }
+                            });
+                        } else if (data == 'OK-INSERT') {
+                            Swal.fire({
+                                type: 'success',
+                                text: 'Save Nota Success',
+                                title: 'Success',
+                            }).then((result) => {
+                                if (result.value) {
+                                    window.open(
+                                        "{{ route('uster.billing.nota_stuffing.print_proforma_pnkn') }}?no_req={{ request()->input('no_req') }}&first=1",
+                                        '_self'
+                                    );
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                type: 'error',
+                                title: 'Save Nota Failed',
+                                text: data,
+                            });
+                        }
+                    });
+                }
+            });
+
+        }
+    </script>
 @endsection

@@ -235,7 +235,7 @@
                                                     <td colspan="8">
                                                         <div class="d-flex align-items-center justify-content-center mt-3">
                                                             <button class="btn btn-outline-warning" onclick="saveEdit();"> <i class="fa fa-save mr-2"></i> Edit Perpanjangan Stripping</button>
-                                                            <button class="btn btn-outline-info ml-5" onclick="approve(`{{$request->row_request->no_request}}`, `{{$request->row_request->perp_dari}}`);"> <i class="fa fa-check-circle mr-2"></i> Aprpove Request</button>
+                                                            <button class="btn btn-outline-info ml-5" onclick="approve(`{{$request->row_request->no_request}}`, `{{$request->row_request->perp_dari}}`);"> <i class="fa fa-check-circle mr-2"></i> Aprove Request</button>
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -563,6 +563,7 @@ Perencanaan Kegiatan Delivery
                 }
 
                 $('#container-table').DataTable().ajax.reload();
+                window.location.reload()
             },
             error: function(xhr, status, error) {
                 Swal.close();

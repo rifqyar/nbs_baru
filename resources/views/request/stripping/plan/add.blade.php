@@ -113,6 +113,12 @@
                             </div>
                             <div class="col-md-6 col-12">
                                 <div class="form-group">
+                                    <label for="NO_SPPB">Nomor SPPB</label>
+                                    <input type="text" class="form-control" name="NO_SPPB" id="NO_SPPB">
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="form-group">
                                     <label for="TGL_SPPB"> Tanggal SPPB </label>
                                     <input type="date" class="form-control" name="TGL_SPPB" id="TGL_SPPB">
                                 </div>
@@ -126,7 +132,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-12">
+                            <div class="col-md-12 col-12">
                                 <div class="form-group">
                                     <label for="keterangan">Keterangan</label>
                                     <input type="text" class="form-control" name="keterangan" id="KETERANGAN">

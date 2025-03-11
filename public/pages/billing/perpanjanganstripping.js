@@ -70,6 +70,14 @@ function getData() {
                 responsivePriority: -1
             },
             {
+                data: "action",
+                name: "action",
+                orderable: false,
+                searchable: false,
+                width: "200px",
+                responsivePriority: -1
+            },
+            {
                 data: "perp_dari",
                 name: "perp_dari",
                 responsivePriority: 0,
@@ -95,14 +103,6 @@ function getData() {
                 name: "jml",
                 className: 'text-center text-wrap',
                 responsivePriority: 1,
-            },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-                width: "200px",
-                responsivePriority: -1
             },
         ],
         fnDrawCallback: () => {

@@ -496,7 +496,7 @@ class DeliveryKeTpkRepoService
             $cek_req_satu_kapal = "select no_booking from container_delivery, request_delivery where container_delivery.no_request = request_delivery.no_request
 					and no_container = '$no_cont' and no_booking = '$no_booking' and aktif = 'Y'";
             $rw_cekkpl = DB::connection('uster')->selectOne($cek_req_satu_kapal);
-            $nobokk_lama =  $rw_cekkpl->no_booking;
+            $nobokk_lama =  $rw_cekkpl->no_booking ?? null;
             if ($nobokk_lama != NULL) {
                 echo 'EXIST_DEL_BY_BOOKING';
                 exit();
@@ -854,7 +854,7 @@ class DeliveryKeTpkRepoService
 
             $vessel_code = $rves->vessel_code;
             $voyage = $rves->voyage;
-            $qcekop = "SELECT CARRIER from BILLING_NBS.REQ_RECEIVING_D WHERE ID_REQ = '$no_req2' AND NO_CONTAINER = '$no_cont'";
+            $qcekop = "SELECT CARRIER from BILLING.REQ_RECEIVING_D WHERE ID_REQ = '$no_req2' AND NO_CONTAINER = '$no_cont'";
             $rcekop = DB::connection('uster')->selectOne($qcekop);
             $operatorid = $rcekop->carrier;
             $param_b_var = array(
@@ -869,7 +869,7 @@ class DeliveryKeTpkRepoService
             );
 
             // echo var_dump($param_b_var);die;
-            $query_ops = "declare begin BILLING_NBS.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+            $query_ops = "declare begin BILLING.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
 
             $query_del    = "DELETE FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
 

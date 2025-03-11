@@ -1013,7 +1013,7 @@ Perencanaan Kegiatan Delivery
                                         if (data.status['code'] == 200) {
                                             sAlert('Berhasil!', data.status['msg'], 'success');
                                         } else {
-                                            sAlert('Gagal!', data.status['msg'], 'danger');
+                                            sAlert('Gagal!', data.status['msg'], 'error');
                                         }
 
                                         $('#container-table').DataTable().ajax.reload();
@@ -1075,7 +1075,7 @@ Perencanaan Kegiatan Delivery
                 var table = $('#container-table').DataTable();
                 table.row($('#container-table tbody tr:contains(' + rowId + ')')).remove().draw();
             } else {
-                sAlert('Gagal!', data.status['msg'], 'danger');
+                sAlert('Gagal!', data.status['msg'], 'error');
             }
         });
     }
@@ -1105,7 +1105,7 @@ Perencanaan Kegiatan Delivery
                 if (data.status['code'] == 200) {
                     sAlert('Berhasil!', data.status['msg'], 'success');
                 } else {
-                    sAlert('Gagal!', data.status['msg'], 'danger');
+                    sAlert('Gagal!', data.status['msg'], 'error');
                 }
                 // Lakukan tindakan tambahan sesuai kebutuhan, misalnya memperbarui tampilan
             },
@@ -1157,7 +1157,7 @@ Perencanaan Kegiatan Delivery
                         if (data.status['code'] == 200) {
                             sAlert('Berhasil!', data.status['msg'], 'success');
                         } else {
-                            sAlert('Gagal!', data.status['msg'], 'danger');
+                            sAlert('Gagal!', data.status['msg'], 'error');
                         }
 
                         $('#container-table').DataTable().ajax.reload();

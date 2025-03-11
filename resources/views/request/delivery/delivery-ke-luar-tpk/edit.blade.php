@@ -707,7 +707,7 @@ Perencanaan Kegiatan Delivery
         $('#KOMODITI').on('select2:select', function(e) {
             var data = e.params.data;
             console.log(data)
-            $("#ID_KOMODITI").val(data.operatorCode);
+            $("#ID_KOMODITI").val(data.kd_commodity);
         });
 
         $('#container-table').DataTable({

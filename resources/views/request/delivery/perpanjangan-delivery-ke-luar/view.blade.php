@@ -103,7 +103,7 @@ Perencanaan Kegiatan Delivery
         $('#container-table').DataTable({
             // responsive: true,
             processing: true,
-            serverSide: true,
+            serverSide: false,
             ajax: {
                 url: '{!! route("uster.new_request.delivery.perpanjangan_delivery_luar.contlist") !!}',
                 type: 'GET',
@@ -148,7 +148,7 @@ Perencanaan Kegiatan Delivery
                     render: function(data, type, row, meta) {
                         // Render the combined value of 'nm_kapal' and 'voyage' with space and comma
                         id = 'TGL_PERP_' + meta.row;
-                        return '<input type="date" value=' + data + ' id=' + id + ' name=' + id + ' />';
+                        return '<input type="date" value=' + data.tgl_delivery + ' id=' + id + ' name=' + id + ' />';
                     }
                 },
             ],
@@ -157,8 +157,8 @@ Perencanaan Kegiatan Delivery
                 $(row).append('<input type="hidden" id="NO_CONT_' + rowIdx + '"  name="NO_CONT_' + rowIdx + '" class="hidden-input" value="' + data.no_container + '">');
                 // $(row).append('<input type="text" id="TGL_PERP_' + rowIdx + '" name="TGL_PERP_' + rowIdx + '" class="hidden-input">');
             },
-            lengthMenu: [10, 20, 50, 100], // Set the default page lengths
-            pageLength: 10, // Set the initial page length
+            lengthMenu: [10, 20, 50, 100, 200], // Set the default page lengths
+            pageLength: 200, // Set the initial page length
             initComplete: function() {
                 var table = $('#container-table').DataTable();
                 var totalRows = table.rows().count();

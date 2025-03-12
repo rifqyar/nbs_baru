@@ -401,7 +401,7 @@ class NotaStuffingPlan
             ->select('BIAYA as BEA_MATERAI')
             ->first();
 
-        $bea_materai = $row_mtr && $row_mtr->BEA_MATERAI > 0 ? $row_mtr->BEA_MATERAI : 0;
+        $bea_materai = $row_mtr && $row_mtr->bea_materai > 0 ? $row_mtr->bea_materai : 0;
 
         // Menghitung Jumlah Dibayar
         $total_bayar += $bea_materai;

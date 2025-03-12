@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
@@ -32,7 +34,7 @@ class GatePeriodikController extends Controller
     {
         $this->validate($request, [
             'tgl_akhir' => 'after_or_equal:tgl_awal'
-        ],[
+        ], [
             'tgl_akhir' => 'Periode gate akhir harus lebih besar dari periode gate awal'
         ]);
 
@@ -50,7 +52,8 @@ class GatePeriodikController extends Controller
                     'status' => [
                         'msg' => 'OK',
                         'code' => 200
-                    ], 'blade' => $blade
+                    ],
+                    'blade' => $blade
                 ], 200);
             }
         } catch (Exception $th) {
@@ -70,7 +73,7 @@ class GatePeriodikController extends Controller
     {
         $this->validate($request, [
             'tgl_akhir' => 'after_or_equal:tgl_awal'
-        ],[
+        ], [
             'tgl_akhir' => 'Periode gate akhir harus lebih besar dari periode gate awal'
         ]);
 
@@ -105,6 +108,11 @@ class GatePeriodikController extends Controller
                 ->getAlignment()
                 ->setVertical(Alignment::VERTICAL_CENTER)
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $activeWorksheet->getStyle($rangeTitle)
+                ->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THIN)
+                ->setColor(new Color('000000'));
 
             $rangeTitle = 'A2:' . $last_column . '2';
             $activeWorksheet->mergeCells($rangeTitle);
@@ -117,6 +125,11 @@ class GatePeriodikController extends Controller
                 ->getAlignment()
                 ->setVertical(Alignment::VERTICAL_CENTER)
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $activeWorksheet->getStyle($rangeTitle)
+                ->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THIN)
+                ->setColor(new Color('000000'));
 
             $rangeTitle = 'A3:' . $last_column . '3';
             $activeWorksheet->mergeCells($rangeTitle);
@@ -129,6 +142,11 @@ class GatePeriodikController extends Controller
                 ->getAlignment()
                 ->setVertical(Alignment::VERTICAL_CENTER)
                 ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $activeWorksheet->getStyle($rangeTitle)
+                ->getBorders()
+                ->getOutline()
+                ->setBorderStyle(Border::BORDER_THIN)
+                ->setColor(new Color('000000'));
 
             /** SET HEADER */
             $startColumn = 'A';
@@ -150,6 +168,13 @@ class GatePeriodikController extends Controller
                     ->getStyle($startColumn . '4')
                     ->getFont()
                     ->setSize('11');
+
+                // Border
+                $activeWorksheet->getStyle($startColumn . '4')
+                    ->getBorders()
+                    ->getOutline()
+                    ->setBorderStyle(Border::BORDER_THIN)
+                    ->setColor(new Color('000000'));
 
                 // Row
                 $activeWorksheet->getRowDimension('4')->setRowHeight(20);

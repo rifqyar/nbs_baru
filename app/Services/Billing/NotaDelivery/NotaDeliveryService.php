@@ -165,54 +165,52 @@ class NotaDeliveryService
         }
 
         $query_dtl  = "SELECT * from (SELECT a.JML_HARI,
-                            TO_CHAR (SUM(a.TARIF), '999,999,999,999') AS TARIF,
-                            TO_CHAR (SUM(a.BIAYA), '999,999,999,999') AS BIAYA,
-                            --TO_CHAR (a.TARIF, '999,999,999,999') AS TARIF,
-                            --TO_CHAR (a.BIAYA, '999,999,999,999') AS BIAYA,
-                            case when a.tekstual is null
-                            then a.KETERANGAN
-                            else a.tekstual
-                            end keterangan,
-                            a.HZ,
-                            a.JML_CONT,
-                            TO_CHAR (a.START_STACK, 'dd/mm/yyyy') START_STACK,
-                            TO_CHAR (a.END_STACK, 'dd/mm/yyyy') END_STACK,
-                            b.SIZE_,
-                            b.TYPE_,
-                            b.STATUS
-                        FROM nota_delivery_d a, iso_code b
-                        WHERE a.id_iso = b.id_iso
-                        AND a.id_nota = '$notanya'
-                        AND a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.JML_HARI IS NULL
-                    --              AND a.KETERANGAN in ('GERAKAN ANTAR BLOK')
-                        GROUP BY case when a.tekstual is null
-                            then a.KETERANGAN
-                            else a.tekstual
-                            end, a.JML_HARI, a.HZ, a.JML_CONT, b.SIZE_, b.TYPE_, b.STATUS, a.START_STACK, a.END_STACK
-                            UNION ALL
-                            SELECT a.JML_HARI,
-                            TO_CHAR (a.TARIF, '999,999,999,999') AS TARIF,
-                            TO_CHAR (a.BIAYA, '999,999,999,999') AS BIAYA,
-                            --TO_CHAR (a.TARIF, '999,999,999,999') AS TARIF,
-                            --TO_CHAR (a.BIAYA, '999,999,999,999') AS BIAYA,
-                            case when a.tekstual is null
-                            then a.KETERANGAN
-                            else a.tekstual
-                            end keterangan,
-                            a.HZ,
-                            a.JML_CONT,
-                            TO_CHAR (a.START_STACK, 'dd/mm/yyyy') START_STACK,
-                            TO_CHAR (a.END_STACK, 'dd/mm/yyyy') END_STACK,
-                            b.SIZE_,
-                            b.TYPE_,
-                            b.STATUS
-                        FROM nota_delivery_d a, iso_code b
-                        WHERE a.id_iso = b.id_iso
-                        AND a.id_nota = '$notanya'
-                        AND a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.JML_HARI IS NOT NULL
-                        )cs
+                                TO_CHAR (a.TARIF, '999,999,999,999') AS TARIF,
+                                TO_CHAR (a.BIAYA, '999,999,999,999') AS BIAYA,
+                                case when a.tekstual is null
+                                        then a.KETERANGAN
+                                        else a.tekstual
+                                        end keterangan,
+                                a.HZ,
+                                a.JML_CONT,
+                                TO_CHAR (a.START_STACK, 'dd/mm/yyyy') START_STACK,
+                                TO_CHAR (a.END_STACK, 'dd/mm/yyyy') END_STACK,
+                                b.SIZE_,
+                                b.TYPE_,
+                                b.STATUS
+                        FROM temp_detail_nota a, iso_code b
+                        WHERE
+                        a.id_iso = b.id_iso
+                            AND a.no_request = '$no_req'
+                            AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
+                        --          AND a.keterangan = 'PENUMPUKAN MASA II'
+                            AND a.JML_HARI IS NOT NULL
+                            AND KETERANGAN LIKE '%PENUMPUKAN%'
+                                    UNION ALL
+                                SELECT a.JML_HARI,
+                                    TO_CHAR (SUM(a.TARIF), '999,999,999,999') AS TARIF,
+                                    TO_CHAR (SUM(a.BIAYA), '999,999,999,999') AS BIAYA,
+                                    case when a.tekstual is null
+                                            then a.KETERANGAN
+                                            else a.tekstual
+                                            end keterangan,
+                                    a.HZ,
+                                    a.JML_CONT JML_CONT,
+                                    TO_CHAR (a.START_STACK, 'dd/mm/yyyy') START_STACK,
+                                    TO_CHAR (a.END_STACK, 'dd/mm/yyyy') END_STACK,
+                                    b.SIZE_,
+                                    b.TYPE_,
+                                    b.STATUS
+                                FROM temp_detail_nota a, iso_code b
+                                WHERE a.id_iso = b.id_iso
+                                    AND a.no_request = '$no_req'
+                                    AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
+                                    AND a.JML_HARI IS NULL
+                                    --AND a.TEKSTUAL in ('GERAKAN ANTAR BLOK')
+                                GROUP BY case when a.tekstual is null
+                                    then a.KETERANGAN
+                                    else a.tekstual
+                                    end,a.JML_HARI, a.HZ, a.JML_CONT, b.SIZE_, b.TYPE_, b.STATUS, a.START_STACK, a.END_STACK) cs
                         order by cs.keterangan";
         $i = 0;
         $row2 = DB::connection('uster')->select($query_dtl);

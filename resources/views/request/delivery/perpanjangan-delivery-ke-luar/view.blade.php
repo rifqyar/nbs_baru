@@ -148,7 +148,7 @@ Perencanaan Kegiatan Delivery
                     render: function(data, type, row, meta) {
                         // Render the combined value of 'nm_kapal' and 'voyage' with space and comma
                         id = 'TGL_PERP_' + meta.row;
-                        return '<input type="date" value=' + data.tgl_delivery + ' id=' + id + ' name=' + id + ' />';
+                        return '<input type="date" value="" id=' + id + ' name=' + id + ' />';
                     }
                 },
             ],

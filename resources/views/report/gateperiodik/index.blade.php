@@ -121,10 +121,10 @@
                                                         required>
                                                         <option value="" selected="selected" disabled hidden> -- Pilih
                                                             -- </option>
-                                                        <option value="1"> Shift 1 (07.00 s/d 15.30) </option>
-                                                        <option value="2"> Shift 2 (15.30 s/d 23.00)</option>
-                                                        <option value="4"> Shift 3 (23.00 s/d 07.00)</option>
-                                                        <option value="3"> Kegiatan 1 Hari (00.00 s/d 23.59)</option>
+                                                        <option value="1"> Shift 1 (08.00 s/d 16.00) </option>
+                                                        <option value="2"> Shift 2 (16.00 s/d 23.59) </option>
+                                                        <option value="4"> Shift 3 (00.00 s/d 08.00) </option>
+                                                        <option value="3"> Kegiatan 1 Hari (00.00 s/d 23.59) </option>
                                                         <option value="ALL"> ALL </option>
                                                     </select>
                                                     <div class="invalid-feedback">Harap Pilih Shift</div>

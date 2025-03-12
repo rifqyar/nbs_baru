@@ -231,7 +231,7 @@
                                             <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                             <div class="col-lg-4 col-md-12 text-right">
                                                 <span class="text-dark font-medium">
-                                                    {{ number_format($materai, 0, ',', '.') }}
+                                                    {{ number_format($row_materai, 0, ',', '.') }}
                                                 </span>
                                             </div>
                                         </div>

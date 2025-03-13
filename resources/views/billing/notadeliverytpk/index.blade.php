@@ -193,14 +193,14 @@ Nota Delivery - SP2 TPK
                 }, function(data) {
                     if (data == 'OK') {
                         Swal.fire({
-                            icon: 'success',
+                            type: 'success',
                             text: 'Recalculation Success',
                             title: 'Success',
                         });
 
                     } else {
                         Swal.fire({
-                            icon: 'error',
+                            type: 'error',
                             title: 'Recalculation Failed',
                             text: data,
                         });

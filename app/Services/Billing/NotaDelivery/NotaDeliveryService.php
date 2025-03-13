@@ -119,7 +119,7 @@ class NotaDeliveryService
 
         $query = "SELECT NO_NOTA FROM nota_delivery WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
         $hasil_ = DB::connection('uster')->selectOne($query);
-        $notanya = $hasil_->no_nota;
+        $notanya = $hasil_->no_nota ?? null;
 
         //NOTA MTI -> NO_NOTA_MTI
         $query = "SELECT c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT  , a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
@@ -178,10 +178,10 @@ class NotaDeliveryService
                                 b.SIZE_,
                                 b.TYPE_,
                                 b.STATUS
-                        FROM temp_detail_nota a, iso_code b
+                        FROM nota_delivery_d a, iso_code b
                         WHERE
                         a.id_iso = b.id_iso
-                            AND a.no_request = '$no_req'
+                            AND a.id_nota = '$notanya'
                             AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
                         --          AND a.keterangan = 'PENUMPUKAN MASA II'
                             AND a.JML_HARI IS NOT NULL
@@ -201,9 +201,9 @@ class NotaDeliveryService
                                     b.SIZE_,
                                     b.TYPE_,
                                     b.STATUS
-                                FROM temp_detail_nota a, iso_code b
+                                FROM nota_delivery_d a, iso_code b
                                 WHERE a.id_iso = b.id_iso
-                                    AND a.no_request = '$no_req'
+                                    AND a.id_nota = '$notanya'
                                     AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
                                     AND a.JML_HARI IS NULL
                                     --AND a.TEKSTUAL in ('GERAKAN ANTAR BLOK')
@@ -212,7 +212,6 @@ class NotaDeliveryService
                                     else a.tekstual
                                     end,a.JML_HARI, a.HZ, a.JML_CONT, b.SIZE_, b.TYPE_, b.STATUS, a.START_STACK, a.END_STACK) cs
                         order by cs.keterangan";
-        $i = 0;
         $row2 = DB::connection('uster')->select($query_dtl);
 
         $qcont = "SELECT A.NO_CONTAINER,A.STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_DELIVERY A, MASTER_CONTAINER B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
@@ -369,7 +368,6 @@ class NotaDeliveryService
                         order by cs.keterangan";/*gagat modif 09 feb 2020*/
 
         $row_detail   = DB::connection('uster')->select($detail_nota);
-
         // echo json_encode($row_detail);die();
 
 
@@ -480,268 +478,224 @@ class NotaDeliveryService
 
     function insertProforma($request)
     {
-        DB::transaction();
+        DB::beginTransaction();
         try {
             $nipp   = session()->get("LOGGED_STORAGE");
             $no_req = $request->no_req;
             $koreksi = $request->koreksi;
 
-            $query_cek_nota     = "SELECT NO_NOTA,STATUS FROM NOTA_DELIVERY WHERE NO_REQUEST = '$no_req'";
-            $nota                = DB::connection('uster')->selectOne($query_cek_nota);
-            $no_nota_cek        = $nota->no_nota;
-            $nota_status        = $nota->status;
-            if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)) {
-                $query_cek    = "SELECT NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_NOTA,10,15))+1),6,0), '000001') JUM_,
-                              TO_CHAR(SYSDATE, 'MM') AS MONTH,
-                              TO_CHAR(SYSDATE, 'YY') AS YEAR
-                        FROM NOTA_DELIVERY
-                       WHERE NOTA_DELIVERY.TGL_NOTA BETWEEN TRUNC(SYSDATE,'MONTH') AND LAST_DAY(SYSDATE)";
+            // Cek apakah nota sudah ada dan statusnya
+            $nota = DB::connection('uster')
+                ->table('NOTA_DELIVERY')
+                ->select('NO_NOTA', 'STATUS')
+                ->where('NO_REQUEST', $no_req)
+                ->first();
+
+            $no_nota_cek = $nota->no_nota ?? null;
+            $nota_status = $nota->status ?? null;
+
+            if (($no_nota_cek !== null && $nota_status === 'BATAL') || ($no_nota_cek === null && $nota_status === null)) {
+                // Generate nomor nota
+                $jum = DB::connection('uster')
+                    ->table('nota_delivery')
+                    ->selectRaw("
+                        NVL(LPAD(MAX(TO_NUMBER(SUBSTR(no_nota,10,15))+1),6,'0'), '000001') AS jum,
+                        TO_CHAR(SYSDATE, 'MM') AS month,
+                        TO_CHAR(SYSDATE, 'YY') AS year
+                    ")
+                    ->whereBetween('tgl_nota', [DB::raw("TRUNC(SYSDATE,'MONTH')"), DB::raw("LAST_DAY(SYSDATE)")])
+                    ->first();
+
+                $no_nota = "0105" . $jum->month . $jum->year . $jum->jum;
+
+                // Generate nomor nota MTI
+                $jum_mti = DB::connection('uster')
+                    ->table('mti_counter_nota')
+                    ->selectRaw("
+                        NVL(LPAD(MAX(TO_NUMBER(SUBSTR(no_nota_mti,10,15)) + 1), 6, '0'), '000001') AS jum,
+                        TO_CHAR(SYSDATE, 'YYYY') AS year
+                    ")
+                    ->whereRaw("tahun = TO_CHAR(SYSDATE, 'YYYY')")
+                    ->first();
+
+                $no_nota_mti = "17." . $jum_mti->year . "." . $jum_mti->jum;
+
+                // Ambil data dari master pbm
+                $master = DB::connection('uster')
+                    ->table('request_delivery as a')
+                    ->join('v_mst_pbm as b', 'a.kd_emkl', '=', 'b.kd_pbm')
+                    ->join('container_delivery as c', 'a.no_request', '=', 'c.no_request')
+                    ->selectRaw("
+                        b.kd_pbm, b.nm_pbm, b.almt_pbm, b.no_npwp_pbm,
+                        TO_CHAR(a.tgl_request, 'dd/Mon/yyyy') AS tgl_request,
+                        COUNT(c.no_container) AS jumlah, a.delivery_ke
+                    ")
+                    ->where('a.no_request', $no_req)
+                    ->groupByRaw("
+                        b.kd_pbm, b.nm_pbm, b.almt_pbm, b.no_npwp_pbm,
+                        TO_CHAR(a.tgl_request, 'dd/Mon/yyyy'), a.delivery_ke
+                    ")
+                    ->first();
+
+                // Ambil tarif pass
+                $row_pass = DB::connection('uster')
+                    ->table('master_tarif as a')
+                    ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
+                    ->selectRaw("(? * a.tarif) AS tarif", [$master->jumlah])
+                    ->whereRaw("TO_DATE(?, 'dd/mm/yyyy') BETWEEN b.start_period AND b.end_period", [$master->tgl_request])
+                    ->where('a.id_iso', 'PASS')
+                    ->first();
+
+                // Ambil tarif pass
+                $row_adm = DB::connection('uster')
+                    ->table('master_tarif as a')
+                    ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
+                    ->where('b.kategori_tarif', 'ADMIN_NOTA')
+                    ->selectRaw("TO_CHAR(a.tarif, '999,999,999,999') AS adm, a.tarif")
+                    ->first();
+
+                $adm = $row_adm->tarif ?? 0; // Pastikan ada nilai default jika NULL
 
 
-                $jum_        = DB::connection('uster')->selectOne($query_cek);
-                $jum        = $jum_->jum_;
-                $month        = $jum_->month;
-                $year        = $jum_->year;
+                // Ambil total biaya, ppn, dan total tagihan
+                $total2 = DB::connection('uster')
+                    ->table('temp_detail_nota')
+                    ->selectRaw("SUM(biaya) AS total, SUM(ppn) AS ppn, (SUM(biaya) + SUM(ppn)) AS total_tagihan")
+                    ->where('no_request', $no_req)
+                    ->whereNotIn('keterangan', ['MATERAI'])
+                    ->first();
 
-                $no_nota    = "0505" . $month . $year . $jum;
+                // Ambil biaya materai
+                $row_materai = DB::connection('uster')
+                    ->table('temp_detail_nota')
+                    ->selectRaw("SUM(biaya) AS bea_materai")
+                    ->where('no_request', $no_req)
+                    ->where('keterangan', 'MATERAI')
+                    ->first();
 
-                // Cek NO NOTA MTI
-                // firman 20 agustus 2020
-                $query_mti = "SELECT NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_NOTA_MTI,10,15))+1),6,0),'000001') JUM_,
-                           TO_CHAR(SYSDATE, 'YYYY') AS YEAR
-                           FROM MTI_COUNTER_NOTA WHERE TAHUN =  TO_CHAR(SYSDATE,'YYYY')";
+                $tagihan = $total2->total_tagihan + $row_materai->bea_materai;
 
-                $jum_mti    = DB::connection('uster')->selectOne($query_mti);
-                $jum_nota_mti    = $jum_mti->jum_;
-                $year_mti        = $jum_mti->year;
-
-                $no_nota_mti    = "17." . $year_mti . "." . $jum_nota_mti;
-
-                //select master pbm
-                $query_master    = "SELECT b.KD_PBM,
-                b.nm_pbm,
-                b.almt_pbm,
-                b.no_npwp_pbm,
-                TO_CHAR(a.TGL_REQUEST,'dd/Mon/yyyy') TGL_REQUEST,
-                COUNT(c.NO_CONTAINER) JUMLAH,
-                a.DELIVERY_KE
-          FROM REQUEST_DELIVERY a, v_mst_pbm b , CONTAINER_DELIVERY c
-          WHERE a.KD_EMKL = b.kd_pbm
-              AND a.NO_REQUEST = c.NO_REQUEST
-              AND a.no_request = '$no_req'
-          GROUP BY  b.KD_PBM, b.nm_pbm, b.almt_pbm, b.no_npwp_pbm, TO_CHAR(a.TGL_REQUEST,'dd/Mon/yyyy'), a.DELIVERY_KE";
-                //echo $query_master;die;
-                $master        = DB::connection('uster')->selectOne($query_master);
-                $kd_pbm        = $master->kd_pbm;
-                $nm_pbm        = $master->nm_pbm;
-                $almt_pbm    = $master->almt_pbm;
-                $npwp       = $master->no_npwp_pbm;
-                $jumlah_cont     = $master->jumlah;
-                $tgl_re       = $master->tgl_request;
-                $delivery_ke = $master->delivery_ke;
-
-                $pass          = "SELECT TO_CHAR(($jumlah_cont * a.TARIF), '999,999,999,999') PASS, ($jumlah_cont * a.TARIF) TARIF
-					  FROM master_tarif a, group_tarif b
-					 WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF
-					       AND TO_DATE ('$tgl_re', 'dd/mm/yyyy') BETWEEN b.START_PERIOD
-					                                                    AND b.END_PERIOD
-					       AND a.ID_ISO = 'PASS'";
-
-                $row_pass     = DB::connection('uster')->selectOne($pass);
-                $tarif_pass   = $row_pass->tarif;
-
-                $total_        = "SELECT SUM(BIAYA) TOTAL, SUM(PPN) PPN, (SUM(BIAYA) + SUM(PPN)) TOTAL_TAGIHAN FROM temp_detail_nota WHERE no_request = '$no_req'
-						 AND KETERANGAN NOT IN ('MATERAI')";
-                /**Fauzan modif 31 AUG 2020 "AND KETERANGAN NOT IN ('MATERAI')"*/
-                //echo $total_;die;
-
-                $total2         = DB::connection('uster')->selectOne($total_);
-                $total_         = $total2->total;
-                $ppn             = $total2->ppn;
-
-                $query_adm        = "SELECT TO_CHAR(a.TARIF , '999,999,999,999') AS ADM, a.TARIF FROM MASTER_TARIF a, GROUP_TARIF b WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF AND b.KATEGORI_TARIF = 'ADMIN_NOTA'";
-                $row_adm        = DB::connection('uster')->selectOne($query_adm);
-                $adm             = $row_adm->tarif;
-
-                /*Fauzan add materai 31 Agustus 2020*/
-                $query_materai        = "SELECT SUM(BIAYA) BEA_MATERAI FROM temp_detail_nota WHERE no_request = '$no_req' AND KETERANGAN = 'MATERAI'";
-
-                $row_materai        = DB::connection('uster')->selectOne($query_materai);
-                $materai            = $row_materai->bea_materai;
-                $tagihan         = $total2->total_tagihan + $materai;
-                /*end Fauzan add materai 31 Agustus 2020*/
-
-                /**Fauzan modif 31 AUG 2020 "+ $materai"*/
-
-
-                if ($koreksi <> 'Y') {
-
-                    //$faktur	 	= "SELECT CONCAT(a.NO_FAKTUR ,(LPAD(NVL((MAX(SEQ_FAKTUR)+1),1),6,0))) FAKTUR, NVL((MAX(SEQ_FAKTUR)+1),1) SEQ FROM NOTA_ALL_H, (SELECT NO_FAKTUR FROM FAKTUR WHERE TAHUN =  to_char(sysdate, 'RRRR') AND KETERANGAN = 'NEW') a GROUP BY a.NO_FAKTUR";
-
+                // Jika koreksi
+                if ($koreksi !== 'Y') {
                     $status_nota = 'NEW';
                     $nota_lama = '';
                 } else {
                     $status_nota = 'KOREKSI';
-                    $faktur         = "SELECT NO_NOTA, NO_FAKTUR, KD_EMKL FROM NOTA_DELIVERY WHERE NO_REQUEST = '$no_req' AND NO_NOTA =(SELECT MAX(NO_NOTA) FROM NOTA_DELIVERY WHERE NO_REQUEST = '$no_req')";
+                    $faktur_ = DB::connection('uster')
+                        ->table('nota_delivery')
+                        ->select('no_faktur')
+                        ->where('no_request', $no_req)
+                        ->where('no_nota', function ($query) use ($no_req) {
+                            $query->selectRaw('MAX(no_nota)')
+                                ->from('nota_delivery')
+                                ->where('no_request', $no_req);
+                        })
+                        ->first();
+                    $nota_lama = $faktur_->no_faktur;
 
-                    $faktur_     = DB::connection('uster')->selectOne($faktur);
-                    $nota_lama    = $faktur_->no_faktur;
-                    $update = "UPDATE NOTA_DELIVERY SET STATUS = 'BATAL' WHERE NO_NOTA = '$nota_lama'";
-                    DB::connection('uster')->statement($update);
+                    DB::connection('uster')
+                        ->table('nota_delivery')
+                        ->where('no_nota', $nota_lama)
+                        ->update(['status' => 'BATAL']);
                 }
 
-                $query_mti = "INSERT INTO MTI_COUNTER_NOTA
-							(
-							 NO_NOTA_MTI,
-							 TAHUN,
-							 NO_REQUEST
-							)
-							VALUES
-							(
-							'$no_nota_mti',
-							TO_CHAR(SYSDATE,'YYYY'),
-							'$no_req'
-							)";
+                // Insert MTI Counter
+                DB::connection('uster')->table('mti_counter_nota')->insert([
+                    'no_nota_mti' => $no_nota_mti,
+                    'tahun'       => DB::raw("TO_CHAR(SYSDATE, 'YYYY')"),
+                    'no_request'  => $no_req
+                ]);
 
-                DB::connection('uster')->statement($query_mti);
+                // Insert ke NOTA_DELIVERY
+                $insertSuccess = DB::connection('uster')->table('nota_delivery')->insert([
+                    'no_nota'      => $no_nota,
+                    'tagihan'      => $total2->total,
+                    'ppn'          => $total2->ppn,
+                    'total_tagihan' => $tagihan,
+                    'no_request'   => $no_req,
+                    'nipp_user'    => $nipp,
+                    'lunas'        => 'NO',
+                    'cetak_nota'   => 1,
+                    'tgl_nota'     => DB::raw('SYSDATE'),
+                    'emkl'         => $master->nm_pbm,
+                    'alamat'       => $master->almt_pbm,
+                    'npwp'         => $master->no_npwp_pbm,
+                    'status'       => $status_nota,
+                    'adm_nota'     => $adm,
+                    'pass'         => $row_pass->tarif,
+                    'kd_emkl'      => $master->kd_pbm,
+                    'tgl_nota_1'   => DB::raw('SYSDATE'),
+                    'nota_lama'    => $nota_lama,
+                    'no_nota_mti'  => $no_nota_mti
+                ]);
 
-                $query_insert_nota    = "INSERT INTO NOTA_DELIVERY(NO_NOTA,
-                TAGIHAN,
-                PPN,
-                TOTAL_TAGIHAN,
-                NO_REQUEST,
-                NIPP_USER,
-                LUNAS,
-                CETAK_NOTA,
-                TGL_NOTA,
-                EMKL,
-                ALAMAT,
-                NPWP,
-                STATUS,
-                ADM_NOTA,
-                PASS,
-                KD_EMKL,
-                TGL_NOTA_1,
-                NOTA_LAMA,
-                NO_NOTA_MTI)
-                VALUES('$no_nota',
-                '$total_',
-                '$ppn',
-                '$tagihan',
-                '$no_req',
-                '$nipp',
-                'NO',
-                1,
-                SYSDATE,
-                '$nm_pbm',
-                '$almt_pbm',
-                '$npwp',
-                'NEW',
-                '$adm',
-                '$tarif_pass',
-                '$kd_pbm',
-                SYSDATE,
-                '$nota_lama',
-                '$no_nota_mti')";
+                // Jika insert berhasil, lanjut insert detail
+                if ($insertSuccess) {
+                    // Insert detail nota
+                    $row = DB::connection('uster')
+                        ->table('temp_detail_nota')
+                        ->select([
+                            'id_iso',
+                            'tarif',
+                            'biaya',
+                            'keterangan',
+                            'jml_cont',
+                            'start_stack',
+                            'end_stack',
+                            'hz',
+                            'coa',
+                            'ppn',
+                            'jml_hari',
+                            'tekstual'
+                        ])
+                        ->where('no_request', $no_req)
+                        ->get();
 
-
-
-
-                //echo $query_insert_nota;die;
-
-                //echo $query_insert_nota;die;
-                if (DB::connection('uster')->statement($query_insert_nota)) //(TRUE)
-                {
-                    //UPDATE COUNTER MTI DAN PENAMBAHAN FIELD NO_NOTA_MTI DI HEADER DAN DETAIL
-                    //firman 20 agustus 2020
-
-                    $query_detail    = "SELECT ID_ISO,
-										  TARIF,
-										  BIAYA,
-										  KETERANGAN,
-										  JML_CONT,
-										  START_STACK,
-										  END_STACK,
-										  HZ,
-										  COA,
-										  PPN,
-										  JML_HARI
-									FROM temp_detail_nota
-									WHERE no_request = '$no_req' ";
-
-                    $row        = DB::connection('uster')->select($query_detail);
+                    $insertData = [];
                     $i = 1;
+
                     foreach ($row as $item) {
-                        $id_iso = $item->id_iso;
-                        $tarif  = $item->tarif;
-                        $biaya  = $item->biaya;
-                        $ket    = $item->keterangan;
-                        $jml_cont  = $item->jml_cont;
-                        $hz     = $item->hz;
-                        $start  = $item->start_stack;
-                        $end    = $item->end_stack;
-                        $jml    = $item->jml_hari;
-                        $ppn_d    = $item->ppn;
-                        $coa    = $item->coa;
-                        $tekstual  = $item->tekstual;
-
-                        $query_insert    = "INSERT INTO nota_delivery_d
-                        (
-                         ID_ISO,
-                         TARIF,
-                         BIAYA,
-                         KETERANGAN,
-                         ID_NOTA,
-                         JML_CONT,
-                         HZ,
-                         COA,
-                         LINE_NUMBER,
-                         START_STACK,
-                         END_STACK,
-                         JML_HARI,
-                         PPN,
-                         TEKSTUAL,
-                         NO_NOTA_MTI
-                        ) VALUES
-                        (
-                        '$id_iso',
-                        '$tarif',
-                        '$biaya',
-                        '$ket',
-                        '$no_nota',
-                        '$jml_cont',
-                        '$hz',
-                        '$coa',
-                        '$i',
-                        '$start',
-                        '$end',
-                        '$jml',
-                        '$ppn_d',
-                        '$tekstual',
-                        '$no_nota_mti')";
-
-                        DB::connection('uster')->statement($query_insert);
-                        // $db4->query($query_insert);
-
-                        $i++;
+                        $insertData[] = [
+                            'id_iso'       => $item->id_iso,
+                            'tarif'        => $item->tarif,
+                            'biaya'        => $item->biaya,
+                            'keterangan'   => $item->keterangan,
+                            'id_nota'      => $no_nota,
+                            'jml_cont'     => $item->jml_cont,
+                            'hz'           => $item->hz,
+                            'coa'          => $item->coa,
+                            'line_number'  => $i++,
+                            'start_stack'  => $item->start_stack,
+                            'end_stack'    => $item->end_stack,
+                            'jml_hari'     => $item->jml_hari,
+                            'ppn'          => $item->ppn,
+                            'tekstual'     => $item->tekstual,
+                            'no_nota_mti'  => $no_nota_mti
+                        ];
                     }
 
+                    // Insert batch untuk meningkatkan efisiensi
+                    if (!empty($insertData)) {
+                        DB::connection('uster')->table('nota_delivery_d')->insert($insertData);
+                    }
 
-                    $update_nota = "UPDATE NOTA_DELIVERY SET CETAK_NOTA = '1' WHERE NO_NOTA = '$no_nota'";
-                    $update_req = "UPDATE request_delivery SET NOTA = 'Y' WHERE no_request = '$no_req'";
-                    DB::connection('uster')->statement($update_nota);
-                    // $db4->query($update_nota);
-                    DB::connection('uster')->statement($update_req);
-                    //  $update_nota1 = "UPDATE REQUEST_DELIVERY SET NOTA = 'Y' WHERE NO_REQUEST = '$no_req'";
-                    // DB::connection('uster')->statement($update_nota1);
-                    $delete_temp = "DELETE from temp_detail_nota WHERE no_request = '$no_req'";
-                    DB::connection('uster')->statement($delete_temp);
+                    DB::connection('uster')->table('nota_delivery')
+                        ->where('no_nota', $no_nota)
+                        ->update(['cetak_nota' => 1]);
+
+                    DB::connection('uster')->table('request_delivery')
+                        ->where('no_request', $no_req)
+                        ->update(['nota' => 'Y']);
+
+                    // Update dan hapus data sementara
+                    DB::connection('uster')->table('temp_detail_nota')->where('no_request', $no_req)->delete();
                 }
-                DB::commit();
+
+                DB::commit(); // Commit transaksi
+                return;
             } else {
                 return;
             }
-            return;
         } catch (Exception $e) {
             DB::rollBack();
             return;

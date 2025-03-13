@@ -113,8 +113,8 @@ Preview Nota
 
 @section('pages-js')
 <script>
-    function save_nota() {    
-            window.open("{{route('uster.billing.notadelivery.insert_proforma')}}" + "?no_req=" + "{{$no_req}}" + "&koreksi=" + "{{$koreksi}}" + "&trx=" + "{{$rnota}}", "_self");
+    function save_nota() {
+            window.open("{{route('uster.billing.notadeliverytpk.insertproforma')}}" + "?no_req=" + "{{$no_req}}" + "&koreksi=" + "{{$koreksi}}" + "&trx=" + "{{$rnota}}", "_self");
     }
 </script>
 @endsection

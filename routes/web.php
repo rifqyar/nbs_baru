@@ -564,7 +564,7 @@ Route::group(['prefix' => 'billing', 'as' => 'uster.billing.', 'middleware' => '
         Route::get('/printproforma', [NotaDeliveryController::class, 'printProforma'])
             ->name('printproforma');
 
-        Route::post('/insertproforma', [NotaDeliveryController::class, 'insertProforma'])
+        Route::get('/insertproforma', [NotaDeliveryController::class, 'insertProforma'])
             ->name('insertproforma');
 
         Route::post('/recalc', [NotaDeliveryController::class, 'recalc'])

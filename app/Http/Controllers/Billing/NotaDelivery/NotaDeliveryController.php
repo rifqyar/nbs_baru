@@ -7,6 +7,7 @@ use App\Services\Billing\NotaDelivery\NotaDeliveryService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Validator;
 use Picqer\Barcode\BarcodeGeneratorPNG;
 use Yajra\DataTables\Facades\DataTables;
@@ -54,7 +55,6 @@ class NotaDeliveryController extends Controller
         $barcode = $generator->getBarcode($nota, $generator::TYPE_CODE_128);
         $data['barcode'] = $barcode;
 
-
         $pdf = Pdf::loadView('billing.notadeliverytpk.print.proforma', $data);
         $pdf->setPaper('a7');
         $pdf->setOption('margin-top', 1);
@@ -66,14 +66,13 @@ class NotaDeliveryController extends Controller
 
     function printNota(Request $request)
     {
-
         $data = $this->delivery->printNota($request);
-        return view('billing.notadeliveryluar.printnota', $data);
+        return view('billing.notadeliverytpk.printnota', $data);
     }
     function insertProforma(Request $request)
     {
         $this->delivery->insertProforma($request);
-        $this->printProforma($request);
+        return Redirect::route('uster.billing.notadeliverytpk.printproforma', ['no_req' => $request->no_req]);
     }
 
     function recalc(Request $Request)

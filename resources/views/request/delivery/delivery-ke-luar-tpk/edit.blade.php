@@ -1120,13 +1120,13 @@
                                         },
                                         complete: function() {
                                             $("#NO_CONT").val('');
-                                            $("#HZ").val('');
+                                            // $("#HZ").val('');
                                             $("#STATUS").val('');
                                             //$("#KOMODITI").val('');
                                             //$("#ID_KOMODITI").val('');
                                             $("#keterangan").val('');
                                             $("#no_seal").val('');
-                                            $("#via").val('');
+                                            // $("#via").val('');
                                             $("#SIZE").val('');
                                             $("#TYPE").val('');
                                             $("#TGL_STACK2").val('');

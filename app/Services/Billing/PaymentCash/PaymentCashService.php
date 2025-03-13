@@ -3494,10 +3494,10 @@ class printNotaMTI
                                 b.SIZE_,
                                 b.TYPE_,
                                 b.STATUS
-                        FROM temp_detail_nota a, iso_code b
+                        FROM nota_delivery_d a, iso_code b
                         WHERE
                         a.id_iso = b.id_iso
-                            AND a.no_request = '$no_req'
+                            AND a.id_nota = '$no_nota_'
                             AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
                         --          AND a.keterangan = 'PENUMPUKAN MASA II'
                             AND a.JML_HARI IS NOT NULL
@@ -3517,9 +3517,9 @@ class printNotaMTI
                                     b.SIZE_,
                                     b.TYPE_,
                                     b.STATUS
-                                FROM temp_detail_nota a, iso_code b
+                                FROM nota_delivery_d a, iso_code b
                                 WHERE a.id_iso = b.id_iso
-                                    AND a.no_request = '$no_req'
+                                    AND a.id_nota = '$no_nota_'
                                     AND a.keterangan NOT IN ('ADMIN NOTA','MATERAI') /*fauzan modif 28 aug 2020*/
                                     AND a.JML_HARI IS NULL
                                     --AND a.TEKSTUAL in ('GERAKAN ANTAR BLOK')

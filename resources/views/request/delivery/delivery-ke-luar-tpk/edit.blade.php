@@ -732,14 +732,14 @@
                             JN_REPO: jn_repo
                         }, function(data) {
                             // var datax = $.parseJSON(data);
-                            console.log(data);
                             // Pisahkan tanggal, bulan, dan tahun
                             var tglBongkar = data.tgl_bongkar
                             const [day, month, year] = tglBongkar.split("-");
 
                             // Format ulang menjadi d/m/Y
-                            const formattedDate = `${day}/${month}/${year}`;
-                            $("#TGL_STACK2").val(formattedDate);
+                            const date2 = `${day}/${month}/${year}`;
+                            console.log(date2)
+                            $("#TGL_STACK2").val(formatDate(date2));
                         });
                     }
                     $("#END_STACK").val($("#TGL_BERANGKAT").val());
@@ -869,6 +869,15 @@
 
 
         ///==================================================///
+        function formatDate(dateStr) {
+            let [day, month, year] = dateStr.split('/').map(Number);
+            let date = new Date(year, month - 1, day, 0, 0, 0);
+            let formattedDate =
+                `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+
+            console.log(formattedDate)
+            return formattedDate;
+        }
 
         function check_hz() {
             var hz_ = $("#HZ").val();

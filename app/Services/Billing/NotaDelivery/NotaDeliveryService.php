@@ -704,29 +704,53 @@ class NotaDeliveryService
 
     function recalc($request)
     {
+        $req = $request->input('REQ');
+        $no_nota = $request->input('NOTA');
+
         try {
-            $req = $request->input('REQ');
-            $no_nota = $request->input('NOTA');
+            // Gunakan transaction() untuk keamanan transaksi
+            DB::connection('uster')->transaction(function () use ($req, $no_nota) {
+                DB::connection('uster')->statement("
+                BEGIN
+                    PACK_RECALC_NOTA.recalc_deliverytpk(:req, :no_nota);
+                END;
+            ", [
+                    'req' => $req,
+                    'no_nota' => $no_nota
+                ]);
+            });
 
-            try {
-
-                // Mulai transaksi
-                DB::connection('uster')->beginTransaction();
-
-                // Eksekusi prosedur tersimpan
-                DB::connection('uster')->statement("begin PACK_RECALC_NOTA.recalc_deliverytpk(:req, :no_nota); end;", ['req' => $req, 'no_nota' => $no_nota]);
-
-                // Commit transaksi jika sukses
-                DB::connection('uster')->commit();
-
-                return 'OK';
-            } catch (\Exception $e) {
-                // Rollback transaksi jika terjadi kesalahan
-                DB::connection('uster')->rollback();
-                return $e->getMessage();
-            }
+            return response()->json(['status' => 'OK'], 200);
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
+
+        // try {
+        //     $req = $request->input('REQ');
+        //     $no_nota = $request->input('NOTA');
+
+        //     try {
+
+        //         // Mulai transaksi
+        //         DB::connection('uster')->beginTransaction();
+
+        //         // Eksekusi prosedur tersimpan
+        //         DB::connection('uster')->statement("begin PACK_RECALC_NOTA.recalc_deliverytpk(:req, :no_nota); end;", ['req' => $req, 'no_nota' => $no_nota]);
+
+        //         // Commit transaksi jika sukses
+        //         DB::connection('uster')->commit();
+
+        //         return 'OK';
+        //     } catch (\Exception $e) {
+        //         // Rollback transaksi jika terjadi kesalahan
+        //         DB::connection('uster')->rollback();
+        //         return $e->getMessage();
+        //     }
+        // } catch (\Exception $e) {
+        //     return $e->getMessage();
+        // }
     }
 }

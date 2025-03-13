@@ -53,10 +53,10 @@ Nota Delivery - SP2 TPK
                         <thead>
                             <tr>
                                 <th>NO</th>
-                                <th>NO REQUEST</th>                                
+                                <th>NO REQUEST</th>
                                 <th>TGL REQUEST</th>
                                 <th>EMKL</th>
-                                <th>TGL KELUAR</th>    
+                                <th>TGL KELUAR</th>
                                 <th>JML CONT</th>
                                 <th>DELIVERY KE</th>
                                 <th>JENIS REPO</th>
@@ -98,12 +98,12 @@ Nota Delivery - SP2 TPK
                 },
                 {
                     data: 'no_request',
-                    name: 'no_request'                 
+                    name: 'no_request'
                 },
                 {
                     data: 'tgl_request',
                     name: 'tgl_request'
-                },                
+                },
                 {
                     data: 'nama_emkl',
                     name: 'nama_emkl'
@@ -181,7 +181,7 @@ Nota Delivery - SP2 TPK
                         Swal.showLoading();
                     }
                 });
-                var url = "{{ route('uster.billing.notadelivery.recalc') }}";
+                var url = "{{ route('uster.billing.notadeliverytpk.recalc') }}";
                 $.ajaxSetup({
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -209,6 +209,6 @@ Nota Delivery - SP2 TPK
             }
         });
 
-    }    
+    }
 </script>
 @endpush

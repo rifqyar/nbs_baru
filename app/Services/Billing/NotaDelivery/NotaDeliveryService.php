@@ -720,7 +720,7 @@ class NotaDeliveryService
                 ]);
             });
 
-            return response()->json(['status' => 'OK'], 200);
+            return 'OK';
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

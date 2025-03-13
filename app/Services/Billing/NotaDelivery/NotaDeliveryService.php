@@ -710,7 +710,14 @@ class NotaDeliveryService
         try {
             // Gunakan transaction() untuk keamanan transaksi
             DB::connection('uster')->transaction(function () use ($req, $no_nota) {
-                DB::connection('uster')->statement("begin PACK_RECALC_NOTA.recalc_deliverytpk('DEL0325000309', '01050325000287'); END;");
+                DB::connection('uster')->statement("
+                BEGIN
+                    PACK_RECALC_NOTA.recalc_deliverytpk(:req, :no_nota);
+                END;
+            ", [
+                    'req' => $req,
+                    'no_nota' => $no_nota
+                ]);
             });
 
             return response()->json(['status' => 'OK'], 200);

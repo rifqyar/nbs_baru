@@ -691,13 +691,20 @@
                         });
                         $("#NO_CONT").val('');
                     } else {
+                        // Pisahkan tanggal, bulan, dan tahun
+                        var tgl_stack = data.realisasi_stuffing
+                        var [year, month, day] = tgl_stack.split("-");
+                        day = day.split(' ')[0]
+                        // Format ulang menjadi d/m/Y
+                        const date2 = `${day}/${month}/${year}`;
 
+                        $("#TGL_STACK2").val(formatDate(date2));
                         $("#NO_CONT").val(data.no_container);
                         $("#SIZE").val(data.size_);
                         $("#TYPE").val(data.type_);
                         $("#STATUS").val(data.status);
                         $("#TGL_STACK").val(data.realisasi_stuffing);
-                        $("#TGL_STACK2").val(data.realisasi_stuffing);
+                        $("#TGL_STACK2").val(formatDate(date2));
                         $("#ASAL").val(data.asal);
                         $("#EX_PMB").val(data.no_booking);
                         if (data.status == null) {
@@ -738,7 +745,7 @@
 
                             // Format ulang menjadi d/m/Y
                             const date2 = `${day}/${month}/${year}`;
-                            console.log(date2)
+                            console.log(data)
                             $("#TGL_STACK2").val(formatDate(date2));
                         });
                     }

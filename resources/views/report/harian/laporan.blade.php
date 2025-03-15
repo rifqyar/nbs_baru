@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                         </form>
-                        <button onclick="genReport()" class="btn btn-primary mr-2"><i class="fas fa-file-alt pr-2"></i>
+                        <button onclick="toPdf()" class="btn btn-primary mr-2"><i class="fas fa-file-alt pr-2"></i>
                             Generate Report</button>
                         <button onclick="toExcel()" class="btn excel-button mr-2"><i class="fas fa-file-excel pr-2"></i>
                             Generate Excel</button>
@@ -190,6 +190,14 @@
             var id_time_ = $("#id_time").val();
 
             var url = '{!! route('uster.report.laporan_harian.report') !!}?id_req=' + id_req_ + '&id_time=' + id_time_;
+
+            window.location.href = url;
+        }
+        function toPdf() {
+            var id_req_ = $("#id_req").val();
+            var id_time_ = $("#id_time").val();
+
+            var url = '{!! route('uster.report.laporan_harian.reportpdf') !!}?id_req=' + id_req_ + '&id_time=' + id_time_;
 
             window.location.href = url;
         }

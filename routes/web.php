@@ -53,6 +53,7 @@ use App\Http\Controllers\Koreksi\BatalStrippingController;
 use FontLib\Table\Type\name;
 use App\Http\Controllers\Maintenance\CancelInvoiceController;
 use App\Http\Controllers\Maintenance\RenameController;
+use App\Http\Controllers\Maintenance\PconnectController;
 use App\Http\Controllers\Maintenance\DisableContainerController;
 use App\Http\Controllers\Maintenance\SendDeliveryTPKController;
 use App\Http\Controllers\Print\KartuRepoController;
@@ -757,7 +758,6 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
             Route::post('/delete-operation', [CancelStrippingController::class, 'deleteOperation'])
                 ->name('deleteoperation');
         });
-
         Route::group(['prefix' => 'stuffing', 'as' => 'stuffing.'], function () {
             Route::get('/', [CancelStuffingController::class, 'index'])
                 ->name('index');
@@ -776,6 +776,13 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
                 ->name('deleteoperation');
         });
     });
+    //uster.maintenance.pconnect
+    Route::group(['prefix' => 'pconnect', 'as' => 'pconnect.'], function () {
+        Route::get('/', [PconnectController::class, 'index'])->name('index');
+        Route::post('/data', [PconnectController::class, 'data'])->name('data');
+        Route::get('/view/{id}', [PconnectController::class, 'view'])->name('view');
+    });
+
 
     Route::group([], function () {
 

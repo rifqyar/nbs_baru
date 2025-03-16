@@ -127,6 +127,14 @@ class RequestReceivingController extends Controller
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
 
+        $validatePconnect = pconnectIntegration($request->acc_consignee);
+        if($validatePconnect != 'MATCH'){
+            if($validatePconnect == '404'){
+                throw new Exception('Data Customer tidak ditemukan di PConnect', 400);
+            } else if($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+                throw new Exception('Customer belum melakukan pengkinian data NPWP di Pconnect', 400);
+            }
+        }
 
         DB::beginTransaction();
         try {

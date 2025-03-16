@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use App\Traits\NpwpCheckPengkinianTrait;
+
 class DeliveryKeTpkRepoController extends Controller
 {
     use NpwpCheckPengkinianTrait;
@@ -116,6 +117,28 @@ class DeliveryKeTpkRepoController extends Controller
 
     function addDoTpk(Request $request)
     {
+        $validatePconnect = pconnectIntegration($request->NO_ACCOUNT_PBM);
+
+        if ($validatePconnect != 'MATCH') {
+            if ($validatePconnect == '404') {
+                return response()->json([
+                    'status' => [
+                        'code' => 404,
+                        'msg' => 'Data Customer tidak ditemkukan di PConnect'
+                    ],
+                    'message' => 'Data Customer tidak ditemkukan di PConnect'
+                ]);
+            } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+                return response()->json([
+                    'status' => [
+                        'code' => 400,
+                        'msg' => 'Customer belum melakukan pengkinian data NPWP di Pconnect'
+                    ],
+                    'message' => 'Customer belum melakukan pengkinian data NPWP di Pconnect'
+                ]);
+            }
+        }
+
         $viewData = $this->deliveryTpk->addDoTpk($request);
         return response()->json($viewData);
     }

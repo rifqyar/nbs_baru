@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Exception;
 use App\Traits\NpwpCheckPengkinianTrait;
+
 class PerencanaanStuffingController extends Controller
 {
 
@@ -52,12 +53,20 @@ class PerencanaanStuffingController extends Controller
     function storeStuffing(Request $request)
     {
         $validatedNpwp = $this->validateNpwpEMKL($request);
-
         // Check if the response is a failed validation JSON response
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
 
+        $validatePconnect = pconnectIntegration($request->ACC_EMKL);
+
+        if ($validatePconnect != 'MATCH') {
+            if ($validatePconnect == '404') {
+                throw new Exception('Data Customer tidak ditemukan di PConnect', 404);
+            } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+                throw new Exception('Customer belum melakukan pengkinian data NPWP di Pconnect', 400);
+            }
+        }
 
         try {
             return $this->stuffing->storeStuffingPlan($request);

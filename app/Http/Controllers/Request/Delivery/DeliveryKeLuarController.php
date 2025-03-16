@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 use App\Traits\NpwpCheckPengkinianTrait;
+use Exception;
 
 class DeliveryKeLuarController extends Controller
 {
@@ -91,7 +92,27 @@ class DeliveryKeLuarController extends Controller
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
 
-     
+        $validatePconnect = pconnectIntegration($request->ACC_EMKL);
+        if ($validatePconnect != 'MATCH') {
+            if ($validatePconnect == '404') {
+                return response()->json([
+                    'status' => [
+                        'code' => 404,
+                        'msg' => 'Data Customer tidak ditemkukan di PConnect'
+                    ],
+                ]);
+                // throw new Exception('Data Customer tidak ditemukan di PConnect', 400);
+            } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+                return response()->json([
+                    'status' => [
+                        'code' => 400,
+                        'msg' => 'Customer belum melakukan pengkinian data NPWP di Pconnect'
+                    ],
+                ]);
+                throw new Exception('Customer belum melakukan pengkinian data NPWP di Pconnect', 400);
+            }
+        }
+
         $viewData = $this->delivery->saveDeliveryLuar($request);
         return response()->json($viewData);
     }
@@ -129,7 +150,8 @@ class DeliveryKeLuarController extends Controller
         return response()->json($viewData);
     }
 
-    function commodity(Request $request){
+    function commodity(Request $request)
+    {
         $viewData = $this->delivery->commodity($request->term);
         return response()->json($viewData);
     }

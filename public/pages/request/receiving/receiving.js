@@ -189,6 +189,7 @@ $("#consignee").autocomplete({
                             kd_pbm: value.kd_pbm,
                             almt_pbm: value.almt_pbm,
                             npwp: value.no_npwp_pbm,
+                            no_acc_pbm: value.no_account_pbm,
                         };
                     })
                 );
@@ -198,6 +199,7 @@ $("#consignee").autocomplete({
     select: function (event, ui) {
         $("#consignee").val(ui.item.label);
         $("#kd_consignee").val(ui.item.kd_pbm);
+        $("#acc_consignee").val(ui.item.no_acc_pbm);
         $("#almt_consignee").val(ui.item.almt_pbm);
         $("#npwp").val(ui.item.npwp);
         return false;

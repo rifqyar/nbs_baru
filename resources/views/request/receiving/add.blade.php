@@ -52,6 +52,7 @@
                                     <label for="consignee">Penerima / Consignee <small class="text-danger">*</small></label>
                                     <input type="text" class="form-control" name="consignee" id="consignee" required>
                                     <input type="hidden" name="id_consignee" id="kd_consignee">
+                                    <input type="hidden" name="acc_consignee" id="acc_consignee">
                                     <div class="invalid-feedback">Harap Masukan Penerima / Consignee</div>
                                 </div>
                             </div>

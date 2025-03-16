@@ -889,7 +889,7 @@ class DeliveryService
     function pbm($term)
     {
         $nama            = strtoupper($term);
-        $query             = "SELECT pbm.KD_PBM,pbm.NM_PBM,pbm.ALMT_PBM,pbm.NO_NPWP_PBM FROM v_mst_pbm pbm
+        $query             = "SELECT pbm.KD_PBM,pbm.NM_PBM,pbm.ALMT_PBM,pbm.NO_NPWP_PBM, NO_ACCOUNT_PBM FROM v_mst_pbm pbm
                         where pbm.KD_CABANG='05' AND UPPER(pbm.NM_PBM) LIKE '%$nama%' AND PELANGGAN_AKTIF = '1'";
         $result_query    = DB::connection('uster')->select($query);
         return $result_query;

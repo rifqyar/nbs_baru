@@ -229,7 +229,7 @@ class ReceivingService
     // Get Master Data
     function getPbm($term)
     {
-        $query  = "SELECT pbm.KD_PBM,pbm.NM_PBM,pbm.ALMT_PBM,pbm.NO_NPWP_PBM FROM V_MST_PBM PBM
+        $query  = "SELECT pbm.KD_PBM,pbm.NM_PBM,pbm.ALMT_PBM,pbm.NO_NPWP_PBM, pbm.NO_ACCOUNT_PBM FROM V_MST_PBM PBM
 				    where pbm.KD_CABANG='05'
                         AND UPPER(pbm.NM_PBM) LIKE '%$term%'
                         AND PELANGGAN_AKTIF = '1'

@@ -357,10 +357,11 @@
                             }
                         },
                         error: function(xhr, status, error) {
+                            var msg = xhr.responseJSON?.message
                             // Handle any errors that occur during the AJAX request
                             Swal.fire({
                                 icon: 'error',
-                                title: 'An error occurred: ' + error,
+                                title: 'An error occurred: ' + msg,
                             });
 
                         }

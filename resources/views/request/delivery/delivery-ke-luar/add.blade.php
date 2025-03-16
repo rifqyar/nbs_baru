@@ -44,6 +44,7 @@ Perencanaan Kegiatan Delivery
                                 <div class="col-md-4">
                                     <select name="EMKL" id="EMKL" class="form-control w-100"></select>
                                     <input type="hidden" name="ID_EMKL" id="ID_EMKL" class="form-control" value="">
+                                    <input type="hidden" name="ACC_EMKL" id="ACC_EMKL" class="form-control" value="">
                                 </div>
                                 <div class="col-md-2 py-2">
                                     <label for="tb-fname">Penumpukan Oleh : </label>
@@ -125,7 +126,7 @@ Perencanaan Kegiatan Delivery
             $("#ID_EMKL").val(data.kd_pbm);
             $("#ALAMAT").val(data.almt_pbm);
             $("#NPWP").val(data.no_npwp_pbm);
-            $("#AC_EMKL").val(data.no_account_pbm);
+            $("#ACC_EMKL").val(data.no_account_pbm);
         });
 
         $('#NM_AGEN').select2({

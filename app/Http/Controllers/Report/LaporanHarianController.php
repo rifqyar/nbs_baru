@@ -182,7 +182,6 @@ class LaporanHarianController extends Controller
                 FROM MTI_COUNTER_SP WHERE TAHUN = TO_CHAR(SYSDATE,'YYYY')
             ");
         }
-        //dd($counter);
         $NOSP = "SPPTK" . $counter->tahun . "-" . $counter->seq;
 
         // Ambil data berdasarkan tanggal simpan
@@ -194,13 +193,13 @@ class LaporanHarianController extends Controller
         $message = "";
         $stat = false;
 
-        $updatedRecords = []; // Menyimpan data yang berhasil diperbarui
+        $updatedRecords = []; 
 
          foreach ($data as $row) {
             if (!is_null($row->sp_mti)) {
                $message = "NO SP Sudah Ada, ";
             } else {
-               // Update ITPK_NOTA_HEADER
+               
                $stat = DB::connection('uster')->update("
                      UPDATE ITPK_NOTA_HEADER SET SP_MTI = :SP_MTI 
                      WHERE STATUS <> 5 AND NO_REQUEST = :NO_REQUEST 
@@ -211,7 +210,7 @@ class LaporanHarianController extends Controller
                      'TGL_SIMPAN' => $row->tgl_simpan
                ]);
 
-               // Jika berhasil update, tambahkan ke array hasil
+              
                if ($stat > 0) {
                      $updatedRecords[] = [
                         'SP_MTI' => $NOSP,
@@ -220,18 +219,17 @@ class LaporanHarianController extends Controller
                      ];
                }
 
-               // Update sequence di MTI_COUNTER_SP
+              
                DB::connection('uster')->update("
                      UPDATE MTI_COUNTER_SP SET SEQUENCE = :SEQUE WHERE TAHUN = TO_CHAR(SYSDATE,'YYYY')
                ", ['SEQUE' => $counter->seque]);
             }
          }
 
-         // DEBUG: Cek data yang diperbarui
+        
          Log::info('Data yang berhasil diperbarui:', $updatedRecords);
 
-         // Jika ingin menghentikan proses dan melihat output langsung di browser
-         //dd($updatedRecords);
+        
 
         if (!$stat) {
             return response()->json(['message' => $message . "Data Gagal Diproses!"], 400);

@@ -188,10 +188,9 @@
             var id_req = $("#id_req").val();
             var id_time = $("#id_time").val();
 
-            // Cek jika ID Time kosong
             if (!id_time) {
                 input_error({ message: "Harap pilih ID Time sebelum melanjutkan." });
-                return; // Hentikan eksekusi
+                return; 
             }
             if ($.fn.DataTable.isDataTable('#container-table')) {
                 $('#container-table').DataTable().destroy();
@@ -212,16 +211,16 @@
                 },
                 dataType: 'json',
                 success: function(response) {
-                    input_success(response); // Jika sukses, panggil input_success
+                    input_success(response);
                     
-                    genReport(); // Panggil ulang DataTable untuk memperbarui data
+                    genReport(); 
                     
                 },
                 error: function(xhr, status, error) {
                     input_error(xhr.responseJSON || { message: "Terjadi kesalahan." });
                    
-                    genReport(); // Panggil ulang DataTable untuk memperbarui data
-                    // Jika error, panggil input_error
+                    genReport(); 
+                  
                 },
                 complete: function() {
                     $.unblockUI();

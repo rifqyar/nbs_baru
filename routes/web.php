@@ -777,10 +777,12 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
         });
     });
     //uster.maintenance.pconnect
-    Route::group(['prefix' => 'pconnect', 'as' => 'pconnect.'], function () {
-        Route::get('/', [PconnectController::class, 'index'])->name('index');
-        Route::post('/data', [PconnectController::class, 'data'])->name('data');
-        Route::get('/view/{id}', [PconnectController::class, 'view'])->name('view');
+    Route::group(['prefix' => 'pconnect', 'as' => 'pconnect'], function () {
+        Route::get('/', [PconnectController::class, 'index'])->name('');
+        Route::post('/data', [PconnectController::class, 'data'])->name('.data');
+        Route::get('/view/{id}', [PconnectController::class, 'view'])->name('.view');
+        Route::post('/update', [PconnectController::class, 'update'])->name('.update');
+        Route::post('/insert', [PconnectController::class, 'insert'])->name('.insert');
     });
 
 

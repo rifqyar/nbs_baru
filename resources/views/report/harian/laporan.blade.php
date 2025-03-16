@@ -54,7 +54,7 @@
                                 </div>
                             </div>
                         </form>
-                        <button onclick="toPdf()" class="btn btn-primary mr-2"><i class="fas fa-file-alt pr-2"></i>
+                        <button onclick="genNosp()" class="btn btn-primary mr-2"><i class="fas fa-file-alt pr-2"></i>
                             Generate Report</button>
                         <button onclick="toExcel()" class="btn excel-button mr-2"><i class="fas fa-file-excel pr-2"></i>
                             Generate Excel</button>
@@ -184,20 +184,82 @@
             ];
         }
 
+        function genNosp() {
+            var id_req = $("#id_req").val();
+            var id_time = $("#id_time").val();
+
+            // Cek jika ID Time kosong
+            if (!id_time) {
+                input_error({ message: "Harap pilih ID Time sebelum melanjutkan." });
+                return; // Hentikan eksekusi
+            }
+
+
+            var csrfToken = '{{ csrf_token() }}';
+            
+            $.ajax({
+                url: '{{ route("uster.report.laporan_harian.generatenosp") }}',
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                data: {
+                    id_req: id_req,
+                    id_time: id_time
+                },
+                dataType: 'json',
+                success: function(response) {
+                    input_success(response); // Jika sukses, panggil input_success
+                    genReport(); // Panggil ulang DataTable untuk memperbarui data
+                },
+                error: function(xhr, status, error) {
+                    input_error(xhr.responseJSON || { message: "Terjadi kesalahan." }); 
+                    genReport(); // Panggil ulang DataTable untuk memperbarui data
+                    // Jika error, panggil input_error
+                },
+                complete: function() {
+                    $.unblockUI();
+                }
+            });
+
+            $("#id_time").val("");
+        }
+
+
+        function input_success(res) {
+            if (res.status != 200) {
+                input_error(res);
+                return false;
+            }
+
+            $.toast({
+                heading: "Berhasil!",
+                text: res.message,
+                position: "top-right",
+                icon: "success",
+                hideAfter: 2500,
+            
+            });
+        }
+
+        function input_error(err) {
+            console.log(err);
+            $.toast({
+                heading: "Gagal memproses data!",
+                text: err.message,
+                position: "top-right",
+                icon: "error",
+                hideAfter: 5000,
+            });
+        }
+
+        
 
         function toExcel() {
             var id_req_ = $("#id_req").val();
             var id_time_ = $("#id_time").val();
 
             var url = '{!! route('uster.report.laporan_harian.report') !!}?id_req=' + id_req_ + '&id_time=' + id_time_;
-
-            window.location.href = url;
-        }
-        function toPdf() {
-            var id_req_ = $("#id_req").val();
-            var id_time_ = $("#id_time").val();
-
-            var url = '{!! route('uster.report.laporan_harian.reportpdf') !!}?id_req=' + id_req_ + '&id_time=' + id_time_;
 
             window.location.href = url;
         }

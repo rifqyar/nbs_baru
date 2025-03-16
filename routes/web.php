@@ -1082,7 +1082,7 @@ Route::group(['prefix' => 'report', 'as' => 'uster.report.', 'middleware' => 'ch
         Route::get('/', [LaporanHarianController::class, 'index']);
         Route::post('/datatable', [LaporanHarianController::class, 'dataTables'])->name('.datatable');
         Route::get('/report', [LaporanHarianController::class, 'report'])->name('.report');
-        Route::get('/reportpdf', [LaporanHarianController::class, 'reportpdf'])->name('.reportpdf');
+        Route::post('/generatenosp', [LaporanHarianController::class, 'generatenosp'])->name('.generatenosp');
     });
     Route::group(['prefix' => 'sharing_penumpukan', 'as' => 'sharing_penumpukan'], function () {
         Route::get('/', [SharingPenumpukanController::class, 'index']);

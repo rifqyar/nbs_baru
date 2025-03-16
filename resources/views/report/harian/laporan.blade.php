@@ -193,7 +193,10 @@
                 input_error({ message: "Harap pilih ID Time sebelum melanjutkan." });
                 return; // Hentikan eksekusi
             }
-
+            if ($.fn.DataTable.isDataTable('#container-table')) {
+                $('#container-table').DataTable().destroy();
+                $('#container-table tbody').empty();
+            }
 
             var csrfToken = '{{ csrf_token() }}';
             
@@ -210,10 +213,13 @@
                 dataType: 'json',
                 success: function(response) {
                     input_success(response); // Jika sukses, panggil input_success
+                    
                     genReport(); // Panggil ulang DataTable untuk memperbarui data
+                    
                 },
                 error: function(xhr, status, error) {
-                    input_error(xhr.responseJSON || { message: "Terjadi kesalahan." }); 
+                    input_error(xhr.responseJSON || { message: "Terjadi kesalahan." });
+                   
                     genReport(); // Panggil ulang DataTable untuk memperbarui data
                     // Jika error, panggil input_error
                 },

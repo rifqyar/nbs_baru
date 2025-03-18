@@ -60,49 +60,36 @@ class PerpanjanganDeliveryKeLuarService
                                     ) t
                                 ";
         } else {
-
-            $query_list = "SELECT
-                                t.*,
-                                (SELECT LUNAS
-                                FROM NOTA_DELIVERY
-                                WHERE NO_REQUEST = t.NO_REQUEST
-                                AND TGL_NOTA = (SELECT MAX(a.TGL_NOTA) FROM NOTA_DELIVERY a WHERE a.NO_REQUEST = t.NO_REQUEST)
-                                ) AS LUNAS
-                            FROM
-                                (
-                                    SELECT
-                                        a.NO_REQUEST,
-                                        a.KOREKSI,
-                                        a.NOTA,
-                                        NVL(a.PERP_DARI, '-') PERP_DARI,
-                                        TO_CHAR(TGL_REQUEST, 'dd-MON-yyyy') AS TGL_REQUEST,
-                                        TO_CHAR(TGL_REQUEST_DELIVERY, 'dd-MON-yyyy') AS TGL_REQUEST_DELIVERY,
-                                        b.NM_PBM,
-                                        COUNT(d.no_container) JUMLAH
-                                    FROM
-                                        request_delivery a,
-                                        v_mst_pbm b,
-                                        container_delivery d
-                                    WHERE
-                                        a.KD_EMKL = b.KD_PBM
-                                        AND b.KD_CABANG = '05'
-                                        AND a.no_request = d.no_request
-                                        AND a.DELIVERY_KE = 'LUAR'
-                                    GROUP BY
-                                        a.NO_REQUEST,
-                                        a.KOREKSI,
-                                        a.NOTA,
-                                        NVL(a.PERP_DARI, '-') ,
-                                        a.tgl_request,
-                                        TGL_REQUEST,
-                                        TGL_REQUEST_DELIVERY,
-                                        b.NM_PBM
-                                    ORDER BY
-                                        a.tgl_request DESC
-                                ) t
-                            WHERE
-                                ROWNUM <= 100
-                            ";
+            $query_list = "WITH LatestNota AS (
+                            SELECT NO_REQUEST, LUNAS, TGL_NOTA,
+                                ROW_NUMBER() OVER (PARTITION BY NO_REQUEST ORDER BY TGL_NOTA DESC) AS rn
+                            FROM NOTA_DELIVERY
+                        ),
+                        ContainerCount AS (
+                            SELECT no_request, COUNT(no_container) AS jumlah
+                            FROM container_delivery
+                            GROUP BY no_request
+                        )
+                        SELECT t.*, ln.LUNAS
+                        FROM (
+                            SELECT
+                                a.NO_REQUEST,
+                                a.KOREKSI,
+                                a.NOTA,
+                                COALESCE(a.PERP_DARI, '-') AS PERP_DARI,
+                                TO_CHAR(a.TGL_REQUEST, 'dd-MON-yyyy') AS TGL_REQUEST,
+                                TO_CHAR(a.TGL_REQUEST_DELIVERY, 'dd-MON-yyyy') AS TGL_REQUEST_DELIVERY,
+                                b.NM_PBM,
+                                cc.JUMLAH
+                            FROM request_delivery a
+                            JOIN v_mst_pbm b ON a.KD_EMKL = b.KD_PBM
+                            JOIN ContainerCount cc ON a.NO_REQUEST = cc.no_request
+                            WHERE b.KD_CABANG = '05'
+                                AND a.DELIVERY_KE = 'LUAR'
+                            ORDER BY a.TGL_REQUEST DESC
+                        ) t
+                        LEFT JOIN LatestNota ln ON t.NO_REQUEST = ln.NO_REQUEST AND ln.rn = 1
+                        FETCH FIRST 200 ROWS ONLY";
         }
 
         return DB::connection('uster')->select($query_list);

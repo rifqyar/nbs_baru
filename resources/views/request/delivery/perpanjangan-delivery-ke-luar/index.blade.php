@@ -68,7 +68,7 @@ Request Delivery - SP2 ke LUAR DEPO
         $('#service-table').DataTable({
             responsive: true,
             processing: true,
-            serverSide: true,
+            serverSide: false,
             ajax: {
                 url: '{!! route("uster.new_request.delivery.perpanjangan_delivery_luar.datatable") !!}',
                 type: 'GET',

@@ -858,14 +858,14 @@ class DeliveryKeTpkRepoService
             $voyage = $rves->voyage;
             $qcekop = "SELECT CARRIER from BILLING_NBS.REQ_RECEIVING_D WHERE ID_REQ = '$no_req2' AND NO_CONTAINER = '$no_cont'";
             $rcekop = DB::connection('uster')->selectOne($qcekop);
-            $operatorid = $rcekop->carrier;
+            $operatorid = $rcekop->carrier ?? null;
             $param_b_var = array(
                 "v_nocont" => TRIM($no_cont),
                 "v_req" => TRIM($no_req2),
                 "flag" => "REC",
                 "vessel" => "$vessel_code",
                 "voyage" => "$voyage",
-                "operatorId" => "$operatorid",
+                "operatorId" => $operatorid,
                 "v_response" => "",
                 "v_msg" => ""
             );

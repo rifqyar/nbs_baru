@@ -871,7 +871,7 @@ class DeliveryKeTpkRepoService
             );
 
             // echo var_dump($param_b_var);die;
-            $query_ops = "declare begin BILLING_NBS.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
+            // $query_ops = "declare begin BILLING_NBS.proc_delete_cont(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;";
 
             $query_del    = "DELETE FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
 
@@ -879,10 +879,26 @@ class DeliveryKeTpkRepoService
 							WHERE NO_CONTAINER = '$no_cont'
 								AND NO_REQUEST = '$no_req'
 								AND KEGIATAN = 'REQUEST DELIVERY'";
-            DB::connection('uster')->statement($query_ops, $param_b_var);
-            $cekmsg = $param_b_var['v_response'];
+            // DB::connection('uster')->statement($query_ops, $param_b_var);
+            $pdo = DB::connection('uster')->getPdo();
+            $stmt = $pdo->prepare(
+                "DECLARE BEGIN BILLING_NBS.PROC_DELETE_CONT(:v_nocont, :v_req, :flag, :vessel, :voyage, :operatorId, :v_response, :v_msg); end;"
+            );
+
+            foreach ($param_b_var as $key => &$value) {
+                $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+            }
+
+            $outResp = "";
+            $outMsg = "";
+
+            $stmt->bindParam(":v_response", $outResp, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+            $stmt->bindParam(":v_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+            $stmt->execute();
+
+            // $cekmsg = $param_b_var['v_response'];
             // echo $cekmsg;
-            if ($cekmsg == 'OK') {
+            if ($outResp == 'OK') {
                 DB::connection('uster')->statement($query_del);
                 DB::connection('uster')->statement($history);
 

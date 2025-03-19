@@ -76,21 +76,45 @@ class DeliveryService
                                 ORDER BY a.TGL_REQUEST DESC) where rownum <= 20";
             }
         } else {
-            $query_list     = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,a.TGL_REQUEST_DELIVERY,
-                                      b.NM_PBM AS NAMA_EMKL, count(c.no_container) jumlah
-                                FROM REQUEST_DELIVERY a,
-                                        container_delivery c,
-                                     v_mst_pbm b
-                                WHERE a.DELIVERY_KE = 'LUAR'
-                                and a.no_request = c.no_request
-                                AND a.KD_EMKL = b.KD_PBM
-                                AND b.KD_CABANG = '05'
-                                and A.perp_dari is null
-                                 AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
-                                GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
-                                      b.NM_PBM, a.TGL_REQUEST_DELIVERY
-                                ORDER BY a.TGL_REQUEST DESC)
-								WHERE ROWNUM <= 100";
+            // $query_list     = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,a.TGL_REQUEST_DELIVERY,
+            //                           b.NM_PBM AS NAMA_EMKL, count(c.no_container) jumlah
+            //                     FROM REQUEST_DELIVERY a,
+            //                             container_delivery c,
+            //                          v_mst_pbm b
+            //                     WHERE a.DELIVERY_KE = 'LUAR'
+            //                     and a.no_request = c.no_request
+            //                     AND a.KD_EMKL = b.KD_PBM
+            //                     AND b.KD_CABANG = '05'
+            //                     and A.perp_dari is null
+            //                      AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
+            //                     GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
+            //                           b.NM_PBM, a.TGL_REQUEST_DELIVERY
+            //                     ORDER BY a.TGL_REQUEST DESC)
+            // 					WHERE ROWNUM <= 100";
+
+            $query = DB::connection('uster')->table('REQUEST_DELIVERY as a')
+                ->join('container_delivery as c', 'a.no_request', '=', 'c.no_request')
+                ->join('v_mst_pbm as b', function ($join) {
+                    $join->on('a.KD_EMKL', '=', 'b.KD_PBM')
+                        ->where('b.KD_CABANG', '=', '05');
+                })
+                ->select(
+                    'a.NO_REQUEST',
+                    'a.TGL_REQUEST',
+                    'a.NOTA',
+                    'a.KOREKSI',
+                    'b.NM_PBM as NAMA_EMKL',
+                    DB::raw('COUNT(c.no_container) as jumlah')
+                )
+                ->where('a.DELIVERY_KE', 'LUAR')
+                ->whereNull('a.perp_dari')
+                ->whereNotIn('a.PERALIHAN', ['RELOKASI', 'STUFFING', 'STRIPPING'])
+                ->groupBy('a.NO_REQUEST', 'a.TGL_REQUEST', 'a.NOTA', 'a.KOREKSI', 'b.NM_PBM')
+                ->orderByDesc('a.TGL_REQUEST')
+                ->limit(100)
+                ->get();
+
+            return $query;
         }
         return DB::connection('uster')->select($query_list);
     }
@@ -834,8 +858,8 @@ class DeliveryService
             $no_cont = $request->NO_CONT;
             $tgl_delivery = $request->TGL_DELIVERY;
 
-             $q_save = "UPDATE CONTAINER_DELIVERY SET TGL_DELIVERY = TO_DATE('$tgl_delivery','yyyy-mm-dd') WHERE NO_REQUEST = '$no_req' AND NO_CONTAINER = '$no_cont'";
-             DB::connection('uster')->statement($q_save);
+            $q_save = "UPDATE CONTAINER_DELIVERY SET TGL_DELIVERY = TO_DATE('$tgl_delivery','yyyy-mm-dd') WHERE NO_REQUEST = '$no_req' AND NO_CONTAINER = '$no_cont'";
+            DB::connection('uster')->statement($q_save);
             // //  echo $q_save;die();
             // DB::connection('uster')->table('CONTAINER_DELIVERY')
             //     ->where('NO_REQUEST', $no_req)

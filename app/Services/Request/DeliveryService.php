@@ -76,44 +76,21 @@ class DeliveryService
                                 ORDER BY a.TGL_REQUEST DESC) where rownum <= 20";
             }
         } else {
-            $query_list     = "SELECT
-                                        *
-                                    FROM
-                                        (
-                                        SELECT
-                                            a.NO_REQUEST,
-                                            a.TGL_REQUEST,
-                                            a.NOTA,
-                                            a.KOREKSI,
-                                            a.TGL_REQUEST_DELIVERY,
-                                            b.NM_PBM AS NAMA_EMKL,
-                                            count(c.no_container) jumlah,
-                                            d.LUNAS
-                                        FROM
-                                            REQUEST_DELIVERY a,
-                                            container_delivery c,
-                                            v_mst_pbm b,
-                                            NOTA_DELIVERY d
-                                        WHERE
-                                            a.DELIVERY_KE = 'LUAR'
-                                            AND a.NO_REQUEST = d.NO_REQUEST
-                                            AND a.no_request = c.no_request
-                                            AND a.KD_EMKL = b.KD_PBM
-                                            AND b.KD_CABANG = '05'
-                                            AND A.perp_dari IS NULL
-                                            AND a.PERALIHAN NOT IN ('RELOKASI', 'STUFFING', 'STRIPPING')
-                                        GROUP BY
-                                            a.NO_REQUEST,
-                                            a.TGL_REQUEST,
-                                            a.NOTA,
-                                            a.KOREKSI,
-                                            b.NM_PBM,
-                                            a.TGL_REQUEST_DELIVERY,
-                                            d.LUNAS
-                                        ORDER BY
-                                            a.TGL_REQUEST DESC)
-                                    WHERE
-                                        ROWNUM <= 100";
+            $query_list     = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,a.TGL_REQUEST_DELIVERY,
+                                      b.NM_PBM AS NAMA_EMKL, count(c.no_container) jumlah
+                                FROM REQUEST_DELIVERY a,
+                                        container_delivery c,
+                                     v_mst_pbm b
+                                WHERE a.DELIVERY_KE = 'LUAR'
+                                and a.no_request = c.no_request
+                                AND a.KD_EMKL = b.KD_PBM
+                                AND b.KD_CABANG = '05'
+                                and A.perp_dari is null
+                                 AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
+                                GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
+                                      b.NM_PBM, a.TGL_REQUEST_DELIVERY
+                                ORDER BY a.TGL_REQUEST DESC)
+								WHERE ROWNUM <= 100";
         }
         return DB::connection('uster')->select($query_list);
     }

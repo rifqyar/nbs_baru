@@ -84,7 +84,7 @@ class LaporanHarianController extends Controller
       }
 
       if ($idtime) {
-         $query .= " AND TO_CHAR(TGL_SIMPAN,'DD-MM-YYYY') = :idtime";
+         $query .= " AND TO_CHAR(TGL_SIMPAN,'YYYY-MM-DD') = :idtime";
          $bindings['idtime'] = $idtime;
       }
 

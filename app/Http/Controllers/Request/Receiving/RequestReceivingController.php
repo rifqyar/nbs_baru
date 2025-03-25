@@ -112,10 +112,26 @@ class RequestReceivingController extends Controller
 
         $data['request'] = $this->receiving->getOverviewData($noReq, 'view');
         $data['request'] = $data['request'][0];
-        $data['container'] = $this->receiving->contList($noReq);
         $data['overview'] = false;
 
         return view('request.receiving.view-nota', $data);
+    }
+
+    public function contList(Request $request)
+    {
+        $overview = false;
+        $data = $this->receiving->contList($request->no_request);
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->editColumn('action', function ($data) use ($request) {
+                $html = "<button class='btn btn-rounded btn-danger' onclick='delCont(`{{base64_encode($data->no_container)}}`, `{{base64_encode($request->no_request)}}`)'>
+                            <i class='mdi mdi-delete h5'></i>
+                        </button>";
+
+                return $html;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
 
     public function addEdit(Request $request)
@@ -128,10 +144,10 @@ class RequestReceivingController extends Controller
         }
 
         $validatePconnect = pconnectIntegration($request->acc_consignee);
-        if($validatePconnect != 'MATCH'){
-            if($validatePconnect == '404'){
+        if ($validatePconnect != 'MATCH') {
+            if ($validatePconnect == '404') {
                 throw new Exception('Data Customer tidak ditemukan di PConnect', 400);
-            } else if($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+            } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
                 throw new Exception('Customer belum melakukan pengkinian data NPWP di Pconnect', 400);
             }
         }
@@ -232,8 +248,8 @@ class RequestReceivingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Tambah Container',
                 'redirect' => [
-                    'need' => true,
-                    'to' => route('uster.new_request.receiving.view', base64_encode($request->no_req)),
+                    'need' => false,
+                    'to' => null, //route('uster.new_request.receiving.view', base64_encode($request->no_req)),
                 ]
             ]);
         } catch (Exception $th) {

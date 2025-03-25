@@ -110,6 +110,7 @@ Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' 
     Route::group(['prefix' => 'receiving', 'as' => 'receiving.'], function () {
         Route::get('/', [RequestReceivingController::class, 'index'])->name('receiving_luar');
         Route::post('/data', [RequestReceivingController::class, 'data'])->name('data');
+        Route::post('/datatable-cont', [RequestReceivingController::class, 'contList'])->name('datatable-cont');
         Route::get('/overview/{id}', [RequestReceivingController::class, 'overview'])->name('overview');
         Route::get('/view/{id}', [RequestReceivingController::class, 'view'])->name('view');
         Route::post('/add-edit', [RequestReceivingController::class, 'addEdit'])->name('add-edit');

@@ -123,7 +123,7 @@
                             </div>
 
                             <div class="table-responsive px-3">
-                                <table class="display nowrap table" czllspacing="0" width="100%" id="example">
+                                <table class="display nowrap table" czllspacing="0" width="100%" id="table-contlist">
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
@@ -140,7 +140,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="data-contlist-view">
-                                        @php $i = 1 @endphp
+                                        {{-- @php $i = 1 @endphp
                                         @foreach ($container as $cnt)
                                             <tr>
                                                 <td class="text-center">{{$i++}}</td>
@@ -159,7 +159,7 @@
                                                     </td>
                                                 @endif
                                             </tr>
-                                        @endforeach
+                                        @endforeach --}}
                                     </tbody>
                                 </table>
                             </div>

@@ -1,4 +1,4 @@
-var table, s_no_request, s_tgl_awal, s_tgl_akhir;
+var table, s_no_request, s_tgl_awal, s_tgl_akhir, table_cont;
 var cachePBM = {};
 $(document).bind("keydown", function (e) {
     if (e.keyCode == 113) addContainer();
@@ -96,6 +96,7 @@ $(function () {
     $("#start_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
     $("#end_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
     getData();
+    getDataCont();
 });
 
 /** GET DATA & Auto Complete Section */
@@ -162,6 +163,71 @@ function getData() {
         //     );
         // },
     });
+}
+
+function getDataCont() {
+    table_cont = $('#table-contlist').DataTable({
+        responsive: true,
+        scrollX: true,
+        processing: true,
+        serverSide: false,
+        ajax: {
+            url: `${$('meta[name="baseurl"]').attr(
+                "content"
+            )}request/receiving/datatable-cont`,
+            method: "POST",
+            data: function (data) {
+                data._token = `${$('meta[name="csrf-token"]').attr("content")}`;
+                data.no_request = $('input[name="no_req"]').val();
+            },
+        },
+        columns: [
+            {
+                data: "DT_RowIndex",
+                name: "DT_RowIndex",
+                className: "text-center",
+                width: "20px",
+                orderable: false,
+                searchable: false,
+            },
+            {
+                data: "no_container",
+                name: "no_container",
+            },
+            {
+                data: "status",
+                name: "status",
+            },
+            {
+                data: "size_",
+                name: "size_",
+            },
+            {
+                data: "type_",
+                name: "type_",
+            },
+            {
+                data: "hz",
+                name: "hz",
+            },
+            {
+                data: "nama_yard",
+                name: "nama_yard",
+            },
+            {
+                data: "kd_owner",
+                name: "kd_owner",
+            },
+            {
+                data: "action",
+                name: "action",
+                orderable: false,
+                searchable: false,
+                className: "text-center",
+                width: "200px",
+            },
+        ],
+    })
 }
 
 $("#consignee").autocomplete({
@@ -479,16 +545,13 @@ async function saveContainerData(formId) {
             form,
             "input_success"
         );
+        table_cont.ajax.reload()
 
-        // var no_req = $(formId).find('input[name="no_req"]').val();
-        // ajaxGetJson(
-        //     `/request/receiving/get-contlist/${no_req}`,
-        //     "refreshContList",
-        //     "get_error"
-        // );
-
-        // $(formId).removeClass("was-validated");
-        // cancelAddCont();
+        $("#no_cont").val("");
+        $("#id_vsb").val("");
+        $("#vessel").val("");
+        $("#komoditi").val("");
+        $("#kd_komoditi").val("");
     }
 }
 
@@ -509,11 +572,7 @@ async function delCont(noCont, noReq) {
                 "input_error"
             );
             noReq = atob(noReq);
-            ajaxGetJson(
-                `/request/receiving/get-contlist/${noReq}`,
-                "refreshContList",
-                "get_error"
-            );
+            table_cont.ajax.reload()
         } else {
             return false;
         }
@@ -571,7 +630,7 @@ function refreshContList(res) {
         `;
     });
 
-    $("#data-contlist-view").html(listTable);
+    // $("#data-contlist-view").html(listTable);
 }
 
 function resetSearch() {

@@ -118,11 +118,11 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
+                                            <th class="text-center" width="200px">Action</th>
                                             <th class="text-center">No. Request</th>
                                             <th class="text-center">Tgl. Request</th>
                                             <th class="text-center">EMKL</th>
                                             <th class="text-center">Receiving Dari</th>
-                                            <th class="text-center" width="200px">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

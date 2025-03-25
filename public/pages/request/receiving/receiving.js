@@ -130,6 +130,14 @@ function getData() {
                 searchable: false,
             },
             {
+                data: "action",
+                name: "action",
+                orderable: false,
+                searchable: false,
+                className: "text-center",
+                width: "200px",
+            },
+            {
                 data: "no_request",
                 name: "no_request",
             },
@@ -144,14 +152,6 @@ function getData() {
             {
                 data: "receiving_dari",
                 name: "receiving_dari",
-            },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-                className: "text-center",
-                width: "200px",
             },
         ],
         // fnDrawCallback: () => {
@@ -191,6 +191,14 @@ function getDataCont() {
                 searchable: false,
             },
             {
+                data: "action",
+                name: "action",
+                orderable: false,
+                searchable: false,
+                className: "text-center",
+                width: "200px",
+            },
+            {
                 data: "no_container",
                 name: "no_container",
             },
@@ -217,14 +225,6 @@ function getDataCont() {
             {
                 data: "kd_owner",
                 name: "kd_owner",
-            },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-                className: "text-center",
-                width: "200px",
             },
         ],
     })

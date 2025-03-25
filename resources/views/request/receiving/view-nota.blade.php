@@ -127,6 +127,9 @@
                                     <thead >
                                         <tr>
                                             <th class="text-center">#</th>
+                                            @if (!$overview)
+                                                <th class="text-center">Action</th>
+                                            @endif
                                             <th class="text-center">No. Container</th>
                                             <th class="text-center">Status</th>
                                             <th class="text-center">Ukuran</th>
@@ -134,9 +137,6 @@
                                             <th class="text-center">Berbahaya</th>
                                             <th class="text-center">Depo Tujuan</th>
                                             <th class="text-center">Owner</th>
-                                            @if (!$overview)
-                                                <th class="text-center">Action</th>
-                                            @endif
                                         </tr>
                                     </thead>
                                     <tbody id="data-contlist-view">

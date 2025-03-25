@@ -166,7 +166,7 @@ function getData() {
 }
 
 function getDataCont() {
-    table_cont = $('#table-contlist').DataTable({
+    table_cont = $("#table-contlist").DataTable({
         responsive: true,
         scrollX: true,
         processing: true,
@@ -227,7 +227,7 @@ function getDataCont() {
                 name: "kd_owner",
             },
         ],
-    })
+    });
 }
 
 $("#consignee").autocomplete({
@@ -545,13 +545,6 @@ async function saveContainerData(formId) {
             form,
             "input_success"
         );
-        table_cont.ajax.reload()
-
-        $("#no_cont").val("");
-        $("#id_vsb").val("");
-        $("#vessel").val("");
-        $("#komoditi").val("");
-        $("#kd_komoditi").val("");
     }
 }
 
@@ -572,7 +565,7 @@ async function delCont(noCont, noReq) {
                 "input_error"
             );
             noReq = atob(noReq);
-            table_cont.ajax.reload()
+            table_cont.ajax.reload();
         } else {
             return false;
         }
@@ -672,6 +665,7 @@ function input_success(res) {
             });
 
             Swal.showLoading();
+            table_cont.ajax.reload();
         },
         afterHidden: function () {
             if (res.redirect.need) {
@@ -679,6 +673,39 @@ function input_success(res) {
             } else {
                 Swal.close();
             }
+        },
+    });
+}
+
+function success_savecont(res) {
+    if (res.status != 200) {
+        input_error(res);
+        return false;
+    }
+
+    $.toast({
+        heading: "Berhasil!",
+        text: res.message,
+        position: "top-right",
+        icon: "success",
+        hideAfter: 2500,
+        beforeHide: function () {
+            let text = "<h5>Berhasil input Container Receiving</h5>";
+
+            Swal.fire({
+                html: text,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            });
+
+            Swal.showLoading();
+            table_cont.ajax.reload();
+
+            $("#no_cont").val("");
+            $("#id_vsb").val("");
+            $("#vessel").val("");
+            $("#komoditi").val("");
+            $("#kd_komoditi").val("");
         },
     });
 }

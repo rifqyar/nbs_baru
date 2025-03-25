@@ -565,7 +565,6 @@ async function delCont(noCont, noReq) {
                 "input_error"
             );
             noReq = atob(noReq);
-            table_cont.ajax.reload();
         } else {
             return false;
         }
@@ -643,6 +642,13 @@ function input_success(res) {
         return false;
     }
 
+    table_cont.ajax.reload();
+    $('#form-add-container').removeClass('was-validated')
+    $("#no_cont").val("");
+    $("#id_vsb").val("");
+    $("#vessel").val("");
+    $("#komoditi").val("");
+    $("#kd_komoditi").val("");
     $.toast({
         heading: "Berhasil!",
         text: res.message,
@@ -665,7 +671,6 @@ function input_success(res) {
             });
 
             Swal.showLoading();
-            table_cont.ajax.reload();
         },
         afterHidden: function () {
             if (res.redirect.need) {

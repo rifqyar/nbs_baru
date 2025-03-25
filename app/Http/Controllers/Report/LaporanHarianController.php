@@ -84,7 +84,7 @@ class LaporanHarianController extends Controller
       }
 
       if ($idtime) {
-         $query .= " AND TO_CHAR(TGL_SIMPAN,'DD-MM-YYYY') = :idtime";
+         $query .= " AND TO_CHAR(TGL_SIMPAN,'YYYY-MM-DD') = :idtime";
          $bindings['idtime'] = $idtime;
       }
 
@@ -114,28 +114,33 @@ class LaporanHarianController extends Controller
          $no_nota_mti = str_replace('<br>', "\n", $data->no_nota_mti);
          $no_faktur_mti = str_replace('<br>', "\n", $data->no_faktur_mti);
          $nm_pbm = str_replace('<br>', "\n", $data->nm_pbm);
+      
+         // Bulatkan angka jika desimal >= 5
+         //$total = round($data->kredit);
+         $total = ($data->kredit - floor($data->kredit)) >= 0.5 ? ceil($data->kredit) : floor($data->kredit);
 
          // Set cell values
          $sheet->setCellValue('A' . $rowNumber, $index + 1);
          $sheet->setCellValue('B' . $rowNumber, $data->no_request);
          $sheet->setCellValue('C' . $rowNumber, $no_nota_mti);
          $sheet->setCellValue('D' . $rowNumber, $no_faktur_mti);
-         $sheet->setCellValue('E' . $rowNumber, $data->kredit);
+         $sheet->setCellValue('E' . $rowNumber, $total); // Menggunakan round()
          $sheet->setCellValue('F' . $rowNumber, $nm_pbm);
          $sheet->setCellValue('G' . $rowNumber, $data->sp_mti);
-
+      
          // Enable text wrapping for cells with newlines
          $sheet->getStyle('C' . $rowNumber)->getAlignment()->setWrapText(true);
          $sheet->getStyle('D' . $rowNumber)->getAlignment()->setWrapText(true);
          $sheet->getStyle('F' . $rowNumber)->getAlignment()->setWrapText(true);
-
-         // Format the 'Total' column as currency
+      
+         // Format kolom 'Total' hanya dengan pemisah ribuan (contoh: 10.000)
          $sheet->getStyle('E' . $rowNumber)
             ->getNumberFormat()
             ->setFormatCode('#,##0');
-
+      
          $rowNumber++;
-      }
+      }      
+      
 
       // Auto-size columns
       foreach (range('A', 'G') as $columnID) {
@@ -143,7 +148,7 @@ class LaporanHarianController extends Controller
       }
 
       // Set the filename
-      $filename = 'Laporan_Laporan_Harian.xlsx';
+      $filename = 'Laporan_Harian.xlsx';
 
       // Redirect output to a client’s web browser (Excel)
       header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

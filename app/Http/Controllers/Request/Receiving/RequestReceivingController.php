@@ -124,7 +124,7 @@ class RequestReceivingController extends Controller
         return DataTables::of($data)
             ->addIndexColumn()
             ->editColumn('action', function ($data) use ($request) {
-                $html = "<button class='btn btn-rounded btn-danger' onclick='delCont(`{{base64_encode($data->no_container)}}`, `{{base64_encode($request->no_request)}}`)'>
+                $html = "<button class='btn btn-rounded btn-danger' onclick='delCont(`".base64_encode($data->no_container)."`, `".base64_encode($request->no_request)."`)'>
                             <i class='mdi mdi-delete h5'></i>
                         </button>";
 

@@ -86,18 +86,13 @@ class NotaExtStuffingController extends Controller
         }
 
         $data = array();
-        $data =  $this->stuffing->PrintProforma($request->input('no_req'));
+        $data =  $this->stuffing->previewProforma($request->input('no_req'), $request->koreksi);
         if ($data == 'NOT_FOUND') {
             return redirect()->route('uster.billing.nota_stuffing');
         }
-        $generator = new BarcodeGeneratorPNG();
-        $nota = $data['data']->no_nota_mti ?? 'NOT_FOUND';
-        $barcode = $generator->getBarcode($nota, $generator::TYPE_CODE_128);
-        $data['barcode'] = $barcode;
 
+        return view('billing.stuffing.perpanjangan.print.previewproforma', $data);
 
-        return view('billing.stuffing.perpanjangan.print.cetak_nota', $data);
-       
     }
 
     function InsertProforma(Request $Request)

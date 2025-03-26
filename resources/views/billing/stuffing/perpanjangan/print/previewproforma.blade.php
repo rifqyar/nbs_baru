@@ -18,7 +18,7 @@
 
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
-            <h3 class="text-themecolor">Nota Stuffing</h3>
+            <h3 class="text-themecolor">Nota Perpanjangan Stuffing</h3>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">Billing</a></li>
                 <li class="breadcrumb-item">Stuffing</li>
@@ -153,8 +153,8 @@
                                         @foreach ($row_detail as $rows)
                                             <tr>
                                                 <td>{{ $rows->keterangan }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($rows->start_stack)->format('Y-m-d') }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($rows->end_stack)->format('Y-m-d') }}</td>
+                                                <td>{{ $rows->start_stack }}</td>
+                                                <td>{{ $rows->end_stack }}</td>
                                                 <td>{{ $rows->jml_cont }}</td>
                                                 <td>{{ $rows->size_ }}</td>
                                                 <td>{{ $rows->type_ }}</td>
@@ -182,7 +182,7 @@
                                         <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
                                         <div class="col-lg-4 col-md-12 text-right">
                                             <span class="text-dark">
-                                                {{ number_format($row_discount, 0, ',', '.') }}
+                                                {{ $row_discount }}
                                             </span>
                                         </div>
                                     </div>

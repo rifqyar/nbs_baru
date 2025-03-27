@@ -412,7 +412,8 @@ class DeliveryKeTpkRepoService
                             h.TGL_UPDATE = (SELECT DISTINCT MAX(TGL_UPDATE)FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE '%$no_cont%'
                             AND NO_BOOKING = h.NO_BOOKING AND aktif is null and kegiatan in('REALISASI STUFFING','REQUEST BATALMUAT'))
                             AND m.LOCATION = 'IN_YARD' AND m.NO_CONTAINER LIKE '%$no_cont%' AND s.AKTIF='T'
-                            AND h.aktif is null";
+                            AND h.aktif is null
+                        	AND s.TGL_REALISASI IS NOT NULL";
         }
 
 

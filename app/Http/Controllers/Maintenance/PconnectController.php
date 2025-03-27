@@ -49,12 +49,14 @@ class PconnectController extends Controller
         $check = DB::connection('uster')->table('MST_PELANGGAN')
             ->select(DB::raw("COUNT(1) as total"))
             ->where(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM, '.', ''), '-', '')"), $data->npwp)
+            ->orWhere(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '')"), $data->npwp)
             ->value('total');
 
         if ((int)$check > 0) {
             $mstPelanggan = DB::connection('uster')->table('MST_PELANGGAN')
                 ->select(['no_account_pbm', 'nm_pbm', 'almt_pbm', DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '') as no_npwp_pbm16"), 'no_telp'])
                 ->where(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM, '.', ''), '-', '')"), $data->npwp)
+                ->orWhere(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '')"), $data->npwp)
                 ->first();
 
             $mstPelanggan = (array)$mstPelanggan;
@@ -121,17 +123,19 @@ class PconnectController extends Controller
             $check = DB::connection('uster')->table('MST_PELANGGAN')
                 ->select(DB::raw("COUNT(1) as total"))
                 ->where(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM, '.', ''), '-', '')"), $data->npwp)
+                ->orWhere(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '')"), $data->npwp)
                 ->value('total');
 
             if ((int)$check > 0) {
                 $mstPelanggan = DB::connection('uster')->table('MST_PELANGGAN')
-                    ->select(['no_account_pbm', 'nm_pbm', 'almt_pbm', DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '') as no_npwp_pbm16"), 'no_telp'])
+                    ->select(['no_account_pbm', 'nm_pbm', 'almt_pbm', DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '') as no_npwp_pbm16"), 'no_telp', 'no_npwp_pbm'])
                     ->where(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM, '.', ''), '-', '')"), $data->npwp)
+                    ->orWhere(DB::raw("REPLACE(REPLACE(NO_NPWP_PBM16, '.', ''), '-', '')"), $data->npwp)
                     ->first();
 
                 $mstPelanggan = (array)$mstPelanggan;
-                $keySap = ['nama', 'alamat', 'new_npwp', 'telepon'];
-                $keyMst = ['nm_pbm', 'almt_pbm', 'no_npwp_pbm16', 'no_telp'];
+                $keySap = ['nama', 'alamat', 'new_npwp', 'npwp', 'telepon'];
+                $keyMst = ['nm_pbm', 'almt_pbm', 'no_npwp_pbm16', 'no_npwp_pbm', 'no_telp'];
 
                 $data = (array)$data;
                 $queryUpdate = "UPDATE MST_PELANGGAN SET KD_CABANG = '05', PELANGGAN_AKTIF = '1', UPDATE_DATE = SYSDATE, ";

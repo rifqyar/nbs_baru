@@ -315,7 +315,7 @@
                 icon: "success",
                 hideAfter: 2500,
                 beforeHide: function() {
-                    if (res.redirect.need) {
+                    if (res.redirect?.need) {
                         Swal.fire({
                             html: "<h5>Berhasil Memproses Data <br> Mengembalikan Anda ke halaman sebelumnya...</h5>",
                             showConfirmButton: false,
@@ -328,7 +328,7 @@
                     }
                 },
                 afterHidden: function() {
-                    if (res.redirect.need) {
+                    if (res.redirect?.need) {
                         window.location.href = res.redirect.to;
                     } else {
                         return false;

@@ -89,7 +89,7 @@ class PerpanjanganDeliveryKeLuarService
                             ORDER BY a.TGL_REQUEST DESC
                         ) t
                         LEFT JOIN LatestNota ln ON t.NO_REQUEST = ln.NO_REQUEST AND ln.rn = 1
-                        FETCH FIRST 200 ROWS ONLY";
+                        FETCH FIRST 300 ROWS ONLY";
         }
 
         return DB::connection('uster')->select($query_list);

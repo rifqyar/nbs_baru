@@ -31,7 +31,7 @@ class DeliveryService
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND a.NO_REQUEST = c.NO_REQUEST
 								 AND a.NO_REQUEST LIKE '%$no_req%'
-								-- AND A.perp_dari is null
+								 AND A.perp_dari is null
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM,d.LUNAS
@@ -48,7 +48,7 @@ class DeliveryService
                                 AND a.NO_REQUEST = d.NO_REQUEST
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND a.NO_REQUEST = c.NO_REQUEST
-								-- AND A.perp_dari is null
+								 AND A.perp_dari is null
 								AND a.TGL_REQUEST_DELIVERY BETWEEN TO_DATE('$from','yyyy/mm/dd') AND TO_DATE('$to','yyyy/mm/dd')
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
@@ -68,7 +68,7 @@ class DeliveryService
 								AND b.KD_CABANG = '05'
                                 AND a.NO_REQUEST = c.NO_REQUEST
 								 AND a.NO_REQUEST = '$no_req'
-								-- AND A.perp_dari is null
+								 AND A.perp_dari is null
 								AND a.TGL_REQUEST_DELIVERY BETWEEN TO_DATE('$from','yyyy/mm/dd') AND TO_DATE('$to','yyyy/mm/dd')
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
@@ -85,7 +85,7 @@ class DeliveryService
                                 and a.no_request = c.no_request
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND b.KD_CABANG = '05'
-                                -- and A.perp_dari is null
+                                 and A.perp_dari is null
                                  AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
                                       b.NM_PBM, a.TGL_REQUEST_DELIVERY

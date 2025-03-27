@@ -19,7 +19,7 @@ class DeliveryService
 
         if (isset($from) || isset($to) || isset($no_req)) {
             if ((isset($no_req)) && ($from == NULL) && ($to == NULL)) {
-                $query_list = "select * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
+                $query_list = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM AS NAMA_EMKL,
                                       COUNT(c.NO_CONTAINER) JUMLAH,d.LUNAS
                                 FROM REQUEST_DELIVERY a,
@@ -31,13 +31,13 @@ class DeliveryService
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND a.NO_REQUEST = c.NO_REQUEST
 								 AND a.NO_REQUEST LIKE '%$no_req%'
-								 and A.perp_dari is null
+								-- AND A.perp_dari is null
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM,d.LUNAS
                                 ORDER BY a.TGL_REQUEST DESC) where rownum <= 20";
             } else if (($no_req == NULL) && (isset($from)) && (isset($to))) {
-                $query_list = "select * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
+                $query_list = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM AS NAMA_EMKL,
                                       COUNT(c.NO_CONTAINER) JUMLAH,d.LUNAS
                                 FROM REQUEST_DELIVERY a,
@@ -48,14 +48,14 @@ class DeliveryService
                                 AND a.NO_REQUEST = d.NO_REQUEST
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND a.NO_REQUEST = c.NO_REQUEST
-								and A.perp_dari is null
+								-- AND A.perp_dari is null
 								AND a.TGL_REQUEST_DELIVERY BETWEEN TO_DATE('$from','yyyy/mm/dd') AND TO_DATE('$to','yyyy/mm/dd')
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM,d.LUNAS
                                 ORDER BY a.TGL_REQUEST DESC) where rownum <= 20";
             } else if ((isset($request->no_req)) && (isset($from)) && (isset($to))) {
-                $query_list = "select * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
+                $query_list = "SELECT * from ( SELECT  a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
                                       b.NM_PBM AS NAMA_EMKL,
                                       COUNT(c.NO_CONTAINER) JUMLAH, d.LUNAS
                                 FROM REQUEST_DELIVERY a,
@@ -68,7 +68,7 @@ class DeliveryService
 								AND b.KD_CABANG = '05'
                                 AND a.NO_REQUEST = c.NO_REQUEST
 								 AND a.NO_REQUEST = '$no_req'
-								 and A.perp_dari is null
+								-- AND A.perp_dari is null
 								AND a.TGL_REQUEST_DELIVERY BETWEEN TO_DATE('$from','yyyy/mm/dd') AND TO_DATE('$to','yyyy/mm/dd')
 							   AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST, a.TGL_REQUEST_DELIVERY,a.NOTA, a.KOREKSI,
@@ -85,7 +85,7 @@ class DeliveryService
                                 and a.no_request = c.no_request
                                 AND a.KD_EMKL = b.KD_PBM
                                 AND b.KD_CABANG = '05'
-                                and A.perp_dari is null
+                                -- and A.perp_dari is null
                                  AND a.PERALIHAN NOT IN ('RELOKASI','STUFFING','STRIPPING')
                                 GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
                                       b.NM_PBM, a.TGL_REQUEST_DELIVERY

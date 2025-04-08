@@ -2893,6 +2893,7 @@ class printNotaMTI
         $no_faktur_mti    = $row_nota->no_faktur_mti;
         $no_nota        = $row_nota->no_faktur_;
         $no_request     = $row_nota->no_request;
+        $no_mat         = $row_nota->no_peraturan;
         $no_faktur      = $row_nota->no_faktur;
         $emkl           = $row_nota->nama;
         $npwp           = $row_nota->npwp;
@@ -2972,7 +2973,7 @@ class printNotaMTI
             // 'no_bl' => $no_bl,
             'rowdetail' => $row_detail,
             'bea_materai' => $bea_materai,
-            // 'no_mat' => $no_mat,
+            'no_mat' => $no_mat,
             'data_mtr_biaya' => $data_mtr_biaya,
             'date' => date('d-m-Y', strtotime($dt)),
             "nama" => $nama,

@@ -791,7 +791,7 @@ class PerencanaanStripping
             $rreq = DB::connection('uster')->selectOne($qrec);
             //foreach ($data_ as $row){
             $req = $row->no_request_app_stripping;
-            $req_rec = $rreq->no_request;
+            $req_rec = $rreq->no_request ?? null;
             $query_del2    = "DELETE FROM CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req'";
             $query_del3    = "DELETE FROM PLAN_CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_req'";
             $query_del4    = "DELETE FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$req_rec'";

@@ -543,7 +543,7 @@ async function saveContainerData(formId) {
         await ajaxPostJson(
             "/request/receiving/save-container",
             form,
-            "input_success"
+            "success_container"
         );
     }
 }
@@ -636,19 +636,34 @@ function resetSearch() {
 
 /** Pra Save Notif Section */
 /** ====================== */
-function input_success(res) {
+function success_container(res) {
     if (res.status != 200) {
         input_error(res);
         return false;
     }
 
     table_cont.ajax.reload();
-    $('#form-add-container').removeClass('was-validated')
+    $("#form-add-container").removeClass("was-validated");
     $("#no_cont").val("");
     $("#id_vsb").val("");
     $("#vessel").val("");
     $("#komoditi").val("");
     $("#kd_komoditi").val("");
+
+    $.toast({
+        heading: "Berhasil!",
+        text: res.message,
+        position: "top-right",
+        icon: "success",
+        hideAfter: 2500,
+    });
+}
+function input_success(res) {
+    if (res.status != 200) {
+        input_error(res);
+        return false;
+    }
+
     $.toast({
         heading: "Berhasil!",
         text: res.message,

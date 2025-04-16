@@ -59,6 +59,37 @@ class PerpanjanganDeliveryKeLuarService
                                             TGL_REQUEST DESC
                                     ) t
                                 ";
+        } else if (($no_req != NULL) && (!isset($from)) && (!isset($to))) {
+            $query_list = " WITH LatestNota AS (
+                            SELECT NO_REQUEST, LUNAS, TGL_NOTA,
+                                ROW_NUMBER() OVER (PARTITION BY NO_REQUEST ORDER BY TGL_NOTA DESC) AS rn
+                            FROM NOTA_DELIVERY
+                        ),
+                        ContainerCount AS (
+                            SELECT no_request, COUNT(no_container) AS jumlah
+                            FROM container_delivery
+                            GROUP BY no_request
+                        )
+                        SELECT t.*, ln.LUNAS
+                        FROM (
+                            SELECT
+                                a.NO_REQUEST,
+                                a.KOREKSI,
+                                a.NOTA,
+                                COALESCE(a.PERP_DARI, '-') AS PERP_DARI,
+                                TO_CHAR(a.TGL_REQUEST, 'dd-MON-yyyy') AS TGL_REQUEST,
+                                TO_CHAR(a.TGL_REQUEST_DELIVERY, 'dd-MON-yyyy') AS TGL_REQUEST_DELIVERY,
+                                b.NM_PBM,
+                                cc.JUMLAH
+                            FROM request_delivery a
+                            JOIN v_mst_pbm b ON a.KD_EMKL = b.KD_PBM
+                            JOIN ContainerCount cc ON a.NO_REQUEST = cc.no_request
+                            WHERE b.KD_CABANG = '05'
+                                AND a.DELIVERY_KE = 'LUAR'
+                                AND a.NO_REQUEST like '%". strtoupper($no_req) ."%'
+                            ORDER BY a.TGL_REQUEST DESC
+                        ) t
+                        LEFT JOIN LatestNota ln ON t.NO_REQUEST = ln.NO_REQUEST AND ln.rn = 1";
         } else {
             $query_list = "WITH LatestNota AS (
                             SELECT NO_REQUEST, LUNAS, TGL_NOTA,

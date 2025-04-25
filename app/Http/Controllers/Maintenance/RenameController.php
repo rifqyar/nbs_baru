@@ -31,15 +31,6 @@ class RenameController extends Controller
             $size_new = $request->SIZE_NEW;
             $type_new = $request->TYPE_NEW;
 
-            $q_cek_new = "SELECT NO_CONTAINER, NO_BOOKING, COUNTER, LOCATION FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont_new'";
-            $rc_new = DB::connection('uster')->selectOne($q_cek_new);
-            $check = $rc_new->no_container ?? NULL;
-            if ($check != NULL) {
-                DB::rollBack();
-                echo "Z";
-                exit();
-            }
-
             $q_cek = "SELECT NO_CONTAINER, NO_BOOKING, COUNTER, LOCATION FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont_old'";
             $rc = DB::connection('uster')->selectOne($q_cek);
             $no_booking = $rc->no_booking;
@@ -104,9 +95,22 @@ class RenameController extends Controller
                     }
                 }
 
+                $q_cek_new = "SELECT NO_CONTAINER, NO_BOOKING, COUNTER, LOCATION FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont_new'";
+                $rc_new = DB::connection('uster')->selectOne($q_cek_new);
+                $check = $rc_new->no_container ?? NULL;
+                if ($check != NULL) {
+                    // DB::rollBack();
+                    // echo "Z";
+                    // exit();
 
-                $update_master = "INSERT INTO MASTER_CONTAINER (NO_CONTAINER, SIZE_, TYPE_, LOCATION, NO_BOOKING, COUNTER) VALUES ('$no_cont_new', '$size_new' , '$type_new', '$location', '$no_booking', '$counter')";
-                DB::connection('uster')->insert($update_master);
+                    $updCounter = (int)$rc_new->counter + 1;
+                    $upd_master = "UPDATE MASTER_CONTAINER SET NO_BOOKING = '$no_booking', SIZE_ = '$size_new', TYPE_ = '$type_new', LOCATION = '$location', COUNTER = '$updCounter' WHERE NO_CONTAINER = '$no_cont_new'";
+                    DB::connection('uster')->update($upd_master);
+                } else {
+                    $update_master = "INSERT INTO MASTER_CONTAINER (NO_CONTAINER, SIZE_, TYPE_, LOCATION, NO_BOOKING, COUNTER) VALUES ('$no_cont_new', '$size_new' , '$type_new', '$location', '$no_booking', '$counter')";
+                    DB::connection('uster')->insert($update_master);
+                }
+
                 $update_old = "UPDATE MASTER_CONTAINER SET MLO = '-' WHERE NO_CONTAINER = '$no_cont_old'";
                 DB::connection('uster')->update($update_old);
 

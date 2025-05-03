@@ -47,7 +47,7 @@
 
     </table>
 
-    <table style="float: right; font-size: 9pt; margin-top: -100px;">
+    <table style="float: right; font-size: 9pt; margin-top: -50px;">
         <tr>
             <td>No. Nota</td>
             <td>:</td>
@@ -71,15 +71,21 @@
     </table>
     <!-- Add more HTML content here -->
 
-    <div style="margin-top:-20px">
+    <div style="margin-top:30px">
         <center><b>{{ $nota_kd }}</b></center>
 
-        <div style="line-height: normal; font-size:10pt; margin-top: 5px">
+        <br />
+
+
+        <div style="line-height: normal; font-size:10pt;">
             {{session()->get("emkl")}}<br />
             {{session()->get("npwp")}}<br />
             {{session()->get("alamat")}}
         </div>
     </div>
+
+    <br />
+
     <table border='0' style="font-size:9pt; width: 100%;">
         <tr height="20">
             <td align="left"><b></b></td>
@@ -135,15 +141,15 @@
 
         {{$listcont ?? ''}}
 
-        {{-- <tr height="20">
-            <td colspan="14"></td>
-        </tr>
         <tr height="20">
             <td colspan="14"></td>
         </tr>
         <tr height="20">
             <td colspan="14"></td>
-        </tr> --}}
+        </tr>
+        <tr height="20">
+            <td colspan="14"></td>
+        </tr>
         <tr>
             <th colspan="3" align="left"><b>KETERANGAN</b></th>
             <th align="center"><b>TGL AWAL</b></th>
@@ -163,9 +169,9 @@
                 <hr>
             </td>
         </tr>
-        {{-- <tr></tr>
         <tr></tr>
-        <tr></tr> --}}
+        <tr></tr>
+        <tr></tr>
         @foreach($rowdetail as $rd)
         <tr>
             <td colspan="3">{{$rd->keterangan}}</td>
@@ -183,11 +189,11 @@
         </tr>
 
         @endforeach
-        {{-- <tr>
+        <tr>
             <td colspan="14">
                 <hr>
             </td>
-        </tr> --}}
+        </tr>
     </table>
 
     <table border='0' style="font-size: 10pt;" class="pad">

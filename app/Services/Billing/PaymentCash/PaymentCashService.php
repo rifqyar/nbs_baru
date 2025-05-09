@@ -3630,6 +3630,7 @@ class printNotaMTI
             "PRINTED_BY" => $nama_lengkap,
             "KET_NOTA" => "Nota Berlaku Sebagai Pajak Berdasarkan Peraturan Dirjen Pajak PER-13/PJ/2019",
             "date" => $dt,
+            "no_mat" => $no_mat,
             // "NO_BL" => $no_bl,
             // "NO_DO" => $no_do,
         ]);

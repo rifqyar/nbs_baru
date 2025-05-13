@@ -184,119 +184,37 @@ class NotaStuffingExt
             $no_mat = $mat ? $mat->no_peraturan : null;
         }
 
-        $cek_jenis = DB::connection('uster')->table('container_stuffing')
+        $maxNota = DB::connection('uster')
+            ->table('nota_stuffing')
             ->where('no_request', $no_req)
-            ->distinct()
-            ->count('asal_cont');
+            ->max('no_nota');
 
-        $r_jns = $cek_jenis > 1 ? true : false;
+        $queryDtl = DB::connection('uster')
+            ->table('nota_stuffing_d as a')
+            ->leftJoin('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+            ->select([
+                DB::raw("TO_CHAR(a.start_stack, 'dd/mm/yyyy') AS start_stack"),
+                DB::raw("TO_CHAR(a.end_stack, 'dd/mm/yyyy') AS end_stack"),
+                'a.keterangan',
+                'a.jumlah_cont',
+                'a.jml_hari',
+                'b.size_',
+                'b.type_',
+                'b.status',
+                'a.hz',
+                DB::raw("TO_CHAR(a.tarif, '999,999,999,999') AS tarif"),
+                DB::raw("TO_CHAR(a.biaya, '999,999,999,999') AS biaya"),
+            ])
+            ->where('a.keterangan', 'NOT IN', ['ADMIN NOTA', 'MATERAI'])
+            ->where('a.no_nota', $maxNota)
+            ->orderBy('urut')
+            ->get();
 
-        if ($r_jns) {
-            $query_dtl = "SELECT partone.*, partwo.*, TO_CHAR(partone.biaya_/partwo.jml_cont,'999,999,999,999')  tarif FROM (SELECT a.JML_HARI,
-                        SUM(a.BIAYA) biaya_,
-                        TO_CHAR(SUM(a.BIAYA),'999,999,999,999') BIAYA,
-                        a.tekstual KETERANGAN,
-                        a.HZ,
-                        TO_DATE (a.START_STACK, 'dd/mm/rrrr') START_STACK,
-                        TO_DATE (a.END_STACK, 'dd/mm/rrrr') END_STACK,
-                        b.SIZE_,
-                        b.TYPE_,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END AS STATUS,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END AS urut
-                FROM nota_stuffing_d a, iso_code b
-                WHERE     a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.id_iso = b.id_iso
-                        AND a.no_nota = '$notanya'
-            GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_,  a.tekstual,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END) partone,
-            (SELECT case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_LAP')
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_GUD_TONGKANG')
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_GUD_TRUCK')
-                        ELSE 0
-                        END AS jml_cont FROM nota_stuffing_d a WHERE no_nota = '$notanya'
-                        and a.tekstual in ('PAKET STUFF LAPANGAN','PAKET STUFF GUDANG EKS TONGKANG','PAKET STUFF GUDANG EKS TRUCK')
-            group by a.tekstual) partwo";
-        } else {
-            $query_dtl = "SELECT a.JML_HARI,
-                        SUM(a.BIAYA) biaya_,
-                        TO_CHAR(SUM(a.BIAYA),'999,999,999,999') BIAYA,
-                        TO_CHAR(SUM(a.TARIF),'999,999,999,999') TARIF,
-                        a.tekstual KETERANGAN,
-                        a.jumlah_cont,
-                        a.HZ,
-                        TO_DATE (a.START_STACK, 'dd/mm/rrrr') START_STACK,
-                        TO_DATE (a.END_STACK, 'dd/mm/rrrr') END_STACK,
-                        b.SIZE_,
-                        b.TYPE_,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END AS STATUS,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END AS urut
-                FROM nota_stuffing_d a, iso_code b
-                WHERE     a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.id_iso = b.id_iso
-                        AND a.no_nota = '$notanya'
-            GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_,  a.tekstual, jumlah_cont,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END";
-        }
-
-        $res = DB::connection('uster')->select($query_dtl);
-
-
-
+        // dd($queryDtl);
         return array(
             'data' => $data,
             'date' => $date,
-            'detail' => $res,
+            'detail' => $queryDtl,
             'nama_lengkap' => $nama_lengkap,
             'data_mtr' => $data_mtr,
             'bea_materai' => $bea_materai,

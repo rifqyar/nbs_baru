@@ -53,6 +53,7 @@ class NotaExtStuffingController extends Controller
 
         $data = array();
         $data =  $this->stuffing->PrintProforma($request->input('no_req'));
+
         if ($data == 'NOT_FOUND') {
             return redirect()->route('uster.billing.nota_stuffing');
         }
@@ -61,8 +62,7 @@ class NotaExtStuffingController extends Controller
         $barcode = $generator->getBarcode($nota, $generator::TYPE_CODE_128);
         $data['barcode'] = $barcode;
 
-
-        $pdf = Pdf::loadView('billing.stuffing.perpanjangan.print.proforma', $data);
+        $pdf = Pdf::loadView('billing.stuffing.perpanjangan.print.proforma2', $data);
         $pdf->setPaper('a7');
         $pdf->setOption('margin-top', 1);
         $pdf->setOption('margin-right', 1);

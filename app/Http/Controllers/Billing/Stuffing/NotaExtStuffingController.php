@@ -62,7 +62,7 @@ class NotaExtStuffingController extends Controller
         $barcode = $generator->getBarcode($nota, $generator::TYPE_CODE_128);
         $data['barcode'] = $barcode;
 
-        $pdf = Pdf::loadView('billing.stuffing.perpanjangan.print.proforma2', $data);
+        $pdf = Pdf::loadView('billing.stuffing.perpanjangan.print.proforma', $data);
         $pdf->setPaper('a7');
         $pdf->setOption('margin-top', 1);
         $pdf->setOption('margin-right', 1);

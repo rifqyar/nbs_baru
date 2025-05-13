@@ -94,7 +94,7 @@
     </table>
     <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br>
     <span>POD : | </span><br>
-    <b style="font-size: 6pt">STUFFING</b><br />
+    <b style="font-size: 6pt">PERPANJANGAN STUFFING</b><br />
     <b><span>{{ $data->nama }}</span></b><br>
     <b><span>{{ $data->npwp }}</span></b><br>
     <b><span>{{ $data->alamat }}</span></b><br>

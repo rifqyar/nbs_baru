@@ -205,12 +205,11 @@ class NotaStuffingExt
                 DB::raw("TO_CHAR(a.tarif, '999,999,999,999') AS tarif"),
                 DB::raw("TO_CHAR(a.biaya, '999,999,999,999') AS biaya"),
             ])
-            ->where('a.keterangan', 'NOT IN', ['ADMIN NOTA', 'MATERAI'])
+            ->whereNotIn('a.keterangan', ['ADMIN NOTA', 'MATERAI'])
             ->where('a.no_nota', $maxNota)
             ->orderBy('urut')
             ->get();
 
-        // dd($queryDtl);
         return array(
             'data' => $data,
             'date' => $date,

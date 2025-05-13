@@ -98,6 +98,7 @@ class NotaExtStuffingController extends Controller
     function InsertProforma(Request $Request)
     {
         $data =  $this->stuffing->InsertProforma($Request);
-        return response()->json($data);
+        return redirect()->route('uster.billing.nota_ext_pnkn_stuffing.print_proforma', ['no_req' => $Request->no_request]);
+        // return response()->json($data);
     }
 }

@@ -307,10 +307,11 @@
                     Swal.fire({
                         title: 'Saving Nota Request...',
                         allowOutsideClick: false,
-                        didOpen: function() {
-                            Swal.showLoading();
-                        }
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
                     });
+                    Swal.showLoading();
+
                     var url = "{{ route('uster.billing.nota_ext_pnkn_stuffing.insert_proforma') }}";
                     $.ajaxSetup({
                         headers: {

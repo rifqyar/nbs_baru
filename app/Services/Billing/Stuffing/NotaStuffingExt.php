@@ -308,10 +308,10 @@ class NotaStuffingExt
     function InsertProforma($request)
     {
         $req = $request->input('REQ');
-
         try {
             // Mulai transaksi
-            DB::connection('uster')->beginTransaction();
+            DB::beginTransaction();
+            // DB::connection('uster')->beginTransaction();
 
             $nipp   = session('LOGGED_STORAGE');
             $no_req = $request->input("no_req");
@@ -320,8 +320,8 @@ class NotaStuffingExt
 
             $query_cek_nota     = "SELECT NO_NOTA,STATUS FROM NOTA_STUFFING WHERE NO_REQUEST = '$no_req'";
             $nota    = DB::connection('uster')->selectOne($query_cek_nota);
-            $no_nota_cek        = $nota->no_nota;
-            $nota_status        = $nota->status;
+            $no_nota_cek        = $nota->no_nota ?? NULL;
+            $nota_status        = $nota->status ?? NULL;
 
 
 
@@ -520,15 +520,18 @@ class NotaStuffingExt
                     $delete_temp = "DELETE from temp_detail_nota WHERE no_request = '$no_req'";
                     DB::connection('uster')->delete($delete_temp);
                     return "OK-INSERT";
-                    DB::connection('uster')->commit();
+                    // DB::connection('uster')->commit();
+                    DB::commit();
                 }
             } else {        //echo HOME;
-                DB::connection('uster')->rollback();
+                // DB::connection('uster')->rollback();
+                DB::rollBack();
                 return "OK";
             }
         } catch (\Exception $e) {
             // Rollback transaksi jika terjadi kesalahan
-            DB::connection('uster')->rollback();
+            // DB::connection('uster')->rollback();
+            DB::rollBack();
             return $e->getMessage();
         }
     }

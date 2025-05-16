@@ -6,12 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content=width, initial-scale=1.0">
     <title>PDF Template</title>
-    @if($data_mtr_biaya == 0)
-    <style>
-        .pad {
-            margin-left: 280px;
-        }
-    </style>
+    @if ($data_mtr_biaya == 0)
+        <style>
+            .pad {
+                margin-left: 280px;
+            }
+        </style>
     @endif
     <style>
         .container {
@@ -31,13 +31,17 @@
             /* height: 120px; */
             margin-left: -53px;
         }
+
+        .page-break {
+            page-break-after: auto;
+        }
     </style>
 </head>
 
-<body style="margin-top:-100px;">
-    <table border=0>
+<body>
+    <table border=0 style="margin-top:-100px;">
         <tr>
-            <td width=100><img src="{{$img}}" alt="" class="imgs"> </td>
+            <td width=100><img src="{{ $img }}" alt="" class="imgs"> </td>
             <td>
                 <b>PT MULTI TERMINAL INDONESIA</b>
                 <p style="font-size:9pt">Alamat : Jl. Pulau Payung No. 1 Tanjung Priok, Jakarta Utara<br />
@@ -51,22 +55,22 @@
         <tr>
             <td>No. Nota</td>
             <td>:</td>
-            <td><b>{{session()->get('NOTA_MTI')}}</b></td>
+            <td><b>{{ session()->get('NOTA_MTI') }}</b></td>
         </tr>
         <tr>
             <td>No. Faktur SAP</td>
             <td>:</td>
-            <td><b>{{session()->get('NO_FAKTUR')}}</b></td>
+            <td><b>{{ session()->get('NO_FAKTUR') }}</b></td>
         </tr>
         <tr>
             <td>No. Request</td>
             <td>:</td>
-            <td><b>{{$nota->no_request}}</b></td>
+            <td><b>{{ $nota->no_request }}</b></td>
         </tr>
         <tr>
             <td>Date Of Request</td>
             <td>:</td>
-            <td><b>{{$dt}}</b></td>
+            <td><b>{{ $dt }}</b></td>
         </tr>
     </table>
     <!-- Add more HTML content here -->
@@ -78,9 +82,9 @@
 
 
         <div style="line-height: normal; font-size:10pt;">
-            {{session()->get("emkl")}}<br />
-            {{session()->get("npwp")}}<br />
-            {{session()->get("alamat")}}
+            {{ session()->get('emkl') }}<br />
+            {{ session()->get('npwp') }}<br />
+            {{ session()->get('alamat') }}
         </div>
     </div>
 
@@ -96,13 +100,13 @@
         <tr>
             <td align="left">No. DO</td>
             <td>:</td>
-            <td colspan="4">{{$no_do ?? '-'}}</td>
+            <td colspan="4">{{ $no_do ?? '-' }}</td>
             <td colspan="8"></td>
         </tr>
         <tr>
             <td align="left">No. BL </td>
             <td>:</td>
-            <td colspan="4">{{$no_bl ?? '-'}}</td>
+            <td colspan="4">{{ $no_bl ?? '-' }}</td>
             <td colspan="8"></td>
         </tr>
         <tr>
@@ -122,15 +126,15 @@
             <td>:</td>
             <td colspan="6">-</td>
         </tr>
-        @if(isset($teks_baru) && isset($no_req_baru) && $teks_baru != '' && $no_req_baru != '')
-        <tr>
-            <td align="left"></td>
-            <td></td>
-            <td colspan="4"></td>
-            <td align="left">{{$teks_baru}} </td>
-            <td>:</td>
-            <td>{{$no_req_baru}}</td>
-        </tr>
+        @if (isset($teks_baru) && isset($no_req_baru) && $teks_baru != '' && $no_req_baru != '')
+            <tr>
+                <td align="left"></td>
+                <td></td>
+                <td colspan="4"></td>
+                <td align="left">{{ $teks_baru }} </td>
+                <td>:</td>
+                <td>{{ $no_req_baru }}</td>
+            </tr>
         @endif
         <tr>
             <td align="left"></td>
@@ -139,7 +143,7 @@
             <td colspan="8"></td>
         </tr>
 
-        {{$listcont ?? ''}}
+        {{ $listcont ?? '' }}
 
         <tr height="20">
             <td colspan="14"></td>
@@ -172,22 +176,21 @@
         <tr></tr>
         <tr></tr>
         <tr></tr>
-        @foreach($rowdetail as $rd)
-        <tr>
-            <td colspan="3">{{$rd->keterangan}}</td>
-            <th align="center">{{$rd->start_stack ?? ''}}</th>
-            <th align="center">{{$rd->end_stack ?? ''}}</th>
-            <td align="center">{{$rd->jml_cont ?? ''}}</td>
-            <td align="center">{{$rd->size_}}</td>
-            <td align="center">{{$rd->type_}}</td>
-            <td align="center">{{$rd->status}}</td>
-            <td align="center">{{$rd->hz}}</td>
-            <td align="center">{{$rd->jml_hari}}</td>
-            <td align="right">{{$rd->tarif}}</td>
-            <td align="center">IDR</td>
-            <td align="right">{{$rd->biaya}}</td>
-        </tr>
-
+        @foreach ($rowdetail as $rd)
+            <tr>
+                <td colspan="3">{{ $rd->keterangan }}</td>
+                <th align="center">{{ $rd->start_stack ?? '' }}</th>
+                <th align="center">{{ $rd->end_stack ?? '' }}</th>
+                <td align="center">{{ $rd->jml_cont ?? '' }}</td>
+                <td align="center">{{ $rd->size_ }}</td>
+                <td align="center">{{ $rd->type_ }}</td>
+                <td align="center">{{ $rd->status }}</td>
+                <td align="center">{{ $rd->hz }}</td>
+                <td align="center">{{ $rd->jml_hari }}</td>
+                <td align="right">{{ $rd->tarif }}</td>
+                <td align="center">IDR</td>
+                <td align="right">{{ $rd->biaya }}</td>
+            </tr>
         @endforeach
         <tr>
             <td colspan="14">
@@ -195,6 +198,8 @@
             </td>
         </tr>
     </table>
+
+    <div class="page-break"></div>
 
     <table border='0' style="font-size: 10pt;" class="pad">
         <tr>
@@ -206,36 +211,36 @@
         <tr>
             <td colspan="8"></td>
             <td width="225" colspan="4" align="right">Administrasi :</td>
-            <td width="100" colspan="2" align="right">{{$nota->adm_nota}}</td>
+            <td width="100" colspan="2" align="right">{{ $nota->adm_nota }}</td>
             <td></td>
         </tr>
 
         <tr>
             <td colspan="8"></td>
             <td width="225" colspan="4" align="right">Dasar Pengenaan Pajak :</td>
-            <td width="100" colspan="2" align="right">{{$nota->tagihan}}</td>
+            <td width="100" colspan="2" align="right">{{ $nota->tagihan }}</td>
             <td></td>
         </tr>
         <tr>
             <td colspan="8"></td>
             <td width="225" colspan="4" align="right">Jumlah PPN :</td>
-            <td width="100" colspan="2" align="right">{{$nota->ppn}}</td>
+            <td width="100" colspan="2" align="right">{{ $nota->ppn }}</td>
             <td></td>
         </tr>
 
-        @if($data_mtr_biaya > 0)
-        <tr>
-            <td colspan="8"></td>
-            <td width="225" colspan="4" align="right">Bea Materai :</td>
-            <td width="100" colspan="2" align="right">{{ $bea_materai }}</td>
-            <td></td>
-        </tr>
+        @if ($data_mtr_biaya > 0)
+            <tr>
+                <td colspan="8"></td>
+                <td width="225" colspan="4" align="right">Bea Materai :</td>
+                <td width="100" colspan="2" align="right">{{ $bea_materai }}</td>
+                <td></td>
+            </tr>
         @endif
 
         <tr>
             <td colspan="8"></td>
             <td width="225" colspan="4" align="right">Jumlah Dibayar :</td>
-            <td width="100" colspan="2" align="right">{{$nota->total_tagihan}}</td>
+            <td width="100" colspan="2" align="right">{{ $nota->total_tagihan }}</td>
             <td></td>
         </tr>
         <tr>
@@ -244,13 +249,15 @@
             <td width="100" colspan="2"></td>
             <td></td>
         </tr>
-        @if($data_mtr_biaya > 0)
-        <tr>
-            <td colspan="6" align="left">Bea Materai Lunas Dengan Sistem Nomor Ijin : {{ $no_mat }} </td>
-            <td width="300" colspan="4"></td>
-            <td width="130" colspan="2" align="center" border="1">Termasuk Bea Materai Rp. {{ $bea_materai }} </td>
-            <td></td>
-        </tr>
+        @if ($data_mtr_biaya > 0)
+            <tr>
+                <td colspan="6" align="left">Bea Materai Lunas Dengan Sistem Nomor Ijin : {{ $no_mat }}
+                </td>
+                <td width="300" colspan="4"></td>
+                <td width="130" colspan="2" align="center" border="1">Termasuk Bea Materai Rp.
+                    {{ $bea_materai }} </td>
+                <td></td>
+            </tr>
         @endif
     </table>
 </body>

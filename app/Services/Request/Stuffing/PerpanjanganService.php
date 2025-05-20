@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Psr7\Request;
 use Exception;
 use Illuminate\Support\Facades\Session;
+use PDO;
 
 class PerpanjanganService
 {
@@ -785,7 +786,7 @@ class PerpanjanganService
                 ->first();
 
             // Menggabungkan komponen nomor request
-            $no_req_s = "SFP" . $row_select->year . $row_select->month . $row_select->jum;
+            $no_req_s = "SFP" . $row_select->month . $row_select->year . $row_select->jum;
 
             // Query untuk menghitung jumlah container yang aktif berdasarkan nomor request
             $jml = $connection->table('CONTAINER_STUFFING')
@@ -897,7 +898,7 @@ class PerpanjanganService
                     ->value('PERP_DARI');
 
                 // Ini berarti merupakan perpanjangan pertama
-                if ($no_req_lama != NULL) {
+                if ($no_req_lama == NULL) {
                     for ($i = 0; $i < $jml; $i++) {
                         if (!empty($request->TGL_APPROVE[$i])) {
                             $NO_CONT = $request->input("NO_CONT_" . ($i + 1));
@@ -1027,13 +1028,29 @@ class PerpanjanganService
                     "in_ket" => $keterangan,
                     "p_ErrMsg" => "",
                 ];
+                $errMsg = "";
 
-                $queryif = "DECLARE BEGIN pack_create_req_stuffing.perpanjangan(:in_req_old, :in_req_new, :in_iduser, :in_ket, :p_ErrMsg); END;";
-                // Eksekusi stored procedure dengan output parameter
-                DB::connection('uster')->getPdo()->prepare($queryif)->execute($qparam);
+                // $queryif = "DECLARE BEGIN pack_create_req_stuffing.perpanjangan(:in_req_old, :in_req_new, :in_iduser, :in_ket, :p_ErrMsg); END;";
+                // // Eksekusi stored procedure dengan output parameter
+                // DB::connection('uster')->getPdo()->prepare($queryif)->execute($qparam);
+                // Buat koneksi PDO
+                $pdo = DB::connection('uster')->getPdo();
+
+                // Siapkan statement
+                $stmt = $pdo->prepare("BEGIN pack_create_req_stuffing.perpanjangan(:in_req_old, :in_req_new, :in_iduser, :in_ket, :p_ErrMsg); END;");
+
+                // Bind input parameter
+                $stmt->bindParam(':in_req_old', $no_req);
+                $stmt->bindParam(':in_req_new', $no_req_s);
+                $stmt->bindParam(':in_iduser', $ID_USER);
+                $stmt->bindParam(':in_ket', $keterangan);
+                // Bind output parameter
+                $stmt->bindParam(':p_ErrMsg', $errMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                // Eksekusi stored procedure
+                $stmt->execute();
 
                 // Ambil pesan error dari output parameter
-                $msg = $qparam["p_ErrMsg"] ?? null;
+                $msg = $errMsg ?? null;
 
                 if ($msg == 'OK') {
                     return response()->json('OK');

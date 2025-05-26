@@ -101,8 +101,8 @@ class BatalMuatController extends Controller
     public function save_payment_uster_batal_muat(Request $request)
     {
         $query_cek  = "select NVL(LPAD(MAX(TO_NUMBER(SUBSTR(NO_REQUEST,8,13)))+1,6,0),'000001') AS JUM,
-        TO_CHAR(SYSDATE, 'MM') AS MONTH, 
-        TO_CHAR(SYSDATE, 'YY') AS YEAR 
+        TO_CHAR(SYSDATE, 'MM') AS MONTH,
+        TO_CHAR(SYSDATE, 'YY') AS YEAR
         FROM REQUEST_BATAL_MUAT
         WHERE TGL_REQUEST BETWEEN TRUNC(SYSDATE,'MONTH') AND LAST_DAY(SYSDATE) ";
 
@@ -110,7 +110,7 @@ class BatalMuatController extends Controller
         $jum        = $jum_->jum;
         $month        = $jum_->month;
         $year        = $jum_->year;
-  
+
 
         $no_req_bm    = "BMU" . $month . $year . $jum;
 
@@ -212,5 +212,9 @@ class BatalMuatController extends Controller
             echo $response_curl;
             exit();
         }
+    }
+
+    public function getStartStack(Request $request){
+        return $this->batalMuat->getStartStack($request);
     }
 }

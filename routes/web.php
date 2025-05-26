@@ -681,13 +681,14 @@ Route::group(['prefix' => 'koreksi', 'as' => 'uster.koreksi.', 'middleware' => '
         Route::get('/datatable', [BatalMuatController::class, 'datatable'])->name('.datatable');
         Route::get('/getPMB', [BatalMuatController::class, 'getPMB'])->name('.getPMB');
         Route::get('/getContainer', [BatalMuatController::class, 'getContainer'])->name('.getContainer');
-        Route::get('/prayaGetContainer', [BatalMuatController::class, 'prayaGetContainer'])->name('.prayaGetContainer');
-        Route::post('/getContainerHistory', [BatalMuatController::class, 'getContainerHistory'])->name('.getContainerHistory');
+        Route::post('/prayaGetContainer', [BatalMuatController::class, 'prayaGetContainer'])->name('.prayaGetContainer');
+        Route::GET('/getContainerHistory', [BatalMuatController::class, 'getContainerHistory'])->name('.getContainerHistory');
         Route::get('/masterVesselPalapa', [BatalMuatController::class, 'masterVesselPalapa'])->name('.masterVesselPalapa');
         Route::get('/masterPelabuhanPalapa', [BatalMuatController::class, 'masterPelabuhanPalapa'])->name('.masterPelabuhanPalapa');
         Route::post('/validateContainer', [BatalMuatController::class, 'validateContainer'])->name('.validateContainer');
         Route::post('/save_payment_uster_batal_muat', [BatalMuatController::class, 'save_payment_uster_batal_muat'])->name('.save_payment_uster_batal_muat');
         Route::post('/save_bm_praya', [BatalMuatController::class, 'save_bm_praya'])->name('.save_bm_praya');
+        Route::post('/get-start-stack', [BatalMuatController::class, 'getStartStack'])->name('.getStarStack');
     });
 
     // Batal Stripping

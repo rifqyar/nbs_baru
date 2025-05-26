@@ -597,7 +597,16 @@
         });
     </script>
     <script>
+        function convertToHtmlDateFormat(dateStr) {
+            // Input: "25/05/2025"
+            const parts = dateStr.split('/');
+            const day = parts[0];
+            const month = parts[1];
+            const year = parts[2];
+            return `${year}-${month}-${day}`; // Output: "2025-05-25"
+        }
         $(document).ready(function() {
+
             $("#kapal, #petikemas").hide();
 
             // Tambahkan event listener untuk menangani perubahan dropdown
@@ -752,11 +761,11 @@
                     no_cont: data.no_container,
                     jenis_bm: jenis_batal
                 }, function(data) {
-                    var json = $.parseJSON(data);
-
-                    if (json.code === '1') {
+                    const returnData = data.dataRec[0]
+                    if (data.code === '1') {
+                        let containerStatus = returnData.containerStatus == 'EMPTY' ? 'MTY' : 'FCL';
                         if ($("#status_gate").val() == '1') {
-                            if (data.status_cont != 'FCL') {
+                            if (containerStatus != 'FCL') {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Container Belum Realisasi!',
@@ -771,32 +780,49 @@
                                 $("#TYPE").val('');
                                 $("#STATUS").val('');
                             } else {
-                                $("#NO_CONT").val(data.no_container);
-                                $("#NO_REQUEST").val(data.NO_REQUEST);
-                                $("#SIZE").val(data.SIZE_);
-                                $("#TYPE").val(data.TYPE_);
-                                $("#STATUS").val(data.status_cont);
-                                $.post('{$HOME}{$APPID}.auto/get_cont_history', {
-                                    no_cont: data.no_container
-                                }, function(data) {
-                                    $("#TGL_PNKN_START").val(data);
+                                $("#NO_CONT").val(returnData.containerNo);
+                                $("#NO_REQUEST").val(returnData.requestId);
+                                $("#SIZE").val(returnData.containerSize);
+                                $("#TYPE").val(returnData.containerType);
+                                $("#STATUS").val(returnData.containerStatus);
+                                $.ajax({
+                                    url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+                                    method: 'GET',
+                                    data: {
+                                        no_cont: returnData.containerNo,
+                                        no_req: returnData.requestId
+                                    },
+                                    success: function(data) {
+                                        $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+                                    },
+                                    error: function(xhr) {
+                                        console.error(xhr.responseText);
+                                    }
                                 });
                             }
                         } else {
-                            $("#NO_CONT").val(data.no_container);
-                            $("#NO_REQUEST").val(data.no_request);
-                            $("#SIZE").val(data.size_);
-                            $("#TYPE").val(data.type_);
-                            $("#STATUS").val(data.status_cont);
-                            $("#NO_REQ_ICT").val(data.no_req_itc);
-                            $("#UKK_LAMA").val(data.ukk_lama);
-                            $("#ETD_LAMA").val(data.etd_old);
+                            $("#NO_CONT").val(returnData.containerNo);
+                            $("#NO_REQUEST").val(returnData.requestId);
+                            $("#SIZE").val(returnData.containerSize);
+                            $("#TYPE").val(returnData.containerType);
+                            $("#STATUS").val(returnData.containerStatus);
+                            $("#NO_REQ_ICT").val(returnData.no_req_itc);
+                            $("#UKK_LAMA").val(returnData.ukk_lama);
+                            $("#ETD_LAMA").val(returnData.etd_old);
 
-                            $.post('{$HOME}{$APPID}.auto/get_cont_history', {
-                                no_cont: data.no_container,
-                                no_req: data.no_request
-                            }, function(data) {
-                                $("#TGL_PNKN_START").val(data);
+                            $.ajax({
+                                url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+                                method: 'GET',
+                                data: {
+                                    no_cont: returnData.containerNo,
+                                    no_req: returnData.requestId
+                                },
+                                success: function(data) {
+                                    $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+                                },
+                                error: function(xhr) {
+                                    console.error(xhr.responseText);
+                                }
                             });
                         }
                         return false;
@@ -815,7 +841,7 @@
                 });
             } else {
                 if ($("#status_gate").val() == '1') {
-                    if (data.status_cont != 'FCL') {
+                    if (containerStatus != 'FCL') {
 
                         Swal.fire({
                             icon: 'error',
@@ -830,32 +856,48 @@
                         $("#TYPE").val('');
                         $("#STATUS").val('');
                     } else {
-                        $("#NO_CONT").val(data.no_container);
-                        $("#NO_REQUEST").val(data.no_request);
-                        $("#SIZE").val(data.size_);
-                        $("#TYPE").val(data.type_);
-                        $("#STATUS").val(data.status_cont);
-                        $.post('{$HOME}{$APPID}.auto/get_cont_history', {
-                            no_cont: data.no_container
-                        }, function(data) {
-                            $("#TGL_PNKN_START").val(data);
+                        $("#NO_CONT").val(returnData.containerNo);
+                        $("#NO_REQUEST").val(returnData.requestId);
+                        $("#SIZE").val(returnData.containerSize);
+                        $("#TYPE").val(returnData.containerType);
+                        $("#STATUS").val(returnData.containerStatus);
+                        $.ajax({
+                            url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+                            method: 'GET',
+                            data: {
+                                no_cont: returnData.containerNo,
+                            },
+                            success: function(data) {
+                                $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+                            },
+                            error: function(xhr) {
+                                console.error(xhr.responseText);
+                            }
                         });
                     }
                 } else {
-                    $("#NO_CONT").val(data.no_container);
-                    $("#NO_REQUEST").val(data.no_request);
-                    $("#SIZE").val(data.size_);
-                    $("#TYPE").val(data.type_);
-                    $("#STATUS").val(data.status_cont);
-                    $("#NO_REQ_ICT").val(data.no_req_ict);
-                    $("#UKK_LAMA").val(data.ukk_lama);
-                    $("#ETD_LAMA").val(data.etd_old);
+                    $("#NO_CONT").val(returnData.containerNo);
+                    $("#NO_REQUEST").val(returnData.requestId);
+                    $("#SIZE").val(returnData.containerSize);
+                    $("#TYPE").val(returnData.containerType);
+                    $("#STATUS").val(returnData.containerStatus);
+                    $("#NO_REQ_ICT").val(returnData.no_req_ict);
+                    $("#UKK_LAMA").val(returnData.ukk_lama);
+                    $("#ETD_LAMA").val(returnData.etd_old);
 
-                    $.post('{{ route('uster.koreksi.batal_muat.getContainerHistory') }}', {
-                        no_cont: data.no_container,
-                        no_req: data.no_request
-                    }, function(data) {
-                        $("#TGL_PNKN_START").val(data);
+                    $.ajax({
+                        url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+                        method: 'GET',
+                        data: {
+                            no_cont: returnData.containerNo,
+                            no_req: returnData.requestId
+                        },
+                        success: function(data) {
+                            $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+                        },
+                        error: function(xhr) {
+                            console.error(xhr.responseText);
+                        }
                     });
                 }
                 return false;

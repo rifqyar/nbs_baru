@@ -98,12 +98,18 @@
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" id="KD_KAPAL" name="KD_KAPAL" type="hidden" />
-                                    <select class="form-control" id="NM_KAPAL" name="NM_KAPAL">
+                                    <select class="form-control" id="NM_KAPAL_SELECT" name="NM_KAPAL_SELECT">
 
                                     </select>
+                                    <input class="form-control" id="NM_KAPAL" name="NM_KAPAL" type="hidden" />
                                     <input class="form-control" id="TGL_BERANGKAT" name="TGL_BERANGKAT" type="hidden" />
                                     <input class="form-control" id="TGL_STACKING" name="TGL_STACKING" type="hidden" />
                                     <input class="form-control" id="TGL_MUAT" name="TGL_MUAT" type="hidden" />
+                                    <input class="form-control" id="NO_UKK" name="NO_UKK" type="hidden" />
+                                    <input class="form-control" id="NM_AGEN" name="NM_AGEN" type="hidden" />
+                                    <input class="form-control" id="VOYAGE" name="VOYAGE" type="hidden" />
+                                    <input class="form-control" id="KD_AGEN" name="KD_AGEN" type="hidden" />
+                                    <input class="form-control" id="CALL_SIGN" name="CALL_SIGN" type="hidden" />
                                     <input class="form-control" id="NO_BOOKING" name="NO_BOOKING" type="hidden"
                                         size="40" />
                                 </div>
@@ -388,8 +394,8 @@
                                             text: response.message
                                         });
 
-                                        widnow.location.href =
-                                        '{{ route('uster.koreksi.batal_muat') }}';
+                                        window.location.href =
+                                            '{{ route('uster.koreksi.batal_muat') }}';
                                     } else {
                                         Swal.fire({
                                             icon: 'error',
@@ -994,7 +1000,7 @@
             // $form[0].reset()
         })
 
-        $('#NM_KAPAL').select2({
+        $('#NM_KAPAL_SELECT').select2({
             minimumInputLength: 3, // Set the minimum input length
             ajax: {
                 // Implement your AJAX settings for data retrieval here
@@ -1028,7 +1034,7 @@
             return formattedDate;
         }
 
-        $('#NM_KAPAL').on('select2:select', function(e) {
+        $('#NM_KAPAL_SELECT').on('select2:select', function(e) {
             var data = e.params.data;
             $("#KD_KAPAL").val(data.vessel_code);
             $("#NM_AGEN").val(data.operator_name);

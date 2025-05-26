@@ -562,7 +562,7 @@ class BatalMuatService
                 $no_ukk = $r_pkk->no_ukk ?? NULL;
                 if ($no_ukk == NULL) {
                     $q_insert = "INSERT INTO V_PKK_CONT (KD_KAPAL, NM_KAPAL, VOYAGE_IN, VOYAGE_OUT, TGL_JAM_TIBA, TGL_JAM_BERANGKAT, NO_UKK, NM_AGEN, KD_AGEN, PELABUHAN_ASAL, PELABUHAN_TUJUAN, KD_CABANG, NO_BOOKING, VOYAGE, CALL_SIGN)
-                             VALUES ('$kd_kapal', '$nm_kapal', '$voyage_in', '$voyage_out', TO_DATE('$eta','DD-MM-YYYY HH24:MI:SS'), TO_DATE('$etd','DD-MM-YYYY HH24:MI:SS'), '$no_ukk_new', '$nm_agen', '$kd_agen', '$kd_pelabuhan_asal', '$kd_pelabuhan_tujuan', '05', '$no_booking_new', '$voyage', '$call_sign')";
+                             VALUES ('$kd_kapal', '$nm_kapal', '$voyage_in', '$voyage_in', TO_DATE('$eta','DD-MM-YYYY HH24:MI:SS'), TO_DATE('$etd','DD-MM-YYYY HH24:MI:SS'), '$no_ukk_new', '$nm_agen', '$kd_agen', '$kd_pelabuhan_asal', '$kd_pelabuhan_tujuan', '05', '$no_booking_new', '$voyage', '$call_sign')";
                     DB::connection('uster')->insert($q_insert);
                 }
 
@@ -620,8 +620,20 @@ class BatalMuatService
                             "OUT" => '',
                             "OUT_MSG" => ''
                         ];
-                        $query2 = "DECLARE BEGIN payment_opusbill(:ID_REQ,:ID_NOTA,:OUT,:OUT_MSG); END;";
-                        DB::connection('opus')->statement($query2, $param_payment2);
+                        $query2 = "DECLARE BEGIN OPUS_REPO.payment_opusbill(:ID_REQ,:ID_NOTA,:OUT,:OUT_MSG); END;";
+                        // DB::connection('uster')->statement($query2, $param_payment2);
+
+                        $pdo = DB::connection('uster')->getPdo();
+                        $stmt = $pdo->prepare($query2);
+                        foreach ($param_payment2 as $key => &$value) {
+                            $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+                        }
+
+                        $outMsg = '';
+                        $out = '';
+                        $stmt->bindParam(":OUT", $out, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                        $stmt->bindParam(":OUT_MSG", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                        $stmt->execute();
                     }
                 } else if ($status_gate == 1 || $status_gate == 3) {
                     if ($status_gate == 1) {

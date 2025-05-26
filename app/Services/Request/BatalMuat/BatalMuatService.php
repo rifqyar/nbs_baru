@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use PDO;
 
 class BatalMuatService
 {
@@ -398,8 +399,8 @@ class BatalMuatService
 
     function save_bm_praya($request)
     {
+        DB::beginTransaction();
         try {
-            DB::connection('uster')->beginTransaction();
             $jenis_bm = $request->jenis_batal;
             $status_gate = $request->status_gate;
             $biaya = $request->biaya;
@@ -595,12 +596,22 @@ class BatalMuatService
                         "out_noreq" => '',
                         "out_msg" => '',
                     ];
+                    $outMsg = '';
+                    $out_noreq = '';
 
                     $queryif = "DECLARE BEGIN pack_create_bamu_exrepo.create_bamu_praya(:in_reqbm,:in_accpbm,:in_pbm,:in_vessel,:in_voyin,:in_voyout,:in_user,:in_shipping,:in_tglberangkat,:in_openstack,:in_custnum,:in_npe,:in_peb,:in_booknum,:in_fpod,:in_idfpod,:in_di,:in_accpbm_pnkn,:in_idvsbnew,:in_vessel_code,:out_noreq,:out_msg); END;";
-                    DB::connection('uster')->statement($queryif, $paramif);
+                    $pdo = DB::connection('uster')->getPdo();
+                    $stmt = $pdo->prepare($queryif);
+                    foreach ($paramif as $key => &$value) {
+                        $stmt->bindParam(":$key", $value, PDO::PARAM_STR);
+                    }
+                    $stmt->bindParam(":out_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                    $stmt->bindParam(":out_noreq", $out_noreq, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
+                    $stmt->execute();
+                    // DB::connection('uster')->statement($queryif, $paramif);
 
-                    $out_noreq = $paramif["out_noreq"];
-                    $out_msg = $paramif["out_msg"];
+                    // $out_noreq = $paramif["out_noreq"];
+                    // $out_msg = $paramif["out_msg"];
 
                     if ($biaya == 'T') {
                         $param_payment2 = [
@@ -690,11 +701,11 @@ class BatalMuatService
                     }
                 }
             }
-            DB::connection('uster')->commit();
+            DB::commit();
 
             return response()->json(['success' => true, 'message' => 'Data saved successfully']);
         } catch (\Exception $e) {
-            DB::connection('uster')->rollBack();
+            DB::rollBack();
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }

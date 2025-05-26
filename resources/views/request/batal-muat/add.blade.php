@@ -48,6 +48,8 @@
                                         style="width: 70%" />
                                     <input class="form-control" type="text" id="KD_PELANGGAN" name="KD_PELANGGAN"
                                         style="width:20%;margin-left:20px" readonly="1" /></td>
+                                    <input class="form-control" type="hidden" id="NO_ACCOUNT_PBM" name="NO_ACCOUNT_PBM"
+                                        style="width:20%;margin-left:20px" readonly="1" /></td>
                                 </div>
                                 <div class="col-md-2 py-2">
                                     <label for="tb-fname">Jenis Batal Muat : </label>
@@ -96,7 +98,9 @@
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" id="KD_KAPAL" name="KD_KAPAL" type="hidden" />
-                                    <select class="form-control" id="NM_KAPAL" name="NM_KAPAL" type="text" />
+                                    <select class="form-control" id="NM_KAPAL" name="NM_KAPAL">
+
+                                    </select>
                                     <input class="form-control" id="TGL_BERANGKAT" name="TGL_BERANGKAT" type="hidden" />
                                     <input class="form-control" id="TGL_STACKING" name="TGL_STACKING" type="hidden" />
                                     <input class="form-control" id="TGL_MUAT" name="TGL_MUAT" type="hidden" />
@@ -383,6 +387,9 @@
                                             title: 'Success',
                                             text: response.message
                                         });
+
+                                        widnow.location.href =
+                                        '{{ route('uster.koreksi.batal_muat') }}';
                                     } else {
                                         Swal.fire({
                                             icon: 'error',
@@ -784,7 +791,7 @@
                                 $("#NO_REQUEST").val(returnData.requestId);
                                 $("#SIZE").val(returnData.containerSize);
                                 $("#TYPE").val(returnData.containerType);
-                                $("#STATUS").val(returnData.containerStatus);
+                                $("#STATUS").val(containerStatus);
                                 $.ajax({
                                     url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
                                     method: 'GET',
@@ -805,7 +812,7 @@
                             $("#NO_REQUEST").val(returnData.requestId);
                             $("#SIZE").val(returnData.containerSize);
                             $("#TYPE").val(returnData.containerType);
-                            $("#STATUS").val(returnData.containerStatus);
+                            $("#STATUS").val(containerStatus);
                             $("#NO_REQ_ICT").val(returnData.no_req_itc);
                             $("#UKK_LAMA").val(returnData.ukk_lama);
                             $("#ETD_LAMA").val(returnData.etd_old);
@@ -860,7 +867,7 @@
                         $("#NO_REQUEST").val(returnData.requestId);
                         $("#SIZE").val(returnData.containerSize);
                         $("#TYPE").val(returnData.containerType);
-                        $("#STATUS").val(returnData.containerStatus);
+                        $("#STATUS").val(containerStatus);
                         $.ajax({
                             url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
                             method: 'GET',
@@ -880,7 +887,7 @@
                     $("#NO_REQUEST").val(returnData.requestId);
                     $("#SIZE").val(returnData.containerSize);
                     $("#TYPE").val(returnData.containerType);
-                    $("#STATUS").val(returnData.containerStatus);
+                    $("#STATUS").val(containerStatus);
                     $("#NO_REQ_ICT").val(returnData.no_req_ict);
                     $("#UKK_LAMA").val(returnData.ukk_lama);
                     $("#ETD_LAMA").val(returnData.etd_old);

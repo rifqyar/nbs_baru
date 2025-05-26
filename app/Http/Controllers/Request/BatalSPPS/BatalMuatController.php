@@ -9,6 +9,7 @@ use \Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use App\Services\Request\BatalMuat\BatalMuatService;
 use Exception;
+
 class BatalMuatController extends Controller
 {
     private $batalMuat;
@@ -111,110 +112,37 @@ class BatalMuatController extends Controller
         $month        = $jum_->month;
         $year        = $jum_->year;
 
-
         $no_req_bm    = "BMU" . $month . $year . $jum;
 
         $new_id_request   = $no_req_bm;
-        $payload_batal_muat = $_POST["payload_batal_muat"];
-
-        // $payload_batal_muat = array(
-        //   "ex_noreq" => $ex_noreq,
-        //   "vesselId" => $kd_kapal,
-        //   "vesselName" => $nm_kapal,
-        //   "voyage" => $voyage,
-        //   "voyageIn" => $voyage_in,
-        //   "voyageOut" => $voyage_out,
-        //   "nm_agen" => $nm_agen,
-        //   "kd_agen" => $kd_agen,
-        //   "pelabuhan_tujuan" => $kd_pelabuhan_tujuan,
-        //   "pelabuhan_asal" => $kd_pelabuhan_asal,
-        //   "cont_list" => $_POST['BM_CONT'],
-        // );
-
-        set_time_limit(360);
+        $payload_batal_muat = $request->payload_batal_muat;
+        $payload_batal_muat['voyageOut'] = $payload_batal_muat['voyageIn'] ?? '';
 
         try {
-
-            $curl = curl_init();
-            /* set configure curl */
-            // $authorization = "Authorization: Bearer $token";
-            $payload_request = array(
-                "ID_REQUEST" => $new_id_request,
-                "JENIS" => "BATAL_MUAT",
-                "BANK_ACCOUNT_NUMBER" => "",
-                "PAYMENT_CODE" => "",
-                "PAYLOAD_BATAL_MUAT" => $payload_batal_muat
-            );
-            // echo json_encode($payload_request) . '<<payload_req';
-            $url = ENV('APP_URL') . "/uster.billing.paymentcash.ajax/save_payment_external";
-            // echo var_dump($url);
-            // die();
-            curl_setopt_array(
-                $curl,
-                array(
-                    CURLOPT_URL             => $url,
-                    CURLOPT_RETURNTRANSFER  => true,
-                    CURLOPT_ENCODING        => "",
-                    CURLOPT_MAXREDIRS       => 10,
-                    CURLOPT_CUSTOMREQUEST   => "POST",
-                    CURLOPT_POSTFIELDS      => json_encode($payload_request),
-                    CURLOPT_HTTPHEADER      => array(
-                        "Content-Type: application/json"
-                    ),
-                )
-            );
-
-
-            $response = curl_exec($curl);
-            // $err = curl_error($curl);
-            // echo var_dump($response);
-
-            if ($response === false) {
-                throw new Exception(curl_error($curl));
+            $result = $this->batalMuat->save_payment_praya($payload_batal_muat, $new_id_request);
+            if (isset($result['status']) && $result['status'] === 'error') {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $result['message'] ?? 'Failed to save payment (Praya).'
+                ], 400);
             }
 
-            // Get HTTP status code
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-
-            //Success
-            if ($httpCode >= 200 && $httpCode < 300) {
-                $response_curl = array(
-                    'status'   => 'success',
-                    'httpCode' => $httpCode,
-                    'response' => $response
-                );
-            } else if ($httpCode >= 400 && $httpCode < 500) {
-                //Client Error
-                $response_curl = array(
-                    'status'   => 'error',
-                    'httpCode' => $httpCode,
-                    'response' => $response
-                );
-            } else {
-                //Server Error
-                throw new Exception('HTTP Server Error: ' . $httpCode);
-            }
-
-            /* execute curl */
-            curl_close($curl);
-
-            echo $response_curl['response'];
-            exit();
+            return response()->json([
+                'code' => 1,
+                'status' => 'success',
+                'message' => 'Request Saved successfully.',
+                'no_request' => $new_id_request
+            ], 200);
         } catch (Exception $e) {
-            // echo $e . "<< error-aftercurl";
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $response_curl = array(
-                'status'   => 'error',
-                'httpCode' => $httpCode,
-                'response' => "cURL Error # " . $e->getMessage()
-            );
-
-            echo $response_curl;
-            exit();
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
-    public function getStartStack(Request $request){
+    public function getStartStack(Request $request)
+    {
         return $this->batalMuat->getStartStack($request);
     }
 }

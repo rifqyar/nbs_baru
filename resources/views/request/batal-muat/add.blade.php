@@ -69,7 +69,7 @@
                                     <label for="tb-fname">Dikenakan Biaya : </label>
                                 </div>
                                 <div class="col-md-4">
-                                    <select class="form-control" name="biaya">
+                                    <select class="form-control" name="biaya" id="biaya">
                                         <option value="" selected> PILIH</option>
                                         <option value="Y">YA</option>
                                         <option value="T">TIDAK</option>
@@ -297,8 +297,232 @@
 
 @section('pages-js')
     <script>
+        // Array to store inserted data
+        let insertedData = [];
+        var ctr = 0;
+        var list = new Array();
+
+        // Function to refresh row numbers
+        function refreshRowNumbers() {
+            $('#dataTableBody tr').each(function(index, tr) {
+                $(tr).find('.row-number').val(index + 1);
+            });
+        }
+        // Function to add data to table
+        function addToTable() {
+            const noCont = $("#NO_CONT").val();
+
+            if (!noCont) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Harap Isi Terlebih Dahulu Nomor Container!',
+                    timer: 1000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            if (list.includes(noCont)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nomor Container sudah ada di dalam daftar!',
+                    timer: 1000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            list.push(noCont);
+
+            const bmNoReq = $("#NO_REQUEST").val();
+            const size = $("#SIZE").val();
+            const type = $("#TYPE").val();
+            const status = $("#STATUS").val();
+            const oldVsb = $("#UKK_LAMA").val();
+            const oldEtd = $("#ETD_LAMA").val();
+            const jenisBatal = $("#jenis_batal").val();
+            const awal = jenisBatal === 'alih_kapal' ? $("#TGL_PNKN_START").val() : '';
+            const akhir = jenisBatal === 'alih_kapal' ? $("#TGL_PNKN_END").val() : '';
+
+            const tvalue = $("#tvalue");
+            const num = parseInt(tvalue.val(), 10) + 1;
+            tvalue.val(num);
+
+            const newRow = `
+                    <tr id="rec${num}div">
+                        <td align="left"><input class="form-control row-number" type="text" value="${num}" style="width:40px" readonly/></td>
+                        <td align="left">
+                            <input class="form-control" type="text" id="BM_CONT[${num}]" name="BM_CONT[]" value="${noCont}" style="width:170px" readonly/>
+                            <input type="hidden" id="BMNO_REQ[${num}]" name="BMNO_REQ[]" value="${bmNoReq}" />
+                        </td>
+                        <td align="left">
+                            <input class="form-control" type="text" name="KDSIZE[]" value="${size}" style="width:50px" readonly/>
+                            <input type="hidden" name="UKKLAMA[]" value="${oldVsb}" />
+                            <input type="hidden" name="ETDLAMA[]" value="${oldEtd}" />
+                        </td>
+                        <td align="left"><input class="form-control" type="text" name="KDSTATUS[]" value="${status}" style="width:100px" readonly/></td>
+                        <td align="left"><input class="form-control" type="text" name="KDTYPE[]" value="${type}" style="width:100px" readonly/></td>
+                        <td align="left"><input class="form-control" type="text" id="AWAL[${num}]" name="AWAL[]" value="${awal}" style="width:100px" readonly/></td>
+                        <td align="left"><input class="form-control" type="text" id="AKHIR[${num}]" name="AKHIR[]" value="${akhir}" style="width:100px" readonly/></td>
+                        <td><button class="btn btn-danger btn-sm delete-row">Delete</button></td>
+                    </tr>
+                `;
+
+            $('#dataTableBody').append(newRow);
+            ctr++;
+        }
+
+        var xcont = Array();
+
+        function removeRow(divnum, num, cont) {
+            xcont[num] = '';
+            var d = document.getElementById('contdiv');
+            var olddiv = document.getElementById(divnum);
+            d.removeChild(olddiv);
+            ctr--;
+            Array.prototype.remove = function(v) {
+                this.splice(this.indexOf(v) == -1 ? this.length : this.indexOf(v), 1);
+            }
+            list.remove(cont);
+        }
+
+        // Delete row handler
+        $(document).on('click', '.delete-row', function() {
+            $(this).closest('tr').remove();
+            refreshRowNumbers();
+        });
+
+        // Submit form handler
+        $('#insertForm').submit(function(event) {
+            event.preventDefault();
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            var no_cont_ = $("#NO_CONT").val();
+            var no_req_ = $("#NO_REQUEST").val();
+            var jenis_bm_ = $("#status_gate").val();
+            var newvessel_ = $("#NO_BOOKING").val();
+
+            $.post('{{ route('uster.koreksi.batal_muat.validateContainer') }}', {
+                no_req: no_cont_,
+                no_cont: no_req_,
+                jenis_bm: jenis_bm_,
+                newvessel: newvessel_,
+            }, function(res) {
+
+                if ($("#NO_CONT").val() == '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No container belum diisi!',
+                        timer: 1000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    });
+                } else {
+
+                    if (res == 'T') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Container tidak ditemukan!',
+                            timer: 1000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                        $("#NO_CONT").val('');
+
+                    } else if (res == 'X') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Kapal baru sama dengan kapal sebelumnya!',
+                            timer: 1000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                        $("#NO_CONT").val('');
+                    } else {
+                        insertedData.push();
+                        addToTable();
+                        refreshRowNumbers();
+                    }
+
+                }
+
+
+
+            });
+
+        });
+
+        // Submit 2 handler
+        $('#submit2').click(function() {
+            // Here you can send insertedData array to your backend for further processing
+            $.ajax({
+                url: 'backend.php', // Ganti dengan URL backend Anda
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    data: insertedData
+                }),
+                success: function(response) {
+                    console.log('Data berhasil dikirim ke backend:', response);
+                    // Clear the table and insertedData array
+                    $('#dataTableBody').empty();
+                    insertedData = [];
+                },
+                error: function(xhr, status, error) {
+                    console.error('Gagal mengirim data ke backend:', error);
+                }
+            });
+            // For this example, let's clear the table and insertedData array
+            $('#dataTableBody').empty();
+            insertedData = [];
+        });
+
+        function save_bm_praya() {
+            var formData = $('#insertForm').serialize();
+            // Perform AJAX request
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('uster.koreksi.batal_muat.save_bm_praya') }}',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message
+                        });
+
+                        window.location.href =
+                            '{{ route('uster.koreksi.batal_muat') }}';
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed',
+                            text: response.message
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred: ' + error
+                    });
+                }
+            });
+        }
+
         function save() {
-            if ($("#jenis_batal").val() == '' || $("#status_gate").val() == '' || $("#KD_PELANGGAN").val() == '' || $(
+            console.log(list);
+            if ($("#jenis_batal").val() == '' || $("#status_gate").val() == '' || $("#KD_PELANGGAN").val() ==
+                '' || $(
                     "#biaya").val() == '') {
                 Swal.fire({
                     icon: 'error',
@@ -309,7 +533,8 @@
                 });
                 return false;
             } else {
-                if ($("#status_gate").val() == '2' && $("#jenis_batal").val() == 'alih_kapal' && $("#biaya").val() == 'T') {
+                if ($("#status_gate").val() == '2' && $("#jenis_batal").val() == 'alih_kapal' && $("#biaya")
+                    .val() == 'T') {
                     Swal.fire({
                         title: 'Mendapatkan Data...',
                         allowOutsideClick: false,
@@ -345,6 +570,7 @@
                     $.post(url, {
                         payload_batal_muat
                     }, function(data) {
+                        console.log(data)
                         if (data) {
                             var parseData = $.parseJSON(data);
                             if (parseData['code'] == 0) {
@@ -356,7 +582,7 @@
                                     showConfirmButton: false
                                 });
                             } else {
-                                $("#dataForm").submit();
+                                save_bm_praya();
                             }
                         } else {
                             Swal.fire({
@@ -369,245 +595,10 @@
                         }
                     });
                 } else {
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "Do you want to save this data?",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, save it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            var formData = $('#insertForm').serialize();
-                            console.log(formData);
-                            // Perform AJAX request
-                            $.ajax({
-                                type: 'POST',
-                                url: '{{ route('uster.koreksi.batal_muat.save_bm_praya') }}',
-                                data: formData,
-                                success: function(response) {
-                                    if (response.success) {
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Success',
-                                            text: response.message
-                                        });
-
-                                        window.location.href =
-                                            '{{ route('uster.koreksi.batal_muat') }}';
-                                    } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Failed',
-                                            text: response.message
-                                        });
-                                    }
-                                },
-                                error: function(xhr, status, error) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: 'An error occurred: ' + error
-                                    });
-                                }
-                            });
-                        }
-                    });
+                    save_bm_praya();
                 }
             }
         }
-
-        $(document).ready(function() {
-            // Array to store inserted data
-            let insertedData = [];
-            var ctr = 0;
-            var list = new Array();
-
-            // Function to refresh row numbers
-            function refreshRowNumbers() {
-                $('#dataTableBody tr').each(function(index, tr) {
-                    $(tr).find('.row-number').val(index + 1);
-                });
-            }
-            // Function to add data to table
-            function addToTable() {
-                const noCont = $("#NO_CONT").val();
-
-                if (!noCont) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Harap Isi Terlebih Dahulu Nomor Container!',
-                        timer: 1000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    });
-                    return;
-                }
-
-                if (list.includes(noCont)) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Nomor Container sudah ada di dalam daftar!',
-                        timer: 1000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
-                    });
-                    return;
-                }
-
-                list.push(noCont);
-
-                const bmNoReq = $("#NO_REQUEST").val();
-                const size = $("#SIZE").val();
-                const type = $("#TYPE").val();
-                const status = $("#STATUS").val();
-                const oldVsb = $("#UKK_LAMA").val();
-                const oldEtd = $("#ETD_LAMA").val();
-                const jenisBatal = $("#jenis_batal").val();
-                const awal = jenisBatal === 'alih_kapal' ? $("#TGL_PNKN_START").val() : '';
-                const akhir = jenisBatal === 'alih_kapal' ? $("#TGL_PNKN_END").val() : '';
-
-                const tvalue = $("#tvalue");
-                const num = parseInt(tvalue.val(), 10) + 1;
-                tvalue.val(num);
-
-                const newRow = `
-        <tr id="rec${num}div">
-            <td align="left"><input class="form-control row-number" type="text" value="${num}" style="width:40px" readonly/></td>
-            <td align="left">
-                <input class="form-control" type="text" id="BM_CONT[${num}]" name="BM_CONT[]" value="${noCont}" style="width:170px" readonly/>
-                <input type="hidden" id="BMNO_REQ[${num}]" name="BMNO_REQ[]" value="${bmNoReq}" />
-            </td>
-            <td align="left">
-                <input class="form-control" type="text" name="KDSIZE[]" value="${size}" style="width:50px" readonly/>
-                <input type="hidden" name="UKKLAMA[]" value="${oldVsb}" />
-                <input type="hidden" name="ETDLAMA[]" value="${oldEtd}" />
-            </td>
-            <td align="left"><input class="form-control" type="text" name="KDSTATUS[]" value="${status}" style="width:100px" readonly/></td>
-            <td align="left"><input class="form-control" type="text" name="KDTYPE[]" value="${type}" style="width:100px" readonly/></td>
-            <td align="left"><input class="form-control" type="text" id="AWAL[${num}]" name="AWAL[]" value="${awal}" style="width:100px" readonly/></td>
-            <td align="left"><input class="form-control" type="text" id="AKHIR[${num}]" name="AKHIR[]" value="${akhir}" style="width:100px" readonly/></td>
-            <td><button class="btn btn-danger btn-sm delete-row">Delete</button></td>
-        </tr>
-    `;
-
-                $('#dataTableBody').append(newRow);
-                ctr++;
-            }
-
-            var xcont = Array();
-
-            function removeRow(divnum, num, cont) {
-                xcont[num] = '';
-                var d = document.getElementById('contdiv');
-                var olddiv = document.getElementById(divnum);
-                d.removeChild(olddiv);
-                ctr--;
-                Array.prototype.remove = function(v) {
-                    this.splice(this.indexOf(v) == -1 ? this.length : this.indexOf(v), 1);
-                }
-                list.remove(cont);
-            }
-
-            // Delete row handler
-            $(document).on('click', '.delete-row', function() {
-                $(this).closest('tr').remove();
-                refreshRowNumbers();
-            });
-
-            // Submit form handler
-            $('#insertForm').submit(function(event) {
-                event.preventDefault();
-
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-
-                var no_cont_ = $("#NO_CONT").val();
-                var no_req_ = $("#NO_REQUEST").val();
-                var jenis_bm_ = $("#status_gate").val();
-                var newvessel_ = $("#NO_BOOKING").val();
-
-                $.post('{{ route('uster.koreksi.batal_muat.validateContainer') }}', {
-                    no_req: no_cont_,
-                    no_cont: no_req_,
-                    jenis_bm: jenis_bm_,
-                    newvessel: newvessel_,
-                }, function(res) {
-
-                    if ($("#NO_CONT").val() == '') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'No container belum diisi!',
-                            timer: 1000,
-                            timerProgressBar: true,
-                            showConfirmButton: false
-                        });
-                    } else {
-
-                        if (res == 'T') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Container tidak ditemukan!',
-                                timer: 1000,
-                                timerProgressBar: true,
-                                showConfirmButton: false
-                            });
-                            $("#NO_CONT").val('');
-
-                        } else if (res == 'X') {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Kapal baru sama dengan kapal sebelumnya!',
-                                timer: 1000,
-                                timerProgressBar: true,
-                                showConfirmButton: false
-                            });
-                            $("#NO_CONT").val('');
-                        } else {
-                            insertedData.push();
-                            addToTable();
-                            refreshRowNumbers();
-                        }
-
-                    }
-
-
-
-                });
-
-            });
-
-
-
-            // Submit 2 handler
-            $('#submit2').click(function() {
-                // Here you can send insertedData array to your backend for further processing
-                $.ajax({
-                    url: 'backend.php', // Ganti dengan URL backend Anda
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        data: insertedData
-                    }),
-                    success: function(response) {
-                        console.log('Data berhasil dikirim ke backend:', response);
-                        // Clear the table and insertedData array
-                        $('#dataTableBody').empty();
-                        insertedData = [];
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Gagal mengirim data ke backend:', error);
-                    }
-                });
-                // For this example, let's clear the table and insertedData array
-                $('#dataTableBody').empty();
-                insertedData = [];
-            });
-        });
     </script>
     <script>
         function convertToHtmlDateFormat(dateStr) {

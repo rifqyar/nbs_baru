@@ -397,6 +397,669 @@ class BatalMuatService
         echo "</pre>";
     }
 
+    function save_payment_praya($payload_batal_muat, $new_id_request)
+    {
+        $url_uster_save = env('PRAYA_API_INTEGRATION') . "/api/usterSave";
+
+        $payload_uster_save = array(
+            "ID_REQUEST" => $new_id_request,
+            "JENIS" => "BATAL_MUAT",
+            "BANK_ACCOUNT_NUMBER" => "",
+            "PAYMENT_CODE" => "",
+            "PAYLOAD_BATAL_MUAT" => $payload_batal_muat
+        );
+
+        $payloadBatalMuat = $payload_uster_save["PAYLOAD_BATAL_MUAT"];
+        $jenis = $payload_uster_save["JENIS"];
+        $id_req = $payload_uster_save["ID_REQUEST"];
+        $bankAccountNumber = $payload_uster_save["BANK_ACCOUNT_NUMBER"];
+        $paymentCode = $payload_uster_save["PAYMENT_CODE"];
+        $charge = empty($payloadBatalMuat) ? "Y" : "N";
+
+        $containerListLog = array();
+        $del_no_request = $payloadBatalMuat['ex_noreq'];
+
+        $fetchExDelivery = \DB::connection('uster')
+            ->table('REQUEST_DELIVERY as rd')
+            ->leftJoin('V_PKK_CONT as vpc', 'rd.NO_BOOKING', '=', 'vpc.NO_BOOKING')
+            ->join('NOTA_DELIVERY as nd', 'nd.NO_REQUEST', '=', 'rd.NO_REQUEST')
+            ->join('V_MST_PBM as vmp', 'vmp.KD_PBM', '=', 'rd.KD_EMKL')
+            ->select([
+                'rd.NO_REQUEST',
+                'rd.NO_BOOKING',
+                'rd.KD_EMKL',
+                'rd.O_VESSEL',
+                'rd.VOYAGE',
+                'rd.KD_PELABUHAN_ASAL',
+                'rd.KD_PELABUHAN_TUJUAN',
+                'rd.O_VOYIN',
+                'rd.O_VOYOUT',
+                'rd.DELIVERY_KE',
+                'rd.TGL_REQUEST',
+                'rd.DI',
+                'vpc.KD_KAPAL',
+                'vpc.NM_KAPAL',
+                'vpc.VOYAGE_IN',
+                'vpc.VOYAGE_OUT',
+                'vpc.PELABUHAN_TUJUAN',
+                'vpc.PELABUHAN_ASAL',
+                'vpc.NM_AGEN',
+                'vpc.KD_AGEN',
+                'nd.NO_NOTA',
+                'nd.NO_FAKTUR_MTI',
+                'nd.TAGIHAN',
+                'nd.PPN',
+                'nd.TOTAL_TAGIHAN',
+                'nd.EMKL',
+                'nd.ALAMAT',
+                'nd.NPWP',
+                \DB::raw("TO_CHAR(nd.TGL_NOTA ,'YYYY-MM-DD HH24:MI:SS') as TGLNOTA"),
+                \DB::raw("TO_CHAR(rd.TGL_REQUEST,'YYYY-MM-DD HH24:MI:SS') as TGLSTART"),
+                \DB::raw("TO_CHAR(rd.TGL_REQUEST + INTERVAL '4' DAY,'YYYY-MM-DD HH24:MI:SS') as TGLEND"),
+                'vmp.NO_ACCOUNT_PBM as KD_PELANGGAN'
+            ])
+            ->where('rd.NO_REQUEST', $del_no_request)
+            ->first();
+
+        if ($charge == "N") {
+            $strContList = '';
+            $detailPranotaList = array();
+            if ($fetchExDelivery->delivery_ke == 'TPK') {
+                $get_vessel = getVessel($payloadBatalMuat['vesselName'], $payloadBatalMuat['voyage'], $payloadBatalMuat['voyageIn'], $payloadBatalMuat['voyageOut']);
+                $get_iso_code = getIsoCode();
+
+                if (empty($get_iso_code)) {
+                    $payload_log = $payload_uster_save;
+                    $notes = "Save Batal Muat - " . $jenis . " - GAGAL GET ISO CODE";
+                    $response_uster_save = array(
+                        'status' => "error",
+                        'code' => "0",
+                        'msg' => "Gagal mengambil Iso Code ke Praya, silahkan ulangi Kembali hit process ini.",
+                        'message' => "Gagal mengambil Iso Code ke Praya, silahkan ulangi Kembali hit process ini."
+                    );
+                    insertPrayaServiceLog($url_uster_save, $payload_log, $response_uster_save, $notes);
+                    return $response_uster_save;
+                }
+
+                $pelabuhan_asal = $payloadBatalMuat['pelabuhan_asal'];
+                $pelabuhan_tujuan = $payloadBatalMuat['pelabuhan_tujuan'];
+                $idRequest = $id_req;
+                $trxNumber = "";
+                $paymentDate = "";
+                $invoiceNumber = ""; //NO CHARGE KOSONG
+                $requestType = 'LOADING CANCEL - BEFORE GATEIN';
+                $parentRequestId = "";
+                $parentRequestType = 'LOADING CANCEL - BEFORE GATEIN';
+                $serviceCode = 'LCB';
+                $jenisBM = "alih_kapal";
+                $vesselId = $payloadBatalMuat["vesselId"];
+                $vesselName = $payloadBatalMuat["vesselName"];
+                $voyage = $payloadBatalMuat['voyage']; //
+                $voyageIn = $payloadBatalMuat['voyageIn']; //
+                $voyageOut = $payloadBatalMuat['voyageOut']; //
+                $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut; //
+                $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                $pol = $pelabuhan_asal;
+                $pod = $pelabuhan_tujuan;
+                $dischargeDate = $get_vessel['discharge_date'];
+                $shippingLineName = $payloadBatalMuat['nm_agen']; //
+                $customerCode = $fetchExDelivery->kd_pelanggan; //
+                $customerCodeOwner = '';
+                $customerName = $fetchExDelivery->emkl; //
+                $customerAddress = $fetchExDelivery->alamat; //
+                $npwp = $fetchExDelivery->npwp; //
+                $blNumber = "";
+                $bookingNo = $fetchExDelivery->no_booking;
+                $deliveryDate = '';
+                $doNumber = "";
+                // $doDate = '';
+                $tradeType = $fetchExDelivery->di; //Value : I / O
+                $customsDocType = "";
+                $customsDocNo = "";
+                $customsDocDate = "";
+                $amount = 0;
+                $administration = 0;
+                if (empty($fetchExDelivery->ppn)) {
+                    $ppn =  'N';
+                } else {
+                    $ppn = 'Y';
+                };
+                $amountPpn  = 0;
+                $amountDpp = 0;
+                $amountMaterai = 0;
+                $approvalDate = empty($fetchExDelivery->tglapprove) ? '' : $fetchExDelivery->tglapprove;
+                $status = 'PAID';
+                $changeDate = $fetchExDelivery->tglnota;
+                $charge = 'N';
+
+                $detailList = array();
+                $containerList = $payloadBatalMuat['cont_list'];
+
+                foreach ($containerList as $no_cont) {
+                    $fetchContainerExDelivery = \DB::connection('uster')
+                        ->table('CONTAINER_DELIVERY as cd')
+                        ->join('MASTER_CONTAINER as mc', 'cd.NO_CONTAINER', '=', 'mc.NO_CONTAINER')
+                        ->join('V_PKK_CONT as vpc', 'mc.NO_BOOKING', '=', 'vpc.NO_BOOKING')
+                        ->select(
+                            'cd.NO_CONTAINER',
+                            'cd.KOMODITI',
+                            'mc.SIZE_',
+                            'mc.TYPE_',
+                            'mc.NO_BOOKING',
+                            'vpc.KD_KAPAL',
+                            'vpc.VOYAGE',
+                            'vpc.VOYAGE_IN',
+                            'vpc.VOYAGE_OUT'
+                        )
+                        ->where('cd.NO_CONTAINER', $no_cont)
+                        ->first();
+
+                    // Call getContainer using Laravel helper or service (assume it's a method in this class or a helper)
+                    $get_container_list = getContainer(
+                        $no_cont,
+                        $fetchContainerExDelivery->kd_kapal,
+                        $fetchContainerExDelivery->voyage_in,
+                        $fetchContainerExDelivery->voyage_out,
+                        $fetchContainerExDelivery->voyage,
+                        null,
+                        null
+                    );
+
+                    $reslt = collect($get_iso_code)
+                        ->filter(function ($value) use ($fetchContainerExDelivery) {
+                            return strtoupper($value['type']) === strtoupper($fetchContainerExDelivery->type_)
+                                && strtoupper($value['size']) === strtoupper($fetchContainerExDelivery->size_);
+                        })
+                        ->values()
+                        ->all();
+
+                    $array_iso_code = array_values($reslt);
+                    $new_iso = mapNewIsoCode($array_iso_code[0]["isoCode"]);
+
+                    array_push(
+                        $detailList,
+                        array(
+                            "detailDescription" => "CONTAINER",
+                            "containerNo" => $fetchContainerExDelivery->no_container,
+                            "containerSize" => $fetchContainerExDelivery->size_,
+                            "containerType" => $fetchContainerExDelivery->type_,
+                            "containerStatus" => "FULL",
+                            "containerHeight" => "8.5",
+                            "hz" => empty($fetchContainerExDelivery->hz) ? (empty($get_container_list[0]['hz']) ? 'N' : $get_container_list[0]['hz']) : $v['HZ'],
+                            "imo" => "N",
+                            "unNumber" => empty($get_container_list[0]['unNumber']) ? '' : $get_container_list[0]['unNumber'],
+                            "reeferNor" => "N",
+                            "temperatur" => "",
+                            "ow" => "",
+                            "oh" => "",
+                            "ol" => "",
+                            "overLeft" => "",
+                            "overRight" => "",
+                            "overFront" => "",
+                            "overBack" => "",
+                            "weight" => "",
+                            "commodityCode" => trim($fetchContainerExDelivery->komoditi, " "),
+                            "commodityName" => trim($fetchContainerExDelivery->komoditi, " "),
+                            "carrierCode" => $payloadBatalMuat['kd_agen'],
+                            "carrierName" => $payloadBatalMuat['nm_agen'],
+                            "isoCode" => $new_iso,
+                            "plugInDate" => "",
+                            "plugOutDate" => "",
+                            "ei" => "E",
+                            "dischLoad" => "",
+                            "flagOog" => empty($get_container_list[0]['flagOog']) ? '' : $get_container_list[0]['flagOog'],
+                            "gateInDate" => "",
+                            "gateOutDate" => "",
+                            "startDate" => "",
+                            "endDate" => "",
+                            "containerDeliveryDate" => "",
+                            "containerLoadingDate" => "",
+                            "containerDischargeDate" => "",
+                        )
+                    );
+                }
+            } else {
+                $payload_log = $payload_uster_save;
+                $notes = "Payment Cash - " . $jenis . " - BUKAN EX KEGIATAN REPO ATAU JENIS BM BUKAN ALIH KAPAL";
+                $response_uster_save = array(
+                    'status' => "error",
+                    'code' => "0",
+                    'msg' => "Nota Batal Muat bukan Ex Kegiatan Repo (Status Gate 2) atau Jenis Batal Muat Bukan Alih Kapal",
+                    'message' => "Nota Batal Muat bukan Ex Kegiatan Repo (Status Gate 2) atau Jenis Batal Muat Bukan Alih Kapal"
+                );
+                insertPrayaServiceLog($url_uster_save, $payload_log, $response_uster_save, $notes);
+                return $response_uster_save;
+            }
+        } else {
+            $fetchBatalMuat = \DB::connection('uster')
+                ->table('REQUEST_BATAL_MUAT as rbm')
+                ->leftJoin('V_PKK_CONT as vpc', 'rbm.KAPAL_TUJU', '=', 'vpc.NO_BOOKING')
+                ->leftJoin('NOTA_BATAL_MUAT as nbm', 'nbm.NO_REQUEST', '=', 'rbm.NO_REQUEST')
+                ->join('V_MST_PBM as vmp', 'vmp.KD_PBM', '=', 'rbm.KD_EMKL')
+                ->join('CONTAINER_BATAL_MUAT as cbm', 'cbm.NO_REQUEST', '=', 'rbm.NO_REQUEST')
+                ->select([
+                    'rbm.NO_REQUEST',
+                    'rbm.KD_EMKL',
+                    'rbm.JENIS_BM',
+                    'rbm.KAPAL_TUJU',
+                    'rbm.STATUS_GATE',
+                    'rbm.NO_REQ_BARU',
+                    'rbm.O_VESSEL',
+                    'rbm.BIAYA',
+                    'rbm.DI',
+                    'nbm.NO_NOTA',
+                    'nbm.NO_FAKTUR_MTI',
+                    'nbm.EMKL',
+                    'nbm.ALAMAT',
+                    'nbm.NPWP',
+                    'nbm.TAGIHAN',
+                    'nbm.TOTAL_TAGIHAN',
+                    'nbm.STATUS',
+                    'nbm.PPN',
+                    \DB::raw("TO_CHAR(nbm.TGL_NOTA ,'YYYY-MM-DD HH24:MI:SS') as TGLNOTA"),
+                    'vpc.VOYAGE',
+                    'vpc.VOYAGE_IN',
+                    'vpc.VOYAGE_OUT',
+                    'vpc.PELABUHAN_ASAL',
+                    'vpc.PELABUHAN_TUJUAN',
+                    'vpc.NM_AGEN',
+                    'vpc.KD_AGEN',
+                    'vpc.NM_KAPAL',
+                    'vpc.KD_KAPAL',
+                    'vmp.NO_ACCOUNT_PBM as KD_PELANGGAN',
+                    'cbm.NO_REQ_BATAL'
+                ])
+                ->where('rbm.NO_REQUEST', $id_req)
+                ->first();
+
+            if (!empty($fetchBatalMuat) && $fetchBatalMuat['STATUS_GATE'] == '2' && $fetchBatalMuat['JENIS_BM'] == 'alih_kapal') {
+                $fetchContainerBatalMuat = \DB::connection('uster')
+                    ->table('CONTAINER_BATAL_MUAT as cbm')
+                    ->join('MASTER_CONTAINER as mc', 'cbm.NO_CONTAINER', '=', 'mc.NO_CONTAINER')
+                    ->where('cbm.NO_REQUEST', $id_req)
+                    ->get()
+                    ->toArray();
+
+                $fetchNotaBatalMuat = \DB::connection('uster')
+                    ->table('NOTA_BATAL_MUAT as nbm')
+                    ->join('NOTA_BATAL_MUAT_D as nbmd', 'nbm.NO_NOTA', '=', 'nbmd.ID_NOTA')
+                    ->select('nbm.*', 'nbmd.*', \DB::raw("TO_CHAR(nbm.TGL_NOTA,'YYYY-MM-DD HH24:MI:SS') as TGLNOTA"))
+                    ->where('nbm.NO_REQUEST', $id_req)
+                    ->get()
+                    ->toArray();
+
+                $adminComponent = \DB::connection('uster')
+                    ->table('NOTA_BATAL_MUAT as nbm')
+                    ->join('NOTA_BATAL_MUAT_D as nbmd', 'nbm.NO_NOTA', '=', 'nbmd.ID_NOTA')
+                    ->select('nbmd.TARIF')
+                    ->where('nbm.NO_REQUEST', $id_req)
+                    ->where('nbmd.ID_ISO', 'ADM')
+                    ->first();
+
+                $get_vessel = getVessel(
+                    $fetchBatalMuat->nm_kapal,
+                    $fetchBatalMuat->voyage,
+                    $fetchBatalMuat->voyage_in,
+                    $fetchBatalMuat->voyage_out
+                );
+
+                $get_container_list = $this->getContainer(
+                    null,
+                    $fetchBatalMuat->kd_kapal,
+                    $fetchBatalMuat->voyage_in,
+                    $fetchBatalMuat->voyage_out,
+                    $fetchBatalMuat->voyage,
+                    "E",
+                    "LCB"
+                );
+
+                $get_iso_code = getIsoCode();
+
+                if (empty($get_iso_code)) {
+                    $payload_log = $payload_uster_save;
+                    $notes = "Batal Muat - " . $jenis . " - GAGAL GET ISO CODE";
+                    $response_uster_save = array(
+                        'status' => "error",
+                        'code' => "0",
+                        'msg' => "Gagal mengambil Iso Code ke Praya, silahkan ulangi Kembali hit process ini.",
+                        'message' => "Gagal mengambil Iso Code ke Praya, silahkan ulangi Kembali hit process ini."
+                    );
+                    insertPrayaServiceLog($url_uster_save, $payload_log, $response_uster_save, $notes);
+                    return $response_uster_save;
+                }
+
+                $pelabuhan_asal = $fetchBatalMuat->pelabuhan_asal;
+                $pelabuhan_tujuan = $fetchBatalMuat->pelabuhan_tujuan;
+
+                $idRequest = $id_req;
+                $trxNumber = $fetchBatalMuat->no_nota;
+                $paymentDate = $fetchBatalMuat->tglnota;
+                $invoiceNumber = $fetchBatalMuat->no_faktur_mti;
+                $requestType = 'LOADING CANCEL - BEFORE GATEIN';
+                $parentRequestId = $fetchBatalMuat->no_req_batal;
+                $parentRequestType = 'LOADING CANCEL - BEFORE GATEIN';
+                $serviceCode = 'LCB';
+                $jenisBM = $fetchBatalMuat->jenis_bm;
+                $vesselId = $fetchBatalMuat->kd_kapal; //
+                $vesselName = $fetchBatalMuat->nm_kapal; //
+                $voyage = empty($fetchBatalMuat->voyage) ? '' : $fetchBatalMuat->voyage; //
+                $voyageIn = empty($fetchBatalMuat->voyage_in) ? '' : $fetchBatalMuat->voyage_in; //
+                $voyageOut = empty($fetchBatalMuat->voyage_out) ? '' : $fetchBatalMuat->voyage_out; //
+                $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut; //
+                $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                $pol = $pelabuhan_asal;
+                $pod = $pelabuhan_tujuan;
+                $dischargeDate = $get_vessel['discharge_date'];
+                $shippingLineName = $fetchBatalMuat->nm_agen; //
+                $customerCode = $fetchBatalMuat->kd_pelanggan; //
+                $customerCodeOwner = '';
+                $customerName = $fetchBatalMuat->emkl; //
+                $customerAddress = $fetchBatalMuat->alamat; //
+                $npwp = $fetchBatalMuat->npwp; //
+                $blNumber = "";
+                $bookingNo = $fetchBatalMuat->kapal_tuju;
+                $deliveryDate = '';
+                $doNumber = "";
+                // $doDate = '';
+                $tradeType = $fetchBatalMuat->di; //Value : I / O
+                $customsDocType = "";
+                $customsDocNo = "";
+                $customsDocDate = "";
+                if ((int)$fetchBatalMuat->total_tagihan > 5000000) {
+                    $amount = (int)$fetchBatalMuat->total_tagihan + 10000;
+                } else {
+                    $amount = (int)$fetchBatalMuat->total_tagihan;
+                }
+                if ($adminComponent) {
+                    $administration = $adminComponent->tarif;
+                }
+                if (empty($fetchBatalMuat->ppn)) {
+                    $ppn =  'N';
+                } else {
+                    $ppn = 'Y';
+                };
+                $amountPpn  = (int)$fetchBatalMuat->ppn;
+                $amountDpp = (int)$fetchBatalMuat->tagihan;
+                if ($fetchBatalMuat->tagihan > 5000000) {
+                    $amountMaterai = 10000;
+                } else {
+                    $amountMaterai = 0;
+                }
+                $approvalDate = empty($fetchBatalMuat->tglapprove) ? '' : $fetchBatalMuat->tglapprove;
+                $status = 'PAID';
+                $changeDate = $fetchBatalMuat->tglnota;
+                $charge = 'Y';
+
+                $detailList = array();
+                $containerList = array();
+                foreach ($fetchContainerBatalMuat as $k => $v) {
+                    foreach ($get_container_list as $k_container => $v_container) {
+                        if ($v_container['containerNo']  == $v->no_container) {
+                            $_get_container = $v_container;
+                            break;
+                        }
+                    }
+                    // $array_iso_code = array_values(array_filter($get_iso_code, function ($value) use ($v) {
+                    //   return strtoupper($value['type']) == strtoupper($v['TYPE_']) && strtoupper($value['size']) == strtoupper($v['SIZE_']);
+                    // }));
+
+                    $reslt = array();
+                    foreach ($get_iso_code as $key => $value) {
+                        if (strtoupper($value['type']) == strtoupper($v->type_) && strtoupper($value['size']) == strtoupper($v->size_)) {
+                            array_push($reslt, $value);
+                        }
+                    }
+
+                    $array_iso_code = array_values($reslt);
+                    $new_iso = mapNewIsoCode($array_iso_code[0]["isoCode"]);
+
+                    array_push($containerList, $v->no_container);
+                    array_push(
+                        $detailList,
+                        array(
+                            "detailDescription" => "CONTAINER",
+                            "containerNo" => $v->no_container,
+                            "containerSize" => $v->size_,
+                            "containerType" => $v->type_,
+                            "containerStatus" => "FULL",
+                            "containerHeight" => "8.5",
+                            "hz" => empty($v['HZ']) ? (empty($_get_container['hz']) ? 'N' : $_get_container['hz']) : $v['HZ'],
+                            "imo" => "N",
+                            "unNumber" => empty($_get_container['unNumber']) ? '' : $_get_container['unNumber'],
+                            "reeferNor" => "N",
+                            "temperatur" => "",
+                            "ow" => "",
+                            "oh" => "",
+                            "ol" => "",
+                            "overLeft" => "",
+                            "overRight" => "",
+                            "overFront" => "",
+                            "overBack" => "",
+                            "weight" => "",
+                            "commodityCode" => trim($v->commodity, " "),
+                            "commodityName" => trim($v->commodity, " "),
+                            "carrierCode" => $fetchBatalMuat->kd_agen,
+                            "carrierName" => $fetchBatalMuat->nm_agen,
+                            "isoCode" => $new_iso,
+                            "plugInDate" => "",
+                            "plugOutDate" => "",
+                            "ei" => "E",
+                            "dischLoad" => "",
+                            "flagOog" => empty($_get_container['flagOog']) ? '' : $_get_container['flagOog'],
+                            "gateInDate" => "",
+                            "gateOutDate" => "",
+                            "startDate" => "",
+                            "endDate" => "",
+                            "containerDeliveryDate" => "",
+                            "containerLoadingDate" => "",
+                            "containerDischargeDate" => "",
+                        )
+                    );
+                }
+
+                $strContList = implode(", ", $containerList);
+                $detailPranotaList = array();
+                foreach ($fetchNotaBatalMuat as $k => $v) {
+
+                    array_push(
+                        $detailPranotaList,
+                        array(
+                            "lineNumber" => $v->line_number,
+                            "description" => $v->keterangan,
+                            "flagTax" => "Y",
+                            "componentCode" => $v->keterangan,
+                            "componentName" => $v->keterangan,
+                            "startDate" => "",
+                            "endDate" => "",
+                            "quantity" => $v['JML_CONT'],
+                            "tarif" => $v['TARIF'],
+                            "basicTarif" => $v['TARIF'],
+                            "containerList" => $strContList,
+                            "containerSize" => $fetchContainerBatalMuat[0]->size_,
+                            "containerType" => $fetchContainerBatalMuat[0]->type_,
+                            "containerStatus" => "",
+                            "containerHeight" => "8.5",
+                            "hz" => empty($v->hz) ? "N" : $v->hz,
+                            "ei" => "I",
+                            "equipment" => "",
+                            "strStartDate" => "",
+                            "strEndDate" => "",
+                            "days" => "1", //REQUEST DATE - REQUEST DATE
+                            "amount" => $v->biaya,
+                            "via" => "YARD",
+                            "package" => "",
+                            "unit" => "BOX",
+                            "qtyLoading" => "",
+                            "qtyDischarge" => "",
+                            "equipmentName" => "",
+                            "duration" => "",
+                            "flagTool" => "N",
+                            "itemCode" => "",
+                            "oog" => "",
+                            "imo" => "",
+                            "blNumber" => "",
+                            "od" => "N",
+                            "dg" => "N",
+                            "sling" => "N",
+                            "changeDate" => $v->tglnota,
+                            "changeBy" => "Admin Uster"
+                        )
+                    );
+                }
+            } else {
+                $payload_log = $payload_uster_save;
+                $notes = "BATAL KEGIATAN - " . $jenis . " - BUKAN EX KEGIATAN REPO ATAU JENIS BM BUKAN ALIH KAPAL";
+                $response_uster_save = array(
+                    'status' => "error",
+                    'code' => "0",
+                    'msg' => "Nota Batal Muat bukan Ex Kegiatan Repo (Status Gate 2) atau Jenis Batal Muat Bukan Alih Kapal",
+                    'message' => "Nota Batal Muat bukan Ex Kegiatan Repo (Status Gate 2) atau Jenis Batal Muat Bukan Alih Kapal"
+                );
+                insertPrayaServiceLog($url_uster_save, $payload_log, $response_uster_save, $notes);
+                return $response_uster_save;
+            }
+        }
+
+        $PNK_PAYMENT_VIA = "CMS";
+        $payload_header = array(
+            "PNK_REQUEST_ID" => $id_req,
+            "PNK_NO_PROFORMA" => null,
+            "PNK_CONTAINER_LIST" => $strContList,
+            "PNK_JENIS_SERVICE" => $jenis,
+            "PNK_JENIS_BATAL_MUAT" => $jenisBM,
+            "PNK_PAYMENT_VIA" => $PNK_PAYMENT_VIA,
+            "EBPP_CREATED_DATE" => null,
+            "idRequest" => $idRequest,
+            "billerId" => "00009",
+            "trxNumber" => $trxNumber,
+            "paymentDate" => $paymentDate,
+            "invoiceNumber" => $invoiceNumber,
+            "orgId" => env('PRAYA_ITPK_PNK_ORG_ID'),
+            "orgCode" => env('PRAYA_ITPK_PNK_ORG_CODE'),
+            "terminalId" => env('PRAYA_ITPK_PNK_TERMINAL_ID'),
+            "terminalCode" => env('PRAYA_ITPK_PNK_TERMINAL_CODE'),
+            "branchId" => env('PRAYA_ITPK_PNK_BRANCH_ID'),
+            "branchCode" => env('PRAYA_ITPK_PNK_BRANCH_CODE'),
+            "areaTerminal" => env('PRAYA_ITPK_PNK_AREA_CODE'),
+            "bankAccountNumber" => $bankAccountNumber,
+            "administration" => $administration,
+            "requestType" => $requestType,
+            "parentRequestId" => $parentRequestId,
+            "parentRequestType" => $parentRequestType,
+            "serviceCode" => $serviceCode,
+            "vesselId" => $vesselId,
+            "vesselName" => $vesselName,
+            "voyage" => $voyage,
+            "voyageIn" => $voyageIn,
+            "voyageOut" => $voyageOut,
+            "voyageInOut" => $voyageInOut,
+            "eta" => $eta,
+            "etb" => $etb,
+            "etd" => $etd,
+            "ata" => $ata,
+            "atb" => $atb,
+            "atd" => $atd,
+            "startWork" => $startWork,
+            "endWork" => $endWork,
+            "pol" => $pol,
+            "pod" => $pod,
+            "fpod" => null,
+            "dischargeDate" => $dischargeDate,
+            "shippingLineName" => $shippingLineName,
+            "customerCodeOwner" => $customerCodeOwner,
+            "customerCode" => $customerCode,
+            "customerName" => $customerName,
+            "customerAddress" => $customerAddress,
+            "npwp" => $npwp,
+            "blNumber" => $blNumber,
+            "bookingNo" => $bookingNo,
+            "deliveryDate" => $deliveryDate,
+            "via" => "YARD",
+            "doNumber" => $doNumber,
+            "tradeType" => $tradeType,
+            "customsDocType" => $customsDocType,
+            "customsDocNo" => $customsDocNo,
+            "customsDocDate" => $customsDocDate,
+            "amount" => $amount,
+            "ppn" => $ppn,
+            "amountPpn" => $amountPpn,
+            "amountMaterai" => $amountMaterai,
+            "amountDpp" => $amountDpp,
+            "approval" => "Y",
+            "approvalDate" => $approvalDate,
+            "approvalBy" => "Admin Uster",
+            "remarkReject" => "",
+            "status" => "PAID",
+            "changeBy" => "Admin Uster",
+            "changeDate" => $changeDate,
+            "charge" => $charge
+        );
+
+        if (!empty($paymentCode)) {
+            $payment_code = array(
+                "paymentCode" => $paymentCode
+            );
+            $payload_header = array_merge($payload_header, $payment_code);
+        }
+
+        $payload_body = array(
+            "detailList" => $detailList,
+            "detailPranotaList" => $detailPranotaList
+        );
+
+        $payload = array_merge($payload_header, $payload_body);
+        $response_uster_save = sendDataFromUrlTryCatch($payload, $url_uster_save, 'POST', getTokenPraya());
+        $notes = $jenis == "DELIVERY" ? "Payment Cash - " . $jenis . " EX REPO" : "Payment Cash - " . $jenis;
+
+        $first_char_http_code = substr(strval($response_uster_save['httpCode']), 0, 1);
+
+        if ($first_char_http_code == 5 || $first_char_http_code == 1) {
+            $decodedRes = json_decode($response_uster_save["response"]["msg"]) ? json_decode($response_uster_save["response"]["msg"]) : $response_uster_save["response"]["msg"];
+            $defaultRes = "Service is Unavailable, please try again (HTTP Error Code : " . $response_uster_save["httpCode"] . ")";
+            $response_uster_save_logging = array(
+                'status' => "error",
+                "code" => "0",
+                "msg" => $defaultRes,
+                "message" => $defaultRes,
+                "response" => $decodedRes
+            );
+
+            insertPrayaServiceLog($url_uster_save, $payload_header, $response_uster_save_logging, $notes);
+
+            return $response_uster_save_logging;
+        }
+
+        $response_uster_save_decode = json_decode($response_uster_save['response'], true);
+        $response_uster_save_logging = $response_uster_save_decode["code"] == 0 ? array(
+            'status' => "error",
+            "code" => $response_uster_save_decode['code'],
+            "msg" => $response_uster_save_decode['msg'],
+            "message" => $response_uster_save_decode['msg'],
+        ) : $response_uster_save_decode;
+
+        insertPrayaServiceLog($url_uster_save, $payload_header, $response_uster_save_logging, $notes);
+
+        return array(
+            'status' => "success",
+            "code" => 1,
+            "message" => 'OK',
+        );
+    }
+
     function save_bm_praya($request)
     {
         DB::beginTransaction();

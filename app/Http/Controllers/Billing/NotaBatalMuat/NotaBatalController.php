@@ -10,8 +10,7 @@ use Carbon\Carbon;
 use \Yajra\DataTables\DataTables;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Elibyy\TCPDF\TCPDF as TCPDFTCPDF;
-
-
+use Illuminate\Support\Facades\Redirect;
 
 class NotaBatalController extends Controller
 {
@@ -160,7 +159,7 @@ class NotaBatalController extends Controller
         // ---------------------------------------------------------
 
 
-        $no_req = base64_decode($request->no_req);
+        $no_req = $request->no_req;
         $id_user = session('PENGGUNA_ID');
 
         $notanya = DB::connection('uster')
@@ -874,8 +873,16 @@ class NotaBatalController extends Controller
 
                     DB::commit();
                     // Redirect to print page
-                    header('Location:print/print_proforma?no_nota=' . $no_nota . "&no_req=" . $no_req . "&first=1");
-                    exit;
+                    return Redirect::route('uster.billing.nota_batalmuat.print_nota', [
+                        'no_nota' => $no_nota,
+                        'no_req' => $no_req
+                    ]);
+                    // redirect()->route('uster.billing.nota_batalmuat.print_nota', [
+                    //     'no_nota' => $no_nota,
+                    //     'no_req' => $no_req
+                    // ]);
+                    // header('Location:print/print_proforma?no_nota=' . $no_nota . "&no_req=" . $no_req . "&first=1");
+                    // exit;
                 }
             } else {
                 DB::rollBack();

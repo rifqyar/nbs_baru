@@ -623,8 +623,8 @@ Route::group(['prefix' => 'billing', 'as' => 'uster.billing.', 'middleware' => '
         Route::get('/', [NotaBatalController::class, 'index'])->name('');
         Route::get('/datatable', [NotaBatalController::class, 'datatable'])->name('.datatable');
         Route::get('/print/print_proforma', [NotaBatalController::class, 'print_proforma'])->name('.print_proforma');
-        Route::get('/print/print_nota', [NotaBatalController::class, 'print_nota'])->name('.print_nota');
-        Route::get('/insert_proforma', [NotaBatalController::class, 'insert_proforma'])->name('.insert_proforma');
+        Route::get('/print_nota', [NotaBatalController::class, 'print_nota'])->name('.print_nota');
+        Route::get('/insert_proforma/{no_req}', [NotaBatalController::class, 'insert_proforma'])->name('.insert_proforma');
     });
 });
 

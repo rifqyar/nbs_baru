@@ -1,249 +1,298 @@
 @extends('layouts.app')
 
+@section('title')
+    Nota Batal Muat
+@endsection
+
+@push('after-style')
+    <link href="{{ asset('assets/plugins/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css') }}"
+        rel="stylesheet">
+@endpush
+
 @section('content')
-    <div class="container">
-        <table class="table table-borderless">
-            <tr>
-                <td width="100"></td>
-                <td align="center">
-                    <h1>PREVIEW NOTA</h1>
-                    <br />
-                    <hr />
-                    <div class="border border-primary p-3">
-                        <table class="table table-borderless">
-                            <tr height="25">
-                                <td colspan="32" align="left"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="32" align="left"><b>PT. Multi Terminal Indonesia</b></td>
-                            </tr>
-                            <tr height="25">
-                                <td colspan="32" align="left"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="26"></td>
-                                <td colspan="5" align="right"><b></b></td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="4" align="right"><b>No. Nota</b></td>
-                                <td colspan="1" align="right">:</td>
-                                {{-- <td colspan="10" align="left"><b>{{ $rnota }}</b></td> --}}
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="4" align="right">No. Doc</td>
-                                <td colspan="1" align="right">:</td>
-                                <td colspan="10" align="left">{{ $no_req }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="4" align="right">Tgl.Proses</td>
-                                <td colspan="1" align="right">:</td>
-                                <td colspan="10" align="left">{{ $tgl_nota }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="4" align="right">
-                                    @if ($st_gate != 2)
-                                        No. Stuffing Baru
-                                    @else
-                                        No. Request Repo Baru
+    @if (Session::has('error'))
+        <div class="alert alert-danger fade show" role="alert">
+            <h4 class="mb-0 text-center">
+                <span class="text-size-5">
+                    {!! Session::get('error') !!}
+                </span>
+                <i class="fas fa-exclamation-circle"></i>
+            </h4>
+        </div>
+    @endif
+
+    <div class="row page-titles">
+        <div class="col-md-5 col-8 align-self-center">
+            <h3 class="text-themecolor">Nota Batal Muat</h3>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Billing</a></li>
+                <li class="breadcrumb-item">Nota Batal Muat</li>
+                <li class="breadcrumb-item active">Preview Nota</li>
+            </ol>
+        </div>
+        <div class="col-md-7 col-4 align-self-center">
+            <div class="d-flex m-t-10 justify-content-end">
+                <h6>Selamat Datang <p><b>{{ Session::get('name') }}</b></p>
+                </h6>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center font-bold">Preview Nota</h3>
+                    <div class="card mt-3 p-4">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <h5 class="font-bold">PT. Multi Terminal Indonesia</h5>
+                                </div>
+
+                                <div class="col-lg-8 col-md-12">&nbsp;</div>
+                                {{-- Data Nota --}}
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="row justify-content-end align-items-start">
+                                        <div class="col-lg-5 col-md-11">
+                                            <h6 class="font-bold text-right">No. Nota</h6>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                            <span>:</span>
+                                        </div>
+                                        <div class="col-lg-6 col-md-12">
+                                            -
+                                        </div>
+                                    </div>
+                                    <div class="row justify-content-end align-items-center">
+                                        <div class="col-lg-5 col-md-11">
+                                            <h6 class="text-right">No. Doc</h6>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                            <span>:</span>
+                                        </div>
+                                        <div class="col-lg-6 col-md-12 text-right">
+                                            {{ $no_req }}
+                                        </div>
+                                    </div>
+
+                                    <div class="row justify-content-end align-items-center">
+                                        <div class="col-lg-5 col-md-11">
+                                            <h6 class="text-right">Tgl. Proses</h6>
+                                        </div>
+                                        <div class="cocol-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                            <span>:</span>
+                                        </div>
+                                        <div class="col-lg-6 col-md-12 text-right">
+                                            {{ $tgl_nota }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4 pt-3">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <h6 class="text-center font-medium">PERHITUNGAN PELAYANAN JASA <br> KEGIATAN
+                                            BATAL MUAT</h6>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="w-100" style="border: 0.5px solid #000000">
+
+                            {{-- Header Nota --}}
+                            <div class="row align-items-center">
+                                <div class="col-lg-3 col-md-11">
+                                    <span class="text-dark font-medium">Nama Perusahaan</span>
+                                </div>
+                                <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                    <span class="text-dark font-medium">:</span>
+                                </div>
+                                <div class="col-lg-8 col-md-12">
+                                    {{ $row_nota->emkl }}
+                                </div>
+
+                                <div class="col-lg-3 col-md-11">
+                                    <span class="text-dark font-medium">NPWP</span>
+                                </div>
+                                <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                    <span class="text-dark font-medium">:</span>
+                                </div>
+                                <div class="col-lg-8 col-md-12">
+                                    {{ $row_nota->npwp }}
+                                </div>
+
+                                <div class="col-lg-3 col-md-11">
+                                    <span class="text-dark font-medium">Alamat</span>
+                                </div>
+                                <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">
+                                    <span class="text-dark font-medium">:</span>
+                                </div>
+                                <div class="col-lg-8 col-md-12">
+                                    {{ $row_nota->alamat }}
+                                </div>
+                            </div>
+
+                            <hr class="w-100" style="border: 0.5px solid #000000">
+
+                            {{-- Detail Nota --}}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Keterangan</th>
+                                            <th>Tgl. Awal</th>
+                                            <th>Tgl. Akhir</th>
+                                            <th>Box</th>
+                                            <th>SZ</th>
+                                            <th>TY</th>
+                                            <th>ST</th>
+                                            <th>HZ</th>
+                                            <th>HR</th>
+                                            <th>Tarif</th>
+                                            <th>VAL</th>
+                                            <th>Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($row_detail as $detail)
+                                            <tr>
+                                                <td>{{ $detail->keterangan }}</td>
+                                                <td> - </td>
+                                                <td> - </td>
+                                                <td>{{ $detail->jml_cont }}</td>
+                                                <td>{{ $detail->size_ }}</td>
+                                                <td>{{ $detail->type_ }}</td>
+                                                <td>{{ $detail->status }}</td>
+                                                <td>{{ $detail->hz }}</td>
+                                                <td>{{ $detail->jml_hari }}</td>
+                                                <td>{{ $detail->tarif }}</td>
+                                                <td>IDR</td>
+                                                <td>{{ $detail->biaya }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <hr class="w-100" style="border: 0.5px solid #000000">
+
+                            {{-- Detail Harga --}}
+                            <div class="d-flex justify-content-end">
+                                <div class="col-lg-5 col-md-12">
+                                    <div class="row align-items-start justify-content-end">
+                                        <div class="col-lg-5 col-md-11 text-right">
+                                            <span class="text-dark font-medium">Discount</span>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                        <div class="col-lg-4 col-md-12 text-right">
+                                            <span class="text-dark">
+                                                {{ $row_discount->discount }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center justify-content-end">
+                                        <div class="col-lg-5 col-md-11 text-right">
+                                            <span class="text-dark font-medium">Administrasi</span>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                        <div class="col-lg-4 col-md-12 text-right">
+                                            <span class="text-dark">
+                                                {{ $adm }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center justify-content-end">
+                                        <div class="col-lg-6 col-md-11 text-right">
+                                            <span class="text-dark font-medium">Dasar Pengenaan Pajak</span>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                        <div class="col-lg-4 col-md-12 text-right">
+                                            <span class="text-dark">
+                                                {{ $row_tot->total_all }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div class="row align-items-center justify-content-end">
+                                        <div class="col-lg-5 col-md-11 text-right">
+                                            <span class="text-dark font-medium">Jumlah PPN</span>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                        <div class="col-lg-4 col-md-12 text-right">
+                                            <span class="text-dark">
+                                                {{ $row_ppn->ppn }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    @if ($bea_materai > 0)
+                                        <div class="row align-items-center justify-content-end">
+                                            <div class="col-lg-5 col-md-11 text-right">
+                                                <span class="text-dark font-medium">Bea Materai</span>
+                                            </div>
+                                            <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                            <div class="col-lg-4 col-md-12 text-right">
+                                                <span class="text-dark font-medium">
+                                                    {{ $row_materai->bea_materai }}
+                                                </span>
+                                            </div>
+                                        </div>
                                     @endif
-                                </td>
-                                <td colspan="1" align="right">:</td>
-                                <td colspan="10" align="left">{{ $no_req_baru }}</td>
-                            </tr>
-                            <tr height="30">
-                                <td colspan="38" align="left"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38" align="center"><b>PERHITUNGAN PELAYANAN JASA</b></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38" align="center"><b>BATAL MUAT</b></td>
-                            </tr>
-                            <tr height="30">
-                                <td colspan="38" align="left">
-                                    <hr>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="6">Nama Perusahaan </td>
-                                <td colspan="11" align="left">: {{ $row_nota->emkl }}</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td colspan="6">N.P.W.P</td>
-                                <td colspan="11" align="left">: {{ $row_nota->npwp }}</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td colspan="6">Alamat</td>
-                                <td colspan="11" align="left">: {{ $row_nota->alamat }}</td>
-                                <td></td>
-                            </tr>
-                            <tr height="30">
-                                <td colspan="38" align="left">
-                                    <hr>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="3"></td>
-                                <td colspan="5" width="250"><b>KETERANGAN</b></td>
-                                <td align="center" width="80"><b>TGL AWAL</b></td>
-                                <td align="center" width="80"><b>TGL AKHIR</b></td>
-                                <td colspan="2" align="center" width="20"><b>BOX</b></td>
-                                <td colspan="2" align="center" width="20"><b>SZ</b></td>
-                                <td colspan="2" align="center" width="30"><b>TY</b></td>
-                                <td colspan="2" align="center" width="30"><b>ST</b></td>
-                                <td colspan="2" align="center" width="20"><b>HZ</b></td>
-                                <td colspan="2" align="center"><b>HR</b></td>
-                                <td colspan="4" align="center"><b>TARIF</b></td>
-                                <td colspan="2" align="center"><b>VAL</b></td>
-                                <td colspan="5" align="right"><b>JUMLAH</b></td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38">
-                                    <hr>
-                                </td>
-                            </tr>
 
-                            @foreach ($row_detail as $row)
-                                <tr>
-                                    <td colspan="3"></td>
-                                    <td colspan="5">{{ $row->keterangan }}</td>
-                                    <td align="center">{{ $row->start_stack }}</td>
-                                    <td align="center">{{ $row->end_stack }}</td>
-                                    <td colspan="2" align="center">{{ $row->jml_cont }}</td>
-                                    <td colspan="2" align="center">{{ $row->size_ ?? '' }}</td>
-                                    <td colspan="2" align="center">{{ $row->type_ ?? '' }}</td>
-                                    <td colspan="2" align="center">{{ $row->status  ?? ''}}</td>
-                                    <td colspan="2" align="center">{{ $row->hz  ?? ''}}</td>
-                                    <td colspan="2" align="center">{{ $row->jml_hari }}</td>
-                                    <td colspan="4" align="center">{{ $row->tarif }}</td>
-                                    <td colspan="2" align="center">IDR</td>
-                                    <td colspan="5" align="right">{{ $row->biaya }}</td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            @endforeach
+                                    <div class="row align-items-center justify-content-end">
+                                        <div class="col-lg-5 col-md-11 text-right">
+                                            <span class="text-dark font-medium">Jumlah Dibayar</span>
+                                        </div>
+                                        <div class="col-lg-1 col-md-1 d-none d-md-block d-lg-block">:</div>
+                                        <div class="col-lg-4 col-md-12 text-right">
+                                            <span class="text-dark">
+                                                {{ $row_bayar->total_bayar }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <tr>
-                                <td colspan="38">
-                                    <hr>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td colspan="38"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38"></td>
-                            </tr>
+                            <p class="font-bold mt-5 pt-3 text-dark w-50 flex-wrap">
+                                Nota sebagai Faktur Pajak berdasarkan Peraturan Dirjen Pajak
+                                Nomor 13/PJ/2019 Tanggal 2 Juli 2019
+                            </p>
 
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="right">Discount :</td>
-                                <td colspan="7" align="right">{{ $row_discount->discount }}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="right">Administrasi :</td>
-                                <td colspan="7" align="right">{{ $row_adm->adm }}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="right">Dasar Pengenaan Pajak :</td>
-                                <td colspan="7" align="right">{{ $row_tot->total_all }}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="right">Jumlah PPN :</td>
-                                <td colspan="7" align="right">{{ $row_ppn->ppn }}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                            @if ($bea_materai > 0)
-                                <tr>
-                                    <td colspan="18"></td>
-                                    <td colspan="10" align="right">Bea Materai :</td>
-                                    <td colspan="7" align="right">{{ $row_materai->bea_materai }}</td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td colspan="18"></td>
-                                    <td colspan="10" align="right"></td>
-                                    <td colspan="7" align="right"></td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            @endif
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="right">Jumlah Dibayar :</td>
-                                <td colspan="7" align="right">{{ $row_bayar->total_bayar }}</td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr height="50">
-                                <td colspan="38"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="38"><b>Nota sebagai Faktur Pajak berdasarkan Peraturan Dirjen Pajak <br>
-                                        Nomor 13/PJ/2019 Tanggal 2 Juli 2019</b>
-                                </td>
-                            </tr>
-                            <tr height="25">
-                                <td colspan="38"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="center">{{ $nama_peg->jabatan }} </td>
-                                <td colspan="7" align="right"></td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr height="30">
-                                <td colspan="38"></td>
-                            </tr>
-                            <tr>
-                                <td colspan="18"></td>
-                                <td colspan="10" align="center">{{ $nama_peg->nama_pegawai }}</td>
-                                <td colspan="7" align="right"></td>
-                                <td colspan="2"></td>
-                            </tr>
-                            <tr height="30">
-                                <td colspan="38"></td>
-                            </tr>
-                        </table>
+                            <div class="d-flex justify-content-end mt-4 pt-3">
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="row justify-align-center">
+                                        <div class="col-lg-2 col-md-12"></div>
+                                        <div class="col-lg-8 col-md-12 text-center">
+                                            <span class="text-dark">{{ $nama_peg->jabatan }}</span>
+                                        </div>
+                                        <div class="col-lg-2 col-md-12"></div>
+                                    </div>
+
+                                    <div class="row justify-align-center mt-5 pt-3">
+                                        <div class="col-lg-2 col-md-12"></div>
+                                        <div class="col-lg-8 col-md-12 text-center">
+                                            <span class="text-dark">{{ $nama_peg->nama_pegawai }}</span>
+                                        </div>
+                                        <div class="col-lg-2 col-md-12"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </td>
-                <td width="100"></td>
-            </tr>
-        </table>
-    </div>
+                </div>
 
-    <div class="container text-center my-5">
-        <a onclick="saveNota()" class="btn btn-primary">
-            <i class="fas fa-save"></i>
-            <font color='#0000FF'>
-                <font size='5'> &nbsp SAVE NOTA</font>
-            </font>
-        </a>
+                <div class="row justify-content-center">
+                    <a href="{{ route('uster.billing.nota_batalmuat.insert_proforma', [base64_encode($no_req), 'koreksi='.$koreksi]) }}"
+                        class="btn btn-outline-info w-50 mb-5 row align-items-center">
+                        <i class="mdi mdi-content-save mdi-18px"></i>
+                        <span>
+                            save Proforma
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <script type="text/javascript">
-        function saveNota() {
-            var url = "{{ route('uster.billing.nota_batalmuat.insert_proforma', ['no_req' => $no_req]) }}";
-            var koreksi = "{{ request('koreksi') }}";
-            window.open(url + "&koreksi=" + koreksi);
-        }
-    </script>
-    
 @endsection

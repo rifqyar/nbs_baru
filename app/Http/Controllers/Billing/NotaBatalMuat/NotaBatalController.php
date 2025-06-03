@@ -822,7 +822,7 @@ class NotaBatalController extends Controller
                     'NO_REQUEST'   => $no_req,
                     'NIPP_USER'    => $nipp,
                     'LUNAS'        => 'NO',
-                    'CETAK_NOTA'   => 1,
+                    'CETAK_NOTA'   => 0,
                     'TGL_NOTA'     => DB::raw('SYSDATE'),
                     'EMKL'         => $nm_pbm,
                     'ALAMAT'       => $almt_pbm,
@@ -865,7 +865,7 @@ class NotaBatalController extends Controller
                     }
 
                     // Update related tables using Query Builder
-                    DB::connection('uster')->table('NOTA_BATAL_MUAT')->where('NO_NOTA', $no_nota)->update(['CETAK_NOTA' => 'Y']);
+                    DB::connection('uster')->table('NOTA_BATAL_MUAT')->where('NO_NOTA', $no_nota)->update(['CETAK_NOTA' => 1]);
                     DB::connection('uster')->table('request_batal_muat')->where('no_request', $no_req)->update(['NOTA' => 'Y']);
                     DB::connection('uster')->table('request_delivery')->where('no_request', $no_req_baru)->update(['NOTA' => 'Y']);
 

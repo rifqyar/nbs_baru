@@ -439,8 +439,8 @@ class NotaStrippingServices
         $sql_mtr          = "SELECT BIAYA AS BEA_MATERAI FROM TEMP_DETAIL_NOTA_I WHERE no_request = '$no_req' AND KETERANGAN='MATERAI'";
         $row_mtr         = DB::connection('uster')->selectOne($sql_mtr);
         $bea_materai = 0;
-        if (!empty($row_mtr) && (int)$row_mtr->materai > 0) {
-            $bea_materai = $row_mtr->materai;
+        if (!empty($row_mtr) && (int)$row_mtr->bea_materai > 0) {
+            $bea_materai = $row_mtr->bea_materai;
         } else {
             $bea_materai = 0;
         }

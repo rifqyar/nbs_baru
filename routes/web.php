@@ -833,6 +833,9 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
 
         Route::post('/send_delivery_tpk/checklunas', [SendDeliveryTPKController::class, 'checkLunas'])
             ->name('send_delivery_tpk.checklunas');
+
+        Route::post('/save_payment_external', [SendDeliveryTPKController::class, 'savePaymentExternal'])
+            ->name('send_delivery_tpk.save_payment_external');
     });
 
     Route::group([], function () {

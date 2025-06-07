@@ -113,12 +113,14 @@
                         type: "POST",
                         url: "{{ route('uster.maintenance.send_delivery_tpk.checklunas') }}",
                         contentType: "application/json",
-                        data: {
+                        data: JSON.stringify({
                             "ID_REQUEST": NO_REQ,
                             "JENIS": JENIS_REQ,
                             "BANK_ACCOUNT_NUMBER": '',
                             "PAYMENT_CODE": ''
-                        },
+                        }),
+                        dataType: "json",
+                        processData: false,
                         success: function(response) {
                             jsonResponse = response;
                             // Check the response code
@@ -184,7 +186,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "/uster.billing.paymentcash.ajax/save_payment_external",
+                        url: "{{ route('uster.maintenance.send_delivery_tpk.save_payment_external') }}",
                         contentType: "application/json",
                         data: JSON.stringify({
                             "ID_REQUEST": NO_REQ,
@@ -192,6 +194,16 @@
                             "BANK_ACCOUNT_NUMBER": '',
                             "PAYMENT_CODE": ''
                         }),
+                        beforeSend: function() {
+                            Swal.fire({
+                                title: 'Processing...',
+                                text: 'Please wait while we send your request.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                        },
                         success: function(response) {
                             jsonResponse = JSON.parse(response);
                             // Check the response code
@@ -214,10 +226,19 @@
                         error: function(error) {
                             console.log("Error:", error);
                             // Handle error response here
+                            let errorMsg = 'Something went wrong!';
+                            if (error.responseJSON && error.responseJSON.msg) {
+                                errorMsg = error.responseJSON.msg;
+                            } else if (error.responseText) {
+                                try {
+                                    let errObj = JSON.parse(error.responseText);
+                                    if (errObj.msg) errorMsg = errObj.msg;
+                                } catch (e) {}
+                            }
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Oops...',
-                                text: 'Something went wrong!',
+                                text: errorMsg,
                             });
                         }
                     });

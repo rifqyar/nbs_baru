@@ -205,7 +205,7 @@
                             });
                         },
                         success: function(response) {
-                            jsonResponse = JSON.parse(response);
+                            jsonResponse = response;
                             // Check the response code
                             if (jsonResponse.code === "0") {
                                 // Show an error message

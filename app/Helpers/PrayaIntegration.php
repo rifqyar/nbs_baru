@@ -630,6 +630,7 @@ if (!function_exists('savePaymentExternal')) {
                 $shippingLineName = $fetchStripping->nm_agen;
                 $customerCode = $fetchStripping->kd_pelanggan;
                 $customerCodeOwner = '';
+                $deliveryDate = '';
                 $customerName = $fetchStripping->emkl;
                 $customerAddress = $fetchStripping->alamat;
                 $npwp = $fetchStripping->npwp;
@@ -668,10 +669,13 @@ if (!function_exists('savePaymentExternal')) {
                 $detailList = array();
                 $containerList = array();
                 foreach ($fetchContainerStripping as $k => $v) {
-                    foreach ($get_container_list as $k_container => $v_container) {
-                        if ($v_container['containerNo'] == $v->no_container) {
-                            $_get_container = $v_container;
-                            break;
+                    $_get_container = null;
+                    if (!empty($get_container_list) && is_array($get_container_list)) {
+                        foreach ($get_container_list as $k_container => $v_container) {
+                            if ($v_container['containerNo'] == $v->no_container) {
+                                $_get_container = $v_container;
+                                break;
+                            }
                         }
                     }
 

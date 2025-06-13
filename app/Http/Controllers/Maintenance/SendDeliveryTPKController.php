@@ -107,7 +107,7 @@ class SendDeliveryTPKController extends Controller
         try {
             $response = save_payment_uster($request->all());
             $result = $response instanceof \Illuminate\Http\JsonResponse ? $response->getData(true) : $response;
-            if (isset($result['code']) && ($result['code'] == 500 || $result['code'] == 0)) {
+            if (isset($result['code']) && ($result['code'] == 500 || ($result['code'] == '0'))) {
                 throw new \Exception($result['msg'] ?? 'Internal Server Error');
             }
 

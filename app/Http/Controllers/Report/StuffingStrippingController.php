@@ -151,9 +151,9 @@ class StuffingStrippingController extends Controller
                         $value->kegiatan,
                         $value->lokasi_tpk,
                         $value->loc_uster,
-                        Carbon::parse($value->tgl_approve)->translatedFormat('d-M-Y'),
+                        $value->tgl_approve != null ? Carbon::parse($value->tgl_approve)->translatedFormat('d-M-Y') : '',
                         Carbon::parse($value->active_to)->translatedFormat('d-M-Y'),
-                        Carbon::parse($value->tgl_realisasi)->translatedFormat('d-M-Y'),
+                        $value->tgl_realisasi != null ? Carbon::parse($value->tgl_realisasi)->translatedFormat('d-M-Y') : '',
                         $value->nm_pbm,
                         $value->commodity,
                         $value->nm_kapal

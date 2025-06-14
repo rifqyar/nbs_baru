@@ -39,7 +39,7 @@
                     <td>
                         <span class="badge bg-info rounded-pill p-2 text-white">
                             <i class="mdi mdi-calendar"></i>
-                            {{ \Carbon\Carbon::parse($dt->tgl_approve)->translatedFormat('Y-m-d') }}
+                            {{ $dt->tgl_approve != null ? \Carbon\Carbon::parse($dt->tgl_approve)->translatedFormat('Y-m-d') : '-' }}
                         </span>
                     </td>
                     <td>
@@ -51,7 +51,7 @@
                     <td>
                         <span class="badge bg-primary rounded-pill p-2 text-white">
                             <i class="mdi mdi-calendar"></i>
-                            {{ \Carbon\Carbon::parse($dt->tgl_realisasi)->translatedFormat('Y-m-d') }}
+                            {{ $dt->tgl_realisasi != null ? \Carbon\Carbon::parse($dt->tgl_realisasi)->translatedFormat('Y-m-d') : '-' }}
                         </span>
                     </td>
                     <td>{{ $dt->nm_pbm }}</td>

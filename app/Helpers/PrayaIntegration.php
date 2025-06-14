@@ -364,7 +364,7 @@ if (!function_exists('savePaymentExternal')) {
 
             $del_no_request = empty($payloadBatalMuat) ? $id_req : $payloadBatalMuat['ex_noreq'];
             $containerListLog = array();
-
+            $jenisBM = '';
             //INI UNTUK QUERY JENIS DELIVERY & BATAL MUAT TANPA KENA CHARGE
             //Kalau menggunakan NO_PROFORMA, ID_REQUEST jangan dikirim dan sebaliknya
             if (!empty(request()->input("NO_PROFORMA")) && $jenis == 'DELIVERY') {

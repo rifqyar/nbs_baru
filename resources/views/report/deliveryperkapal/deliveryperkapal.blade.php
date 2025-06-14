@@ -42,7 +42,8 @@ Laporan Delivery per kapal
                                 </div>
                                 <div class="col-md-4">
                                     <!-- <input class="form-control" type="text" name="NM_KAPAL" id="NM_KAPAL" /> -->
-                                    <select name="NM_KAPAL" id="NM_KAPAL" class="form-control"></select>
+                                    <select name="NM_KAPAL_SELECT" id="NM_KAPAL_SELECT" class="form-control"></select>
+                                    <input class="form-control" type="hidden" name="NM_KAPAL" id="NM_KAPAL" />
                                     <input class="form-control" type="hidden" name="NO_BOOKING" id="NO_BOOKING" />
                                 </div>
                             </div>
@@ -110,7 +111,7 @@ Laporan Delivery per kapal
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#NM_KAPAL').select2({
+        $('#NM_KAPAL_SELECT').select2({
             minimumInputLength: 3, // Set the minimum input length
             ajax: {
                 // Implement your AJAX settings for data retrieval here
@@ -129,7 +130,7 @@ Laporan Delivery per kapal
             }
         });
 
-        $('#NM_KAPAL').on('select2:select', function(e) {
+        $('#NM_KAPAL_SELECT').on('select2:select', function(e) {
             var data = e.params.data;
             $("#NM_KAPAL").val(data.nm_kapal);
             $("#VOYAGE").val(data.voyage_in);

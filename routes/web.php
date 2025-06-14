@@ -72,6 +72,7 @@ use App\Http\Controllers\Report\StuffingStrippingController;
 use App\Http\Controllers\Tca\TcaByCancelationController;
 use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
+use App\Http\Controllers\Maintenance\ResendPrayaController;
 use App\Http\Controllers\Print\CetakSP2Controller;
 
 /*
@@ -96,6 +97,11 @@ Route::get('/comingsoon/{route}', function ($route) {
 
 Route::get('info', function () {
     return phpinfo();
+});
+
+Route::group([], function () {
+    Route::get('/resend-praya', [ResendPrayaController::class, 'resendPraya'])
+        ->name('');
 });
 
 Route::get('/api/dashboard-data', [HomeController::class, 'getDashboardData'])->name('api.dashboard.data');

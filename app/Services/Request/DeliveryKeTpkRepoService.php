@@ -355,69 +355,84 @@ class DeliveryKeTpkRepoService
         $jn_repo        = strtoupper($request->jn_repo);
 
         if ($jn_repo == 'EMPTY') {
-            $query = "SELECT
-                            a.NO_CONTAINER,
-                            a.SIZE_ AS SIZE_,
-                            a.TYPE_ AS TYPE_ ,
-                            CASE
-                                WHEN a.NO_BOOKING = 'VESSEL_NOTHING' THEN 'BS05I100001' ELSE a.NO_BOOKING END AS NO_BOOKING,
-                            b.STATUS_CONT STATUS,
-                            TO_DATE('','dd/mm/rrrr') TGL_STACK,
-                            'UST' ASAL
-                     FROM
-                            MASTER_CONTAINER a INNER JOIN HISTORY_CONTAINER b ON a.NO_CONTAINER= b.NO_CONTAINER
-                     WHERE
-                            a.NO_CONTAINER LIKE '$no_cont%'
-                            AND a.LOCATION = 'IN_YARD'
-                            AND b.status_cont = 'MTY'
-                            -- AND b.TGL_UPDATE = (SELECT MAX(TGL_UPDATE)FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE '$no_cont%'
-                            -- AND AKTIF IS NULL)AND  b.kegiatan IN ('REALISASI STRIPPING','GATE IN',
-                            -- 'REQUEST DELIVERY','PERP DELIVERY','BATAL STUFFING','BORDER GATE IN')
-                            ";
+            $result = DB::connection('uster')->table('MASTER_CONTAINER as a')
+                ->select(
+                    'a.NO_CONTAINER',
+                    'a.SIZE_',
+                    'a.TYPE_',
+                    DB::raw("CASE WHEN a.NO_BOOKING = 'VESSEL_NOTHING' THEN 'BS05I100001' ELSE a.NO_BOOKING END AS NO_BOOKING"),
+                    'b.STATUS_CONT as STATUS',
+                    DB::raw("TO_DATE('','dd/mm/rrrr') as TGL_STACK"),
+                    DB::raw("'UST' as ASAL")
+                )
+                ->join('HISTORY_CONTAINER as b', 'a.NO_CONTAINER', '=', 'b.NO_CONTAINER')
+                ->where('a.NO_CONTAINER', 'like', $no_cont . '%')
+                ->where('a.LOCATION', 'IN_YARD')
+                ->where('b.status_cont', 'MTY')
+                ->whereRaw("b.TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE ? AND AKTIF IS NULL)", [$no_cont . '%'])
+                ->whereIn('b.kegiatan', [
+                    'REALISASI STRIPPING',
+                    'GATE IN',
+                    'REQUEST DELIVERY',
+                    'PERP DELIVERY',
+                    'BATAL STUFFING',
+                    'BORDER GATE IN'
+                ])
+                ->get();
         } else if ($jn_repo == 'FULL') {
-            $query = "SELECT
-                            a.NO_CONTAINER,
-                            a.SIZE_ AS SIZE_,
-                            a.TYPE_ AS TYPE_ ,
-                            CASE
-                                WHEN a.NO_BOOKING = 'VESSEL_NOTHING' THEN 'BS05I100001' ELSE a.NO_BOOKING END AS NO_BOOKING,
-                            b.STATUS_CONT STATUS,
-                            TO_DATE('','dd/mm/rrrr') TGL_STACK,
-                            'UST' ASAL
-                     FROM
-                            MASTER_CONTAINER a INNER JOIN HISTORY_CONTAINER b ON a.NO_CONTAINER= b.NO_CONTAINER
-                     WHERE
-                            a.NO_CONTAINER LIKE '$no_cont%'
-                            AND a.LOCATION = 'IN_YARD'
-                            AND b.status_cont = 'FCL'
-                            AND b.TGL_UPDATE = (SELECT MAX(TGL_UPDATE)FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE '$no_cont%'
-                            AND AKTIF IS NULL)AND  b.kegiatan IN ('REALISASI STRIPPING','GATE IN',
-                            'REQUEST DELIVERY','PERP DELIVERY','BATAL STUFFING','BORDER GATE IN')";
+            $result = DB::connection('uster')->table('MASTER_CONTAINER as a')
+                ->select(
+                    'a.NO_CONTAINER',
+                    'a.SIZE_',
+                    'a.TYPE_',
+                    DB::raw("CASE WHEN a.NO_BOOKING = 'VESSEL_NOTHING' THEN 'BS05I100001' ELSE a.NO_BOOKING END AS NO_BOOKING"),
+                    'b.STATUS_CONT as STATUS',
+                    DB::raw("TO_DATE('','dd/mm/rrrr') as TGL_STACK"),
+                    DB::raw("'UST' as ASAL")
+                )
+                ->join('HISTORY_CONTAINER as b', 'a.NO_CONTAINER', '=', 'b.NO_CONTAINER')
+                ->where('a.NO_CONTAINER', 'like', $no_cont . '%')
+                ->where('a.LOCATION', 'IN_YARD')
+                ->where('b.status_cont', 'FCL')
+                ->whereRaw("b.TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE ? AND AKTIF IS NULL)", [$no_cont . '%'])
+                ->whereIn('b.kegiatan', [
+                    'REALISASI STRIPPING',
+                    'GATE IN',
+                    'REQUEST DELIVERY',
+                    'PERP DELIVERY',
+                    'BATAL STUFFING',
+                    'BORDER GATE IN'
+                ])
+                ->get();
         } else {
-            $query = "SELECT
-                            DISTINCT m.NO_CONTAINER,
-                            m.SIZE_ AS SIZE_,
-                            m.TYPE_ AS TYPE_ ,
-                            M.NO_BOOKING NO_BOOKING,
-                            s.TGL_REALISASI REALISASI_STUFFING,
-                            h.STATUS_CONT AS STATUS,
-                            h.NO_REQUEST
-                     FROM
-                            MASTER_CONTAINER m INNER JOIN HISTORY_CONTAINER h ON m.NO_CONTAINER = h.NO_CONTAINER and m.NO_BOOKING = h.NO_BOOKING
-                            INNER JOIN CONTAINER_STUFFING s ON s.NO_CONTAINER = m.NO_CONTAINER AND s.NO_CONTAINER = h.NO_CONTAINER
-                            --INNER JOIN v_booking_stack_tpk vb
-                            --ON m.NO_BOOKING = vb.NO_BOOKING
-                            --AND h.NO_BOOKING = vb.NO_BOOKING
-                     WHERE
-                            h.TGL_UPDATE = (SELECT DISTINCT MAX(TGL_UPDATE)FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE '%$no_cont%'
-                            AND NO_BOOKING = h.NO_BOOKING AND aktif is null and kegiatan in('REALISASI STUFFING','REQUEST BATALMUAT'))
-                            AND m.LOCATION = 'IN_YARD' AND m.NO_CONTAINER LIKE '%$no_cont%' AND s.AKTIF='T'
-                            AND h.aktif is null
-                        	AND s.TGL_REALISASI IS NOT NULL";
+            $result = DB::connection('uster')->table('MASTER_CONTAINER as m')
+                ->distinct()
+                ->select(
+                    'm.NO_CONTAINER',
+                    'm.SIZE_',
+                    'm.TYPE_',
+                    'm.NO_BOOKING',
+                    's.TGL_REALISASI as REALISASI_STUFFING',
+                    'h.STATUS_CONT as STATUS',
+                    'h.NO_REQUEST'
+                )
+                ->join('HISTORY_CONTAINER as h', function ($join) use ($no_cont) {
+                    $join->on('m.NO_CONTAINER', '=', 'h.NO_CONTAINER')
+                        ->on('m.NO_BOOKING', '=', 'h.NO_BOOKING');
+                })
+                ->join('CONTAINER_STUFFING as s', function ($join) {
+                    $join->on('s.NO_CONTAINER', '=', 'm.NO_CONTAINER')
+                        ->on('s.NO_CONTAINER', '=', 'h.NO_CONTAINER');
+                })
+                ->whereRaw("h.TGL_UPDATE = (SELECT DISTINCT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE ? AND NO_BOOKING = h.NO_BOOKING AND aktif is null and kegiatan in('REALISASI STUFFING','REQUEST BATALMUAT'))", ['%' . $no_cont . '%'])
+                ->where('m.LOCATION', 'IN_YARD')
+                ->where('m.NO_CONTAINER', 'like', '%' . $no_cont . '%')
+                ->where('s.AKTIF', 'T')
+                ->whereNull('h.aktif')
+                ->whereNotNull('s.TGL_REALISASI')
+                ->get();
         }
 
-
-        $result    = DB::connection('uster')->select($query);
         return $result;
     }
     function carrierPraya($request)

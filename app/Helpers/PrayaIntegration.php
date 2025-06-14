@@ -363,6 +363,7 @@ if (!function_exists('savePaymentExternal')) {
             $charge = empty($payloadBatalMuat) ? "Y" : "N"; //kalau payload batal muat ada berarti tdk bayar
 
             $del_no_request = empty($payloadBatalMuat) ? $id_req : $payloadBatalMuat['ex_noreq'];
+            $containerListLog = array();
 
             //INI UNTUK QUERY JENIS DELIVERY & BATAL MUAT TANPA KENA CHARGE
             //Kalau menggunakan NO_PROFORMA, ID_REQUEST jangan dikirim dan sebaliknya

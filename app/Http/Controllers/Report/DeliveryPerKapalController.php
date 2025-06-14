@@ -45,39 +45,52 @@ class DeliveryPerKapalController extends Controller
 
         $tanggal = date("dmY");
 
-        // Build the base query using Eloquent
-        $query = DB::connection('uster')->table('request_delivery as a')
-            ->join('container_delivery as b', 'a.no_request', '=', 'b.no_request')
-            ->join('master_container as mc', 'b.no_container', '=', 'mc.no_container')
-            ->leftJoin('border_gate_out as c', function ($join) {
-                $join->on('b.no_request', '=', 'c.no_request')
-                    ->on('b.no_container', '=', 'c.no_container');
-            })
-            ->leftJoin('nota_delivery as n', 'a.no_request', '=', 'n.no_request')
-            ->select([
-                'b.no_container',
-                'mc.size_',
-                'mc.type_',
-                'a.no_request',
-                'b.status',
-                'b.via',
-                'c.nopol',
-                DB::raw("TO_CHAR(c.tgl_in, 'dd/mm/rrrr hh:ii:ss') as tgl_in"),
-                DB::raw("COALESCE((SELECT username FROM master_user WHERE to_char(id)= to_char(c.id_user)), c.id_user) as username"),
-                'n.no_faktur as no_nota',
-                'n.lunas'
-            ])
-            ->where('a.VESSEL', $nm_kapal)
-            ->where('a.O_VOYIN', $voyage_in)
-            ->whereNotIn('n.status', ['BATAL'])
-            ->orderByDesc('c.tgl_in');
-
-        // Filter by status if provided
-        if ($status == 'FCL' || $status == 'MTY' || $status == 'LCL') {
-            $query->where('b.status', $status);
+        if ($status == NULL) {
+            $query_status = '';
+        } else {
+            if ($status == 'FCL') {
+                $query_status = "and b.status = 'FCL'";
+            } else if ($status == 'MTY') {
+                $query_status = "and b.status = 'MTY'";
+            } else if ($status == 'LCL') {
+                $query_status = "and b.status = 'LCL'";
+            } else {
+                $query_status = "";
+            }
         }
 
-        $row_list = $query->get();
+        $query = "SELECT
+        b.no_container,
+        mc.size_,
+        mc.type_,
+        a.no_request,
+        b.status,
+        b.via,
+        c.nopol,
+        TO_CHAR(c.tgl_in, 'dd/mm/rrrr hh:ii:ss') tgl_in,
+        nvl((SELECT username FROM master_user WHERE to_char(id)= to_char(c.id_user)), c.id_user) username,
+        n.no_faktur no_nota,
+        n.lunas
+    FROM
+        request_delivery a,
+        container_delivery b,
+        master_container mc,
+        border_gate_out c,
+        nota_delivery n
+    WHERE
+        a.no_request = b.no_request
+        AND b.no_request = c.no_request(+)
+        AND b.no_container = c.no_container(+)
+        AND b.no_container = mc.no_container
+        AND a.no_request = n.no_request(+)
+        AND n.status NOT IN ('BATAL')
+        $query_status
+        AND a.VESSEL = '$nm_kapal'
+        AND a.O_VOYIN = '$voyage_in'
+    ORDER BY
+        c.tgl_in DESC";
+
+        $row_list        = DB::connection('uster')->select($query);
 
         $data = [
             'nm_kapal' => $nm_kapal,

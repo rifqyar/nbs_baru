@@ -115,7 +115,7 @@ class KartuStrippingController extends Controller
                     // sudah pernah di insert
                 } else {
                     // belum pernah di insert, insert kartu stripping
-                    if ($size == "20")
+                    if ($size == "20" || $size == "21")
                         $j = 4;
                     else if ($size == "40")
                         $j = 8;

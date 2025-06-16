@@ -265,7 +265,9 @@ if (!function_exists('cancelInvoice')) {
 if (!function_exists('sendDataFromUrlTryCatch')) {
     function sendDataFromUrlTryCatch($payload_request, $url, $method = "POST", $token = "")
     {
-        set_time_limit(360);
+        set_time_limit(0);
+        putenv('http_proxy');
+        putenv('https_proxy');
 
         try {
             $curl = curl_init();

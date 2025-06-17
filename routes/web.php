@@ -75,6 +75,7 @@ use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
 use App\Http\Controllers\Maintenance\ResendPrayaController;
 use App\Http\Controllers\Print\CetakSP2Controller;
+use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +111,7 @@ Route::get('/api/dashboard-data', [HomeController::class, 'getDashboardData'])->
 Route::middleware(['checkLogin'])->group(function () {
     Route::get('/', [HomeController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/logs', [LogViewerController::class, 'index'])->name('logs');
 });
 
 Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' => 'checkLogin'], function () {
@@ -957,6 +959,14 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
                 ->name('');
         });
     });
+
+    // Log Praya Integration
+    // Route::group(['prefix' => 'log-praya', 'as' => 'log-praya.'], function () {
+    //     Route::get('/log-praya', function(){
+    //         dd('test');
+    //         return Redirect(route('logs', ['l' => 'praya.log']));
+    //     });
+    // });
 });
 
 Route::group(['prefix' => 'report', 'as' => 'uster.report.', 'middleware' => 'checkLogin'], function () {

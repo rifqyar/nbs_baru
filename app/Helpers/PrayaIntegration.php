@@ -20,7 +20,7 @@ if (!function_exists('getTokenPraya')) {
 if (!function_exists('sendDataFromUrl')) {
     function sendDataFromUrl($payload_request, $url, $method = "POST", $token = "")
     {
-        Log::info('Request to Praya', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+        Log::channel('praya')->info('Request to Praya', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
         $start = microtime(true);
 
         set_time_limit(0);
@@ -58,7 +58,7 @@ if (!function_exists('sendDataFromUrl')) {
         $end = microtime(true);
         $info     = curl_getinfo($curl);
 
-        Log::info('Praya Response Info', [
+        Log::channel('praya')->info('Praya Response Info', [
             'time' => $end - $start,
             'curl_info' => $info,
             'response' => $response,
@@ -312,7 +312,7 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                 )
             );
 
-            Log::info('Request to ILCS', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+            Log::channel('praya')->info('Request to ILCS', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
             $start = microtime(true);
 
             $response = curl_exec($curl);
@@ -325,7 +325,7 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
             $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $end = microtime(true);
 
-            Log::info('ILCS Response Info', [
+            Log::channel('praya')->info('ILCS Response Info', [
                 'time' => $end - $start,
                 'curl_info' => $httpCode,
                 'response' => $response,
@@ -2316,7 +2316,7 @@ function getDatafromUrl($url)
     $ch      = curl_init($url);
     curl_setopt_array($ch, $options);
 
-    Log::info('Request to Praya', ['url' => $url]);
+    Log::channel('praya')->info('Request to Praya', ['url' => $url]);
     $start = microtime(true);
 
     $content = curl_exec($ch);
@@ -2325,7 +2325,7 @@ function getDatafromUrl($url)
     $header  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     $end = microtime(true);
 
-    Log::info('ILCS Response Info', [
+    Log::channel('praya')->info('ILCS Response Info', [
         'time' => $end - $start,
         'curl_info' => $header,
         'response' => $content,

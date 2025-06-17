@@ -2,7 +2,7 @@
 
 
 header("Content-type: application/x-msdownload");
-header("Content-Disposition: attachment; filename=LAP_Repo_Perkapal_tanggal-".$tanggal.".xlsx");
+header("Content-Disposition: attachment; filename=LAP_Repo_Perkapal_tanggal-".$tanggal.".xls");
 header("Pragma: no-cache");
 header("Expires: 0");
 

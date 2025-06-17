@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 if (!function_exists('getTokenPraya')) {
     function getTokenPraya()
@@ -19,6 +20,9 @@ if (!function_exists('getTokenPraya')) {
 if (!function_exists('sendDataFromUrl')) {
     function sendDataFromUrl($payload_request, $url, $method = "POST", $token = "")
     {
+        Log::info('Request to Praya', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+        $start = microtime(true);
+
         set_time_limit(0);
         putenv('http_proxy');
         putenv('https_proxy');
@@ -50,6 +54,16 @@ if (!function_exists('sendDataFromUrl')) {
         $err      = curl_error($curl);
 
         curl_close($curl);
+
+        $end = microtime(true);
+        $info     = curl_getinfo($curl);
+
+        Log::info('Praya Response Info', [
+            'time' => $end - $start,
+            'curl_info' => $info,
+            'response' => $response,
+            'error' => curl_error($curl),
+        ]);
 
         /* get response */
         if ($err) {
@@ -298,10 +312,10 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                 )
             );
 
-            $response = curl_exec($curl);
+            Log::info('Request to ILCS', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+            $start = microtime(true);
 
-            // echo json_encode($response);
-            // echo "<<from integration";
+            $response = curl_exec($curl);
 
             if ($response === false) {
                 throw new Exception(curl_error($curl));
@@ -309,6 +323,14 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
 
             // Get HTTP status code
             $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $end = microtime(true);
+
+            Log::info('ILCS Response Info', [
+                'time' => $end - $start,
+                'curl_info' => $httpCode,
+                'response' => $response,
+                'error' => curl_error($curl),
+            ]);
 
             //Success
             if ($httpCode >= 200 && $httpCode < 300) {
@@ -2293,10 +2315,22 @@ function getDatafromUrl($url)
 
     $ch      = curl_init($url);
     curl_setopt_array($ch, $options);
+
+    Log::info('Request to Praya', ['url' => $url]);
+    $start = microtime(true);
+
     $content = curl_exec($ch);
     $err     = curl_errno($ch);
     $errmsg  = curl_error($ch);
     $header  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    $end = microtime(true);
+
+    Log::info('ILCS Response Info', [
+        'time' => $end - $start,
+        'curl_info' => $header,
+        'response' => $content,
+        'error' => curl_error($ch),
+    ]);
     curl_close($ch);
 
     // $header['errno']   = $err;

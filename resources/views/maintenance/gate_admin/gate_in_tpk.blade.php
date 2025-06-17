@@ -154,26 +154,24 @@
                     error: function(err) {
                         get_error(err.responseJSON);
                     },
-                    success: function(data) {
-                        console.log(data);
+                    success: function(resp) {
+                        const data = resp.data || [];
                         if (data.length > 0) {
                             response(
                                 data.map(function(value) {
                                     console.log(value);
                                     return {
-                                        label: `${value.containerNo} | ${value.voyageIn}/${value.voyageOut}`,
-                                        vesselName: value.vesselName,
-                                        voyageIn: value.voyageIn,
-                                        containerNo: value.containerNo,
-                                        containerSize: value.containerSize,
-                                        containerStatus: value.containerStatus,
-                                        containerType: value.containerType,
-                                        vesselConfirm: value.vesselConfirm,
-                                        dischargeDate: value.dischargeDate,
-                                        ydBlock: value.ydBlock,
-                                        ydSlot: value.ydSlot,
-                                        ydRow: value.ydRow,
-                                        ydTier: value.ydTier,
+                                        label: `${value.NO_CONTAINER} | ${value.NO_REQUEST}`,
+                                        NO_CONTAINER: value.NO_CONTAINER,
+                                        NO_REQUEST: value.NO_REQUEST,
+                                        NM_PBM: value.NM_PBM,
+                                        SIZE_: value.SIZE_,
+                                        TYPE_: value.TYPE_,
+                                        STATUS: value.STATUS,
+                                        ID_YARD: value.ID_YARD,
+                                        BP_ID: value.BP_ID,
+                                        NO_REQ_TPK: value.NO_REQ_TPK,
+                                        NOPOL: value.NOPOL,
                                     };
                                 })
                             );
@@ -184,63 +182,16 @@
                 });
             },
             select: function(event, ui) {
-                $("#CONT_NO").val(ui.item.containerNo);
-                $("#SIZE").val(ui.item.containerSize);
-                $("#STATUS").val(ui.item.containerStatus);
-                $("#TYPE").val(ui.item.containerType);
-                $("#VOYAGE").val(ui.item.voyageIn);
-                $("#VESSEL").val(ui.item.vesselName);
-                $("#tgl_mulai").val(ui.item.vesselConfirm);
-                $("#TGL_BONGKAR").val(ui.item.vesselConfirm);
-                $("#TGL_STACK").val(ui.item.dischargeDate);
-                $("#NO_UKK").val($("#IDVSB").val());
-                $("#NM_AGEN").val(ui.item.NM_AGEN);
-                $("#BP_ID").val("BP" + $("#VESCODE").val() + "" + $("#IDVSB").val());
-                $("#ASAL_CONT").val("TPK");
-                $("#NO_BOOKING").val(
-                    "BP" + $("#VESCODE").val() + "" + $("#IDVSB").val()
-                );
-                $("#BLOK").val(ui.item.ydBlock);
-                $("#SLOT").val(ui.item.ydSlot);
-                $("#ROW").val(ui.item.ydRow);
-                $("#TIER").val(ui.item.ydTier);
-
-                //start  updated by clara ilcs 27 November 2023
-                if (ui.item && ui.item.dischargeDate) {
-                    var containerDischDateStr = ui.item.dischargeDate; // Format: YYYYMMDDHHmmss
-
-                    // Parsing the date components correctly
-                    var year = parseInt(containerDischDateStr.substring(0, 4));
-                    var month = parseInt(containerDischDateStr.substring(4, 6)) -
-                        1; // JavaScript months are 0-based
-                    var day = parseInt(containerDischDateStr.substring(6, 8));
-                    var hours = parseInt(containerDischDateStr.substring(8, 10));
-                    var minutes = parseInt(containerDischDateStr.substring(10, 12));
-                    var seconds = parseInt(containerDischDateStr.substring(12, 14));
-
-                    // Create the date object
-                    var containerDischDate = new Date(year, month, day);
-
-                    // Check if date creation is valid
-                    if (isNaN(containerDischDate.getTime())) {
-                        console.error("Invalid date format");
-                    } else {
-                        // Add 4 days
-                        containerDischDate.setDate(containerDischDate.getDate() + 4);
-
-                        // Format the date as YYYY-MM-DD HH:mm:ss
-                        var formattedDate =
-                            containerDischDate.getFullYear() +
-                            "-" +
-                            ("0" + (containerDischDate.getMonth() + 1)).slice(-2) +
-                            "-" +
-                            ("0" + containerDischDate.getDate()).slice(-2);
-                    }
-
-                    $("#TGL_SELESAI").val(formattedDate);
-
-                    return false;
-                }
+                $("#CONT_NO").val(ui.item.NO_CONTAINER);
+                $("#REQ_REC").val(ui.item.NO_REQUEST);
+                $("#NM_PBM").val(ui.item.NM_PBM);
+                $("#SIZE").val(ui.item.SIZE_);
+                $("#TYPE").val(ui.item.TYPE_);
+                $("#STATUS").val(ui.item.STATUS);
+                $("#ID_YARD").val(ui.item.ID_YARD);
+                $("#BP_ID").val(ui.item.BP_ID);
+                $("#NO_REQ_TPK").val(ui.item.NO_REQ_TPK);
+                $("#NO_TRUCK").val(ui.item.NOPOL);
             },
         });
 

@@ -60,6 +60,7 @@ use App\Http\Controllers\Print\KartuRepoController;
 use App\Http\Controllers\Print\KartuStrippingController;
 use App\Http\Controllers\Print\KartuStuffingController;
 use App\Http\Controllers\HerperController;
+use App\Http\Controllers\Maintenance\GateAdmin\GateInTpkController;
 use App\Http\Controllers\Maintenance\Master\MasterContainer;
 use App\Http\Controllers\Maintenance\Master\MasterTarif;
 use App\Http\Controllers\Maintenance\Master\KomponenData;
@@ -823,15 +824,6 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
         Route::get('/', [RegisterMLO::class, 'index']);
     });
 
-
-
-
-
-
-
-
-
-
     Route::group([], function () {
 
         Route::get('/send_delivery_tpk', [SendDeliveryTPKController::class, 'index'])
@@ -856,18 +848,12 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
             ->name('disable_container.store');
     });
 
-
-
-
-
-
     Route::group([['prefix' => 'rename_container', 'as' => 'rename_container']], function () {
         Route::get('/rename_container', [RenameController::class, 'index'])->name('rename_container');
         Route::post('/storeRename', [RenameController::class, 'storeRename'])->name('storeRename');
         Route::get('/rename_container/getContainer', [RenameController::class, 'getContainer'])
             ->name('getContainer');
     });
-
 
     Route::group([], function () {
 
@@ -949,6 +935,26 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
 
             Route::get('/edit', [KomponenData::class, 'edit'])
                 ->name('.edit');
+        });
+    });
+
+    // Gate Admin
+    Route::group(['prefix' => 'gate_admin', 'as' => 'gate_admin.'], function () {
+        Route::group(['prefix' => 'gate-in-tpk', 'as' => '' ], function() {
+            Route::get('/', [GateInTpkController::class, 'index'])
+                ->name('gate_in_tpk');
+
+            Route::post('/data-cont', [GateInTpkController::class, 'getDataCont'])
+                ->name('');
+
+            Route::get('/view', [GateInTpkController::class, 'view'])
+                ->name('');
+
+            Route::post('/store', [GateInTpkController::class, 'store'])
+                ->name('');
+
+            Route::post('/update', [GateInTpkController::class, 'update'])
+                ->name('');
         });
     });
 });

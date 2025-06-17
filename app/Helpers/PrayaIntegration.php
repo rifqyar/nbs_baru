@@ -19,6 +19,10 @@ if (!function_exists('getTokenPraya')) {
 if (!function_exists('sendDataFromUrl')) {
     function sendDataFromUrl($payload_request, $url, $method = "POST", $token = "")
     {
+        set_time_limit(0);
+        putenv('http_proxy');
+        putenv('https_proxy');
+
         $curl = curl_init();
         /* set configure curl */
         $authorization = "Authorization: Bearer $token";
@@ -29,7 +33,7 @@ if (!function_exists('sendDataFromUrl')) {
                 CURLOPT_RETURNTRANSFER  => true,
                 CURLOPT_ENCODING        => "",
                 CURLOPT_MAXREDIRS       => 10,
-                CURLOPT_TIMEOUT         => 60,
+                CURLOPT_TIMEOUT         => 120,
                 CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST   => $method,
                 CURLOPT_POSTFIELDS      => json_encode($payload_request),
@@ -37,7 +41,7 @@ if (!function_exists('sendDataFromUrl')) {
                     "Content-Type: application/json",
                     $authorization
                 ),
-                CURLOPT_SSL_VERIFYPEER => false
+                // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
             )
         );
 
@@ -281,8 +285,8 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                     CURLOPT_RETURNTRANSFER  => true,
                     CURLOPT_ENCODING        => "",
                     CURLOPT_MAXREDIRS       => 10,
-                    CURLOPT_CONNECTTIMEOUT  => 0,
-                    CURLOPT_TIMEOUT         => 1000,
+                    CURLOPT_CONNECTTIMEOUT  => 120,
+                    CURLOPT_TIMEOUT         => 120,
                     CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST   => $method,
                     CURLOPT_POSTFIELDS      => json_encode($payload_request),
@@ -2275,8 +2279,8 @@ function getDatafromUrl($url)
         CURLOPT_ENCODING       => "",       // handle all encodings
         CURLOPT_USERAGENT      => "spider", // who am i
         CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-        CURLOPT_CONNECTTIMEOUT => 15,      // timeout on connect
-        CURLOPT_TIMEOUT        => 15,      // timeout on response
+        CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
+        CURLOPT_TIMEOUT        => 120,      // timeout on respon0120e
         CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
         // dicomment, kena error ssl ca cert
         // CURLOPT_CAINFO		   => "/var/www/html/ibis_qa/tmp/cacert.pem",

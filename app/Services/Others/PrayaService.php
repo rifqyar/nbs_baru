@@ -21,8 +21,8 @@ class PrayaService
             CURLOPT_ENCODING       => "",       // handle all encodings
             CURLOPT_USERAGENT      => "spider", // who am i
             CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-            CURLOPT_CONNECTTIMEOUT => 15,      // timeout on connect
-            CURLOPT_TIMEOUT        => 15,      // timeout on response
+            CURLOPT_CONNECTTIMEOUT => 0,      // timeout on connect
+            CURLOPT_TIMEOUT        => 0,      // timeout on response
             CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
             // dicomment, kena error ssl ca cert
             // CURLOPT_CAINFO		   => "/var/www/html/ibis_qa/tmp/cacert.pem",

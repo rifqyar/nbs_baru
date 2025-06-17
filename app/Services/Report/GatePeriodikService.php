@@ -26,17 +26,17 @@ class GatePeriodikService
             }
 
             if ($shift == 1) {
-                $time1 = $tgl_awal . " 07:00";
-                $time2 = $tgl_akhir . " 15:30";
+                $time1 = $tgl_awal . " 08:00";
+                $time2 = $tgl_akhir . " 16:00";
                 //$query_shift = "and to_date(substr(to_char(a.tgl_in,'dd/mm/rrrr hh24:mi:ss'),11,9),'hh24:mi:ss') between to_date('07:00:00','hh24:mi:ss') and to_date('19:00:00','hh24:mi:ss')";
                 $query_shift = "and a.tgl_in between to_date('$time1', 'YYYY-MM-DD HH24:MI') and to_date('$time2', 'YYYY-MM-DD HH24:MI')";
             } else if ($shift == 2) {
-                $time1 = $tgl_awal . " 15:31";
-                $time2 = $tgl_akhir . " 23:00";
+                $time1 = $tgl_awal . " 16:00";
+                $time2 = $tgl_akhir . " 23:59";
                 $query_shift = "and a.tgl_in between to_date('$time1', 'YYYY-MM-DD HH24:MI') and to_date('$time2', 'YYYY-MM-DD HH24:MI')";
             } else if ($shift == 4) {
-                $time1 = $tgl_awal . " 23:01";
-                $time2 = $tgl_akhir . " 06:59";
+                $time1 = $tgl_awal . " 00:00";
+                $time2 = $tgl_akhir . " 08:00";
                 $query_shift = "and a.tgl_in between to_date('$time1', 'YYYY-MM-DD HH24:MI') and to_date('$time2', 'YYYY-MM-DD HH24:MI')";
             } else if ($shift == 3) {
                 $time1 = $tgl_awal . " 00:00";

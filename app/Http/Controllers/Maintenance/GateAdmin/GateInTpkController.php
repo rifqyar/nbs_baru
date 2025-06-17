@@ -15,7 +15,7 @@ class GateInTpkController extends Controller
 
     public function getDataCont(Request $request)
     {
-        $no_cont = strtoupper($request->input('CONT_NO'));
+        $no_cont = strtoupper($request->input('search'));
 
         try {
             $payload = [
@@ -25,8 +25,8 @@ class GateInTpkController extends Controller
             ];
 
             $apiUrl = env('PRAYA_API_INTEGRATION') . "/api/getContainerInOut";
-            $response = sendDataFromUrlTryCatch($payload, $apiUrl, 'POST');
-            dd($response);
+            $response = sendDataFromUrlTryCatch($payload, $apiUrl, 'POST', getTokenPraya());
+            dd(getIsoCode());
             $responseData = json_decode($response['response'], true);
 
             if (isset($responseData['dataRec'])) {

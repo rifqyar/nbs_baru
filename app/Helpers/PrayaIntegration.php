@@ -688,65 +688,69 @@ if (!function_exists('savePaymentExternal')) {
                     ->where('nsd.ID_ISO', 'ADM')
                     ->first();
 
-                // $get_vessel = getVessel(
-                //     $fetchStripping->nm_kapal,
-                //     $fetchStripping->voyage,
-                //     $fetchStripping->voyage_in,
-                //     $fetchStripping->voyage_out
-                // );
-                // $get_container_list = getContainer(
-                //     null,
-                //     $fetchStripping->kd_kapal,
-                //     $fetchStripping->voyage_in,
-                //     $fetchStripping->voyage_out,
-                //     $fetchStripping->voyage,
-                //     "I",
-                //     "DEL"
-                // );
-                // $get_iso_code = getIsoCode();
+                $get_vessel = getVessel(
+                    $fetchStripping->nm_kapal,
+                    $fetchStripping->voyage,
+                    $fetchStripping->voyage_in,
+                    $fetchStripping->voyage_out
+                );
+                $get_container_list = getContainer(
+                    null,
+                    $fetchStripping->kd_kapal,
+                    $fetchStripping->voyage_in,
+                    $fetchStripping->voyage_out,
+                    $fetchStripping->voyage,
+                    "I",
+                    "DEL"
+                );
+                $get_iso_code = getIsoCode();
 
-                $get_vessel = null;
-                $get_container_list = null;
-                $get_iso_code = null;
+                dump($get_vessel);
+                dump($get_container_list);
+                dump($get_iso_code);
 
-                $loop = \React\EventLoop\Factory::create();
+                // $get_vessel = null;
+                // $get_container_list = null;
+                // $get_iso_code = null;
 
-                $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchStripping) {
-                    $resolve(getVessel(
-                        $fetchStripping->nm_kapal,
-                        $fetchStripping->voyage,
-                        $fetchStripping->voyage_in,
-                        $fetchStripping->voyage_out
-                    ));
-                });
+                // $loop = \React\EventLoop\Factory::create();
 
-                $promiseContainer = new \React\Promise\Promise(function ($resolve) use ($fetchStripping) {
-                    $resolve(getContainer(
-                        null,
-                        $fetchStripping->kd_kapal,
-                        $fetchStripping->voyage_in,
-                        $fetchStripping->voyage_out,
-                        $fetchStripping->voyage,
-                        "I",
-                        "DEL"
-                    ));
-                });
+                // $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchStripping) {
+                //     $resolve(getVessel(
+                //         $fetchStripping->nm_kapal,
+                //         $fetchStripping->voyage,
+                //         $fetchStripping->voyage_in,
+                //         $fetchStripping->voyage_out
+                //     ));
+                // });
 
-                $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
-                    $resolve(getIsoCode());
-                });
+                // $promiseContainer = new \React\Promise\Promise(function ($resolve) use ($fetchStripping) {
+                //     $resolve(getContainer(
+                //         null,
+                //         $fetchStripping->kd_kapal,
+                //         $fetchStripping->voyage_in,
+                //         $fetchStripping->voyage_out,
+                //         $fetchStripping->voyage,
+                //         "I",
+                //         "DEL"
+                //     ));
+                // });
 
-                \React\Promise\all([
-                    'get_vessel' => $promiseVessel,
-                    'get_container_list' => $promiseContainer,
-                    'get_iso_code' => $promiseIsoCode
-                ])->then(function ($results) use (&$get_vessel, &$get_container_list, &$get_iso_code, $loop) {
-                    $get_vessel = $results['get_vessel'];
-                    $get_container_list = $results['get_container_list'];
-                    $get_iso_code = $results['get_iso_code'];
-                    $loop->stop();
-                });
-                $loop->run();
+                // $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
+                //     $resolve(getIsoCode());
+                // });
+
+                // \React\Promise\all([
+                //     'get_vessel' => $promiseVessel,
+                //     'get_container_list' => $promiseContainer,
+                //     'get_iso_code' => $promiseIsoCode
+                // ])->then(function ($results) use (&$get_vessel, &$get_container_list, &$get_iso_code, $loop) {
+                //     $get_vessel = $results['get_vessel'];
+                //     $get_container_list = $results['get_container_list'];
+                //     $get_iso_code = $results['get_iso_code'];
+                //     $loop->stop();
+                // });
+                // $loop->run();
 
                 if (empty($get_iso_code)) {
                     $payload_log = [];
@@ -2502,10 +2506,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payload)->catch(function ($exception) {
-            Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
-            return response()->json(['code' => 500, 'msg' => 'Error fetching vessel data: ' . $exception->getMessage()], 500);
-        });
+        $response = Http::post('http://localhost:3001/praya/send-data', $payload);
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
         $json = json_decode($body, true);

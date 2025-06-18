@@ -2165,7 +2165,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
     try {
         $payload = array(
-            "terminalCode" => env('PRAYA_ITPK_PNK_TERMINAL_CODE '),
+            "terminalCode" => env('PRAYA_ITPK_PNK_TERMINAL_CODE'),
             "vesselCode" => "",
             "search" => "",
             "vessel" => $vessel,
@@ -2184,7 +2184,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
             "row" => 10
         );
 
-        $response = sendDataFromUrl($payload, env('PRAYA_API_VESSEL ') . "/api/terminalInfo/getVesselVoyage", 'POST', getTokenPraya());
+        $response = sendDataFromUrl($payload, env('PRAYA_API_VESSEL') . "/api/terminalInfo/getVesselVoyage", 'POST', getTokenPraya());
         $response = json_decode($response['response'], true);
 
         if ($response['code'] == 1 && !empty($response["data"])) {

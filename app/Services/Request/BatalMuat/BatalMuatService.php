@@ -1131,7 +1131,7 @@ class BatalMuatService
                         $q_history_c = "INSERT INTO history_container(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
                                     VALUES ('$no_cont','$no_req_bm','REQUEST BATALMUAT',SYSDATE,'$id_user','$id_yard','$no_booking_new', '$cur_counter','$status')";
 
-                        $start_pnkn = "TO_DATE('$start_pnkn', 'yyyy-mm-dd')";
+                        $start_pnkn = "TO_DATE('" . date('Y-m-d', strtotime($start_pnkn)) . "', 'yyyy-mm-dd')";
                         $end_pnkn = "TO_DATE('" . date('Y-m-d', strtotime($end_pnkn)) . "', 'yyyy-mm-dd')";
                         $q_cont_batal = "INSERT INTO container_batal_muat(no_container, no_request, status, start_pnkn, end_pnkn, no_req_batal, ex_kapal)
                                      VALUES ('$no_cont','$no_req_bm','$status',$start_pnkn,$end_pnkn, '$exno_req', '$no_booking_old')";

@@ -709,17 +709,29 @@ if (!function_exists('savePaymentExternal')) {
                 $voyageIn = empty($fetchStripping->voyage_in) ? '' : $fetchStripping->voyage_in;
                 $voyageOut = empty($fetchStripping->voyage_out) ? '' : $fetchStripping->voyage_out;
                 $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut;
-                $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
-                $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
-                $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
-                $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
-                $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
-                $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
-                $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
-                $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                if (empty($get_vessel)) {
+                    $eta = '';
+                    $etb = '';
+                    $etd = '';
+                    $ata = '';
+                    $atb = '';
+                    $atd = '';
+                    $startWork = '';
+                    $endWork = '';
+                    $dischargeDate = '';
+                } else {
+                    $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                    $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                    $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                    $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                    $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                    $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                    $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                    $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                    $dischargeDate = empty($get_vessel['discharge_date']) ? '' : $get_vessel['discharge_date'];
+                }
                 $pol = $pelabuhan_asal;
                 $pod = $pelabuhan_tujuan;
-                $dischargeDate = $get_vessel['discharge_date'];
                 $shippingLineName = $fetchStripping->nm_agen;
                 $customerCode = $fetchStripping->kd_pelanggan;
                 $customerCodeOwner = '';
@@ -1317,18 +1329,30 @@ if (!function_exists('savePaymentExternal')) {
                     $voyageIn = empty($fetchDelivery->voyage_in) ? '' : $fetchDelivery->voyage_in;
                     $voyageOut = empty($fetchDelivery->voyage_out) ? '' : $fetchDelivery->voyage_out;
                     $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut;
-                    $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
-                    $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
-                    $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
-                    $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
-                    $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
-                    $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
-                    $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
-                    $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                    if (empty($get_vessel)) {
+                        $eta = '';
+                        $etb = '';
+                        $etd = '';
+                        $ata = '';
+                        $atb = '';
+                        $atd = '';
+                        $startWork = '';
+                        $endWork = '';
+                        $dischargeDate = '';
+                    } else {
+                        $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                        $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                        $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                        $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                        $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                        $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                        $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                        $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                        $dischargeDate = empty($get_vessel['discharge_date']) ? '' : $get_vessel['discharge_date'];
+                    }
                     $pol = $pelabuhan_asal;
                     $pod = $pelabuhan_tujuan;
                     $fpod = $pelabuhan_tujuan;
-                    $dischargeDate = $get_vessel['discharge_date'] ?? null;
                     $shippingLineName = $fetchDelivery->nm_agen;
                     $customerCode = $fetchDelivery->kd_pelanggan;
                     $customerCodeOwner = '';
@@ -1605,17 +1629,29 @@ if (!function_exists('savePaymentExternal')) {
                         $voyageIn = $payloadBatalMuat['voyageIn'];
                         $voyageOut = $payloadBatalMuat['voyageOut'];
                         $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut;
-                        $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
-                        $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
-                        $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
-                        $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
-                        $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
-                        $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
-                        $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
-                        $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                        if (empty($get_vessel)) {
+                            $eta = '';
+                            $etb = '';
+                            $etd = '';
+                            $ata = '';
+                            $atb = '';
+                            $atd = '';
+                            $startWork = '';
+                            $endWork = '';
+                            $dischargeDate = '';
+                        } else {
+                            $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                            $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                            $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                            $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                            $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                            $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                            $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                            $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                            $dischargeDate = empty($get_vessel['discharge_date']) ? '' : $get_vessel['discharge_date'];
+                        }
                         $pol = $pelabuhan_asal;
                         $pod = $pelabuhan_tujuan;
-                        $dischargeDate = $get_vessel['discharge_date'] ?? null;
                         $shippingLineName = $payloadBatalMuat['nm_agen'];
                         $customerCode = $fetchExDelivery->kd_pelanggan;
                         $customerCodeOwner = '';
@@ -1867,17 +1903,29 @@ if (!function_exists('savePaymentExternal')) {
                         $voyageIn = empty($fetchBatalMuat->voyage_in) ? '' : $fetchBatalMuat->voyage_in;
                         $voyageOut = empty($fetchBatalMuat->voyage_out) ? '' : $fetchBatalMuat->voyage_out;
                         $voyageInOut = empty($voyageIn) || empty($voyageOut) ? '' : $voyageIn . '/' . $voyageOut;
-                        $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
-                        $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
-                        $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
-                        $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
-                        $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
-                        $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
-                        $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
-                        $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                        if (empty($get_vessel)) {
+                            $eta = '';
+                            $etb = '';
+                            $etd = '';
+                            $ata = '';
+                            $atb = '';
+                            $atd = '';
+                            $startWork = '';
+                            $endWork = '';
+                            $dischargeDate = '';
+                        } else {
+                            $eta = empty($get_vessel['eta']) ? '' : $get_vessel['eta'];
+                            $etb = empty($get_vessel['etb']) ? '' : $get_vessel['etb'];
+                            $etd = empty($get_vessel['etd']) ? '' : $get_vessel['etd'];
+                            $ata = empty($get_vessel['ata']) ? '' : $get_vessel['ata'];
+                            $atb = empty($get_vessel['atb']) ? '' : $get_vessel['atb'];
+                            $atd = empty($get_vessel['atd']) ? '' : $get_vessel['atd'];
+                            $startWork = empty($get_vessel['start_work']) ? '' : $get_vessel['start_work'];
+                            $endWork = empty($get_vessel['end_work']) ? '' : $get_vessel['end_work'];
+                            $dischargeDate = empty($get_vessel['discharge_date']) ? '' : $get_vessel['discharge_date'];
+                        }
                         $pol = $pelabuhan_asal;
                         $pod = $pelabuhan_tujuan;
-                        $dischargeDate = $get_vessel['discharge_date'] ?? null;
                         $shippingLineName = $fetchBatalMuat->nm_agen;
                         $customerCode = $fetchBatalMuat->kd_pelanggan;
                         $customerCodeOwner = '';
@@ -2230,9 +2278,9 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
         if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
             foreach ($json['data'] as $v) {
-            if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
-                return $v;
-            }
+                if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
+                    return $v;
+                }
             }
             return null;
         } elseif (isset($json['msg'])) {

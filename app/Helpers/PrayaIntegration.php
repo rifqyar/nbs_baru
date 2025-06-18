@@ -175,6 +175,8 @@ if (!function_exists('sendDataFromUrl')) {
                 ];
             }
         } catch (\Exception $e) {
+            Log::channel('praya')->error('Guzzle Error', ['error' => $e->getMessage()]);
+            // return null;
             return [
                 'status' => 'error',
                 'response' => "Guzzle Error: " . $e->getMessage()

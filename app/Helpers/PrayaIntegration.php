@@ -33,7 +33,7 @@ if (!function_exists('getTokenPraya')) {
             $token = Session::get('token_praya');
             $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
             $response = json_decode($response, true);
-            if ($response['code'] == 0 && $response['msg'] == 'jwt expired') {
+            if ($response['msg'] == 'jwt expired') {
                 // Token expired, re-login
                 Session::forget('token_praya');
                 return getTokenPraya();

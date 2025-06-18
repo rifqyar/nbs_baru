@@ -21,7 +21,7 @@ class TcaService
         $id_req = $request->NO_REQ;
         $jn_req = substr($id_req, 0, 2);
         set_time_limit(360);
-        
+
         try {
             $payload = array(
                 "idRequest" => $id_req,
@@ -29,8 +29,9 @@ class TcaService
                 "terminalId" => env('PRAYA_ITPK_PNK_TERMINAL_ID')
             );
 
-            $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
-            $response = json_decode($response['response'], true);            
+            // $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
+            $response = json_decode($response['response'], true);
             if ($response['code'] == 1 && !empty($response["dataRec"])) {
                 return $response['dataRec'];
             }
@@ -51,7 +52,8 @@ class TcaService
                 "terminalId" => env('PRAYA_ITPK_PNK_TERMINAL_ID')
             );
 
-            $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
+            // $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
             $response = json_decode($response['response'], true);
 
             if ($response['code'] == 1 && !empty($response["data"])) {
@@ -72,7 +74,7 @@ class TcaService
             FROM
                 NOTA_STRIPPING nstr
             WHERE nstr.LUNAS = 'YES'
-            UNION 
+            UNION
                 SELECT
                 nstf.NO_NOTA,
                 nstf.NO_REQUEST,
@@ -125,7 +127,8 @@ class TcaService
         // echo json_encode($payload);
 
         try {
-            $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

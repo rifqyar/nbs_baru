@@ -35,7 +35,8 @@ class TcaReportService
 
 
         try {
-            $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
+            // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];
@@ -98,7 +99,7 @@ class TcaReportService
             FROM
                 NOTA_STRIPPING nstr
             WHERE nstr.LUNAS = 'YES'
-            UNION 
+            UNION
                 SELECT
                 nstf.NO_NOTA,
                 nstf.NO_REQUEST,
@@ -151,7 +152,8 @@ class TcaReportService
         // echo json_encode($payload);
 
         try {
-            $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

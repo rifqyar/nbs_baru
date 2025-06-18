@@ -9,6 +9,7 @@ use Dompdf\Options;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Session;
 use PDF;
 
 class Praya
@@ -107,14 +108,20 @@ class Praya
 
     function getTokenPraya()
     {
-        $data_payload = array(
-            "username" => "adminnbs",
-            "password" => "Nbs2023!",
-            "statusApp" => "Web"
-        );
-        $response = $this->sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
-        $obj = json_decode($response['response'], true);
-        return $obj["token"];
+        if (Session::has('token_praya')) {
+            return Session::get('token_praya');
+        } else {
+            $data_payload = array(
+                "username" => "adminnbs",
+                "password" => "Nbs2023!",
+                "statusApp" => "Web"
+            );
+            $response = $this->sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+            $obj = json_decode($response['response'], true);
+
+            Session::put('token_praya', $obj["token"]);
+            return $obj["token"];
+        }
     }
 
 
@@ -122,7 +129,7 @@ class Praya
     function insertPrayaServiceLog($url, $payload, $response, $notes)
     {
         try {
-            
+
 
             $query_insert = "INSERT INTO PRAYA_SERVICE_LOGS
                                                 (
@@ -131,7 +138,7 @@ class Praya
                                                  RESPONSE,
                                                  CODE,
                                                  NOTES
-                                                ) VALUES 
+                                                ) VALUES
                                                 (
                                                 '$url',
                                                 '" . json_encode($payload) . "',

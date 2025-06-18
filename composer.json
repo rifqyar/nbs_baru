@@ -20,6 +20,7 @@
         "phpoffice/phpspreadsheet": "^2.0",
         "picqer/php-barcode-generator": "^2.4",
         "rap2hpoutre/laravel-log-viewer": "^2.5",
+        "react/react": "^1.4",
         "yajra/laravel-datatables-oracle": "10.3.1",
         "yajra/laravel-oci8": "^10.3"
     },

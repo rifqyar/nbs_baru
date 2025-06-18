@@ -26,7 +26,7 @@ class TcaByContainerController extends Controller
             FROM
                 NOTA_STRIPPING nstr
             WHERE nstr.LUNAS = 'YES'
-            UNION 
+            UNION
                 SELECT
                 nstf.NO_NOTA,
                 nstf.NO_REQUEST,
@@ -61,10 +61,10 @@ class TcaByContainerController extends Controller
                 $payload["tcaCancelation"] = true;
             }
 
-            $response = sendDataFromUrl($payload, ENV('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
 
- 
+
             if ($response['code'] == 1 && !empty($response["dataRec"])) {
                 echo json_encode($response['dataRec']);
             }
@@ -88,7 +88,7 @@ class TcaByContainerController extends Controller
                 "terminalId" => ENV('PRAYA_ITPK_PNK_TERMINAL_ID'),
             );
 
-            $response = sendDataFromUrl($payload, ENV('PRAYA_API_TOS') . "/api/truckList", 'POST', getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . "/api/truckList", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
 
             if ($response['code'] == 1 && !empty($response["data"])) {
@@ -138,7 +138,8 @@ class TcaByContainerController extends Controller
         // echo json_encode($payload);
 
         try {
-            $response = sendDataFromUrlTryCatch($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
+            // $response = sendDataFromUrlTryCatch($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

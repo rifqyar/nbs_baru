@@ -40,7 +40,7 @@ class KartuRepoController extends Controller
 
             // echo var_dump($payload);die;
 
-            $response = sendDataFromUrl($payload, ENV('PRAYA_API_PROFORMA') . "/api/printCard", 'POST', getTokenPraya());
+            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_PROFORMA') . "/api/printCard", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
 
             if ($response['code'] == 1 && !empty($response["dataRec"])) {

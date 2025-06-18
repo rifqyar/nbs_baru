@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class PrayaService
 {
@@ -53,14 +54,20 @@ class PrayaService
 
     function getTokenPraya()
     {
-        $data_payload = array(
-            "username" => "adminnbs",
-            "password" => "Nbs2023!",
-            "statusApp" => "Web"
-        );
-        $response = $this->sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
-        $obj = json_decode($response['response'], true);
-        return $obj["token"];
+        if (Session::has('token_praya')) {
+            return Session::get('token_praya');
+        } else {
+            $data_payload = array(
+                "username" => "adminnbs",
+                "password" => "Nbs2023!",
+                "statusApp" => "Web"
+            );
+            $response = $this->sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+            $obj = json_decode($response['response'], true);
+
+            Session::put('token_praya', $obj["token"]);
+            return $obj["token"];
+        }
     }
 
     function sendDataFromUrl($payload_request, $url, $method = "POST", $token = "")

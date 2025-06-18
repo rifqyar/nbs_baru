@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Maintenance;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Http;
 
 class ResendPrayaController extends Controller
 {
@@ -175,5 +175,11 @@ class ResendPrayaController extends Controller
                 'msg' => 'Failed to save payment: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function checkKoneksiBackend()
+    {
+        $response = Http::get(env('NODE_API_URL') . '/api/hello');
+        return $response->json();
     }
 }

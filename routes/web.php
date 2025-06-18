@@ -104,6 +104,15 @@ Route::get('info', function () {
 Route::group([], function () {
     Route::get('/resend-praya', [ResendPrayaController::class, 'resendPraya'])
         ->name('');
+
+    Route::get('/node-api', [ResendPrayaController::class, 'checkKoneksiBackend'])
+        ->name('');
+    // // Check koneksi backend praya integration
+    // Route::get('/node-api', function () {
+    //     dd(env('NODE_API_URL') . '/api/hello');
+    //     $response = Http::get(env('NODE_API_URL') . '/api/hello');
+    //     return $response->json();
+    // });
 });
 
 Route::get('/api/dashboard-data', [HomeController::class, 'getDashboardData'])->name('api.dashboard.data');
@@ -942,7 +951,7 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
 
     // Gate Admin
     Route::group(['prefix' => 'gate_admin', 'as' => 'gate_admin.'], function () {
-        Route::group(['prefix' => 'gate-in-tpk', 'as' => '' ], function() {
+        Route::group(['prefix' => 'gate-in-tpk', 'as' => ''], function () {
             Route::get('/', [GateInTpkController::class, 'index'])
                 ->name('gate_in_tpk');
 

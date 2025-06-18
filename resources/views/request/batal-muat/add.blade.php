@@ -758,6 +758,9 @@
 
             var status_gate = $("#status_gate").val();
 
+            const returnData = data.dataRec[0]
+            let containerStatus = returnData.containerStatus == 'EMPTY' ? 'MTY' : 'FCL';
+
             if (status_gate === '2') {
                 var jenis_batal = $("#jenis_batal").val();
                 var url_disable_container = '{{ route('uster.koreksi.batal_muat.prayaGetContainer') }}';
@@ -765,9 +768,7 @@
                     no_cont: data.no_container,
                     jenis_bm: jenis_batal
                 }, function(data) {
-                    const returnData = data.dataRec[0]
                     if (data.code === '1') {
-                        let containerStatus = returnData.containerStatus == 'EMPTY' ? 'MTY' : 'FCL';
                         if ($("#status_gate").val() == '1') {
                             if (containerStatus != 'FCL') {
                                 Swal.fire({

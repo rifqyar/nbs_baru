@@ -11,7 +11,7 @@ if (!function_exists('getTokenPraya')) {
             "password" => "Nbs2023!",
             "statusApp" => "Web"
         );
-        $response = sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+        $response = sendDataFromUrlGuzzle($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
         $obj = json_decode($response['response'], true);
         return $obj["token"];
     }
@@ -81,6 +81,66 @@ if (!function_exists('sendDataFromUrl')) {
         }
 
         return $response_curl;
+    }
+
+    function sendDataFromUrlGuzzle($payload_request, $url, $method = "POST", $token = "")
+    {
+        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP)', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+        $start = microtime(true);
+
+        set_time_limit(0);
+        putenv('http_proxy');
+        putenv('https_proxy');
+
+        try {
+            $client = new \GuzzleHttp\Client([
+                'verify' => false,
+                'timeout' => 120,
+                'http_errors' => false,
+            ]);
+
+            $headers = [
+                'Content-Type' => 'application/json',
+            ];
+            if (!empty($token)) {
+                $headers['Authorization'] = "Bearer $token";
+            }
+
+            $options = [
+                'headers' => $headers,
+                'body' => json_encode($payload_request),
+            ];
+
+            $start = microtime(true);
+            $response = $client->request($method, $url, $options);
+            $end = microtime(true);
+
+            $body = (string) $response->getBody();
+            $statusCode = $response->getStatusCode();
+
+            Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP)', [
+                'time' => $end - $start,
+                'status_code' => $statusCode,
+                'response' => $body,
+            ]);
+
+            if ($statusCode >= 200 && $statusCode < 300) {
+                return [
+                    'status' => 'success',
+                    'response' => $body
+                ];
+            } else {
+                return [
+                    'status' => 'error',
+                    'response' => "HTTP Error #$statusCode: $body"
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'status' => 'error',
+                'response' => "Guzzle Error: " . $e->getMessage()
+            ];
+        }
     }
 }
 
@@ -2165,19 +2225,20 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        $json = _getDatafromUrl($url);
-        $json = json_decode($json, true);
+        $response = getDataFromUrlGuzzle($url);
+        $json = json_decode($response, true);
 
-        if ($json['code'] == 1) {
-            $vessel_resp = '';
-            foreach ($json['data'] as $k => $v) {
-                if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
-                    $vessel_resp = $v;
-                }
+        if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
+            foreach ($json['data'] as $v) {
+            if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
+                return $v;
             }
-            return $vessel_resp;
-        } else {
+            }
+            return null;
+        } elseif (isset($json['msg'])) {
             return $json['msg'];
+        } else {
+            return null;
         }
     } catch (Exception $ex) {
         return $ex->getMessage();
@@ -2203,10 +2264,10 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             "serviceCode" => $serviceCode
         );
 
-        $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
         $response = json_decode($response['response'], true);
 
-        if ($response['code'] == 1 && !empty($response["data"])) {
+        if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];
         }
     } catch (Exception $ex) {
@@ -2251,13 +2312,10 @@ function getIsoCode()
             "record" => 1000
         );
 
-        // echo json_encode($payload);
-        // echo "<<payload";
-
-        $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
         $response = json_decode($response['response'], true);
 
-        if ($response['code'] == 1 && !empty($response["dataRec"])) {
+        if (isset($response['code']) && $response['code'] == 1 && !empty($response["dataRec"])) {
             return $response['dataRec'];
         }
     } catch (Exception $ex) {
@@ -2293,56 +2351,45 @@ function mapNewIsoCode($iso)
 
     return $new_iso;
 }
-function _getDatafromUrl($url)
+function getDataFromUrlGuzzle($url)
 {
     $token = getTokenPraya();
 
-    $options = array(
-        CURLOPT_RETURNTRANSFER => true,     // return web page
-        CURLOPT_HEADER         => false,    // don't return headers
-        CURLOPT_FOLLOWLOCATION => true,     // follow redirects
-        CURLOPT_ENCODING       => "",       // handle all encodings
-        CURLOPT_USERAGENT      => "spider", // who am i
-        CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-        CURLOPT_CONNECTTIMEOUT => 0,      // timeout on connect
-        CURLOPT_TIMEOUT        => 0,      // timeout on response
-        CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-        // dicomment, kena error ssl ca cert
-        // CURLOPT_CAINFO		   => "/var/www/html/ibis_qa/tmp/cacert.pem",
-        // CURLOPT_SSL_VERIFYPEER => false, // <- dihapus sebelum di push
-        CURLOPT_HTTPHEADER      => array(
-            "Content-Type: application/json",
-            "Authorization: Bearer $token",
-        ),
-    );
+    try {
+        $client = new \GuzzleHttp\Client([
+            'verify' => false,
+            'timeout' => 120,
+            'http_errors' => false,
+        ]);
 
-    $ch      = curl_init($url);
-    curl_setopt_array($ch, $options);
-    Log::channel('praya')->info('Request to Praya', ['url' => $url]);
-    $start = microtime(true);
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer $token",
+        ];
 
-    $content = curl_exec($ch);
-    $err     = curl_errno($ch);
-    $errmsg  = curl_error($ch);
-    $header  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-    curl_close($ch);
+        Log::channel('praya')->info('Request to Praya (Guzzle)', ['url' => $url]);
+        $start = microtime(true);
 
-    $end = microtime(true);
-    Log::channel('praya')->info('ILCS Response Info', [
-        'time' => $end - $start,
-        'curl_info' => $header,
-        'response' => $content,
-        'error' => curl_error($ch),
-    ]);
+        $response = $client->request('GET', $url, [
+            'headers' => $headers,
+        ]);
 
-    // $header['errno']   = $err;
-    // $header['errmsg']  = $errmsg;
+        $end = microtime(true);
 
-    //change errmsg here to errno
-    if ($errmsg) {
-        echo "CURL:" . $errmsg . "<BR>";
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+
+        Log::channel('praya')->info('ILCS Response Info (Guzzle)', [
+            'time' => $end - $start,
+            'status_code' => $statusCode,
+            'response' => $body,
+        ]);
+
+        return $body;
+    } catch (\Exception $e) {
+        Log::channel('praya')->error('Guzzle Error', ['error' => $e->getMessage()]);
+        return null;
     }
-    return $content;
 }
 
 function getDatafromUrl($url)

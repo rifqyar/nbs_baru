@@ -704,11 +704,6 @@ if (!function_exists('savePaymentExternal')) {
                     "DEL"
                 );
                 $get_iso_code = getIsoCode();
-
-                dump($get_vessel);
-                dump($get_container_list);
-                dump($get_iso_code);
-
                 // $get_vessel = null;
                 // $get_container_list = null;
                 // $get_iso_code = null;
@@ -1384,36 +1379,37 @@ if (!function_exists('savePaymentExternal')) {
                         ->where('ndd.ID_ISO', 'ADM')
                         ->first();
 
-                    $get_vessel = null;
-                    $get_iso_code = null;
+                    // $get_vessel = null;
+                    // $get_iso_code = null;
 
-                    $loop = \React\EventLoop\Factory::create();
-                    $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchDelivery) {
-                        $resolve(getVessel(
-                            $fetchDelivery->nm_kapal,
-                            $fetchDelivery->voyage,
-                            $fetchDelivery->voyage_in,
-                            $fetchDelivery->voyage_out
-                        ));
-                    });
+                    // $loop = \React\EventLoop\Factory::create();
+                    // $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchDelivery) {
+                    //     $resolve(getVessel(
+                    //         $fetchDelivery->nm_kapal,
+                    //         $fetchDelivery->voyage,
+                    //         $fetchDelivery->voyage_in,
+                    //         $fetchDelivery->voyage_out
+                    //     ));
+                    // });
 
-                    $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
-                        $resolve(getIsoCode());
-                    });
+                    // $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
+                    //     $resolve(getIsoCode());
+                    // });
 
-                    \React\Promise\all([
-                        'get_vessel' => $promiseVessel,
-                        'get_iso_code' => $promiseIsoCode
-                    ])->then(function ($results) use (&$get_vessel, &$get_iso_code, $loop) {
-                        $get_vessel = $results['get_vessel'];
-                        $get_iso_code = $results['get_iso_code'];
-                        $loop->stop();
-                    });
+                    // \React\Promise\all([
+                    //     'get_vessel' => $promiseVessel,
+                    //     'get_iso_code' => $promiseIsoCode
+                    // ])->then(function ($results) use (&$get_vessel, &$get_iso_code, $loop) {
+                    //     $get_vessel = $results['get_vessel'];
+                    //     $get_iso_code = $results['get_iso_code'];
+                    //     $loop->stop();
+                    // });
 
-                    $loop->run();
-                    // $get_vessel = getVessel($fetchDelivery->nm_kapal, $fetchDelivery->voyage, $fetchDelivery->voyage_in, $fetchDelivery->voyage_out);
-                    // // $get_container_list = getContainer(NULL, $fetchDelivery['KD_KAPAL'], $fetchDelivery['VOYAGE_IN'], $fetchDelivery['VOYAGE_OUT'], $fetchDelivery['VOYAGE']);
-                    // $get_iso_code = getIsoCode();
+                    // $loop->run();
+
+                    $get_vessel = getVessel($fetchDelivery->nm_kapal, $fetchDelivery->voyage, $fetchDelivery->voyage_in, $fetchDelivery->voyage_out);
+                    // $get_container_list = getContainer(NULL, $fetchDelivery['KD_KAPAL'], $fetchDelivery['VOYAGE_IN'], $fetchDelivery['VOYAGE_OUT'], $fetchDelivery['VOYAGE']);
+                    $get_iso_code = getIsoCode();
 
                     if (empty($get_iso_code)) {
                         $payload_log = [];
@@ -1715,41 +1711,41 @@ if (!function_exists('savePaymentExternal')) {
                 if ($charge == "N") {
                     $fetchExDelivery = $fetchDelivery;
                     if ($fetchExDelivery->delivery_ke == 'TPK') {
-                        $get_vessel = null;
-                        $get_container_list = null;
-                        $get_iso_code = null;
+                        // $get_vessel = null;
+                        // $get_container_list = null;
+                        // $get_iso_code = null;
 
-                        $loop = \React\EventLoop\Factory::create();
+                        // $loop = \React\EventLoop\Factory::create();
 
-                        $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($payloadBatalMuat) {
-                            $resolve(getVessel(
-                                $payloadBatalMuat['vesselName'],
-                                $payloadBatalMuat['voyage'],
-                                $payloadBatalMuat['voyageIn'],
-                                $payloadBatalMuat['voyageOut']
-                            ));
-                        });
+                        // $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($payloadBatalMuat) {
+                        //     $resolve(getVessel(
+                        //         $payloadBatalMuat['vesselName'],
+                        //         $payloadBatalMuat['voyage'],
+                        //         $payloadBatalMuat['voyageIn'],
+                        //         $payloadBatalMuat['voyageOut']
+                        //     ));
+                        // });
 
-                        $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
-                            $resolve(getIsoCode());
-                        });
+                        // $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
+                        //     $resolve(getIsoCode());
+                        // });
 
-                        \React\Promise\all([
-                            'get_vessel' => $promiseVessel,
-                            'get_iso_code' => $promiseIsoCode
-                        ])->then(function ($results) use (&$get_vessel, &$get_iso_code, $loop) {
-                            $get_vessel = $results['get_vessel'];
-                            $get_iso_code = $results['get_iso_code'];
-                            $loop->stop();
-                        });
-                        $loop->run();
-                        // $get_vessel = getVessel(
-                        //     $payloadBatalMuat['vesselName'],
-                        //     $payloadBatalMuat['voyage'],
-                        //     $payloadBatalMuat['voyageIn'],
-                        //     $payloadBatalMuat['voyageOut']
-                        // );
-                        // $get_iso_code = getIsoCode();
+                        // \React\Promise\all([
+                        //     'get_vessel' => $promiseVessel,
+                        //     'get_iso_code' => $promiseIsoCode
+                        // ])->then(function ($results) use (&$get_vessel, &$get_iso_code, $loop) {
+                        //     $get_vessel = $results['get_vessel'];
+                        //     $get_iso_code = $results['get_iso_code'];
+                        //     $loop->stop();
+                        // });
+                        // $loop->run();
+                        $get_vessel = getVessel(
+                            $payloadBatalMuat['vesselName'],
+                            $payloadBatalMuat['voyage'],
+                            $payloadBatalMuat['voyageIn'],
+                            $payloadBatalMuat['voyageOut']
+                        );
+                        $get_iso_code = getIsoCode();
 
                         if (empty($get_iso_code)) {
                             $payload_log = [];
@@ -2021,60 +2017,60 @@ if (!function_exists('savePaymentExternal')) {
                             ->first();
 
 
-                        // $get_vessel = getVessel($fetchBatalMuat->nm_kapal, $fetchBatalMuat->voyage, $fetchBatalMuat->voyage_in, $fetchBatalMuat->voyage_out);
-                        // $get_container_list = getContainer(
-                        //     null,
-                        //     $fetchBatalMuat->kd_kapal,
-                        //     $fetchBatalMuat->voyage_in,
-                        //     $fetchBatalMuat->voyage_out,
-                        //     $fetchBatalMuat->voyage,
-                        //     "E",
-                        //     "LCB"
-                        // );
-                        // $get_iso_code = getIsoCode();
+                        $get_vessel = getVessel($fetchBatalMuat->nm_kapal, $fetchBatalMuat->voyage, $fetchBatalMuat->voyage_in, $fetchBatalMuat->voyage_out);
+                        $get_container_list = getContainer(
+                            null,
+                            $fetchBatalMuat->kd_kapal,
+                            $fetchBatalMuat->voyage_in,
+                            $fetchBatalMuat->voyage_out,
+                            $fetchBatalMuat->voyage,
+                            "E",
+                            "LCB"
+                        );
+                        $get_iso_code = getIsoCode();
 
-                        $get_vessel = null;
-                        $get_container_list = null;
-                        $get_iso_code = null;
+                        // $get_vessel = null;
+                        // $get_container_list = null;
+                        // $get_iso_code = null;
 
-                        $loop = \React\EventLoop\Factory::create();
+                        // $loop = \React\EventLoop\Factory::create();
 
-                        $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchBatalMuat) {
-                            $resolve(getVessel(
-                                $fetchBatalMuat->nm_kapal,
-                                $fetchBatalMuat->voyage,
-                                $fetchBatalMuat->voyage_in,
-                                $fetchBatalMuat->voyage_out
-                            ));
-                        });
+                        // $promiseVessel = new \React\Promise\Promise(function ($resolve) use ($fetchBatalMuat) {
+                        //     $resolve(getVessel(
+                        //         $fetchBatalMuat->nm_kapal,
+                        //         $fetchBatalMuat->voyage,
+                        //         $fetchBatalMuat->voyage_in,
+                        //         $fetchBatalMuat->voyage_out
+                        //     ));
+                        // });
 
-                        $promiseContainer = new \React\Promise\Promise(function ($resolve) use ($fetchBatalMuat) {
-                            $resolve(getContainer(
-                                null,
-                                $fetchBatalMuat->kd_kapal,
-                                $fetchBatalMuat->voyage_in,
-                                $fetchBatalMuat->voyage_out,
-                                $fetchBatalMuat->voyage,
-                                "E",
-                                "LCB"
-                            ));
-                        });
+                        // $promiseContainer = new \React\Promise\Promise(function ($resolve) use ($fetchBatalMuat) {
+                        //     $resolve(getContainer(
+                        //         null,
+                        //         $fetchBatalMuat->kd_kapal,
+                        //         $fetchBatalMuat->voyage_in,
+                        //         $fetchBatalMuat->voyage_out,
+                        //         $fetchBatalMuat->voyage,
+                        //         "E",
+                        //         "LCB"
+                        //     ));
+                        // });
 
-                        $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
-                            $resolve(getIsoCode());
-                        });
+                        // $promiseIsoCode = new \React\Promise\Promise(function ($resolve) {
+                        //     $resolve(getIsoCode());
+                        // });
 
-                        \React\Promise\all([
-                            'get_vessel' => $promiseVessel,
-                            'get_container_list' => $promiseContainer,
-                            'get_iso_code' => $promiseIsoCode
-                        ])->then(function ($results) use (&$get_vessel, &$get_container_list, &$get_iso_code, $loop) {
-                            $get_vessel = $results['get_vessel'];
-                            $get_container_list = $results['get_container_list'];
-                            $get_iso_code = $results['get_iso_code'];
-                            $loop->stop();
-                        });
-                        $loop->run();
+                        // \React\Promise\all([
+                        //     'get_vessel' => $promiseVessel,
+                        //     'get_container_list' => $promiseContainer,
+                        //     'get_iso_code' => $promiseIsoCode
+                        // ])->then(function ($results) use (&$get_vessel, &$get_container_list, &$get_iso_code, $loop) {
+                        //     $get_vessel = $results['get_vessel'];
+                        //     $get_container_list = $results['get_container_list'];
+                        //     $get_iso_code = $results['get_iso_code'];
+                        //     $loop->stop();
+                        // });
+                        // $loop->run();
 
                         if (empty($get_iso_code)) {
                             $payload_log = [];
@@ -2562,27 +2558,24 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             'token' => getTokenPraya()
         ];
 
-        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
-        // $start = microtime(true);
+        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
+        $start = microtime(true);
 
-        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode)->catch(function ($exception) {
-        //     Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
-        //     return response()->json(['code' => 500, 'msg' => 'Error fetching container data: ' . $exception->getMessage()], 500);
-        // });
+        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
-        // $body = (string) $response->getBody();
-        // $statusCode = $response->getStatusCode();
-        // $json = json_decode($body, true);
-        // $json = $json['response'] ?? [];
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+        $json = json_decode($body, true);
+        $json = $json['response'] ?? [];
 
-        // $end = microtime(true);
-        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-        //     'time' => $end - $start,
-        //     'status_code' => $statusCode,
-        //     'response' => $body,
-        // ]);
-        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
-        $response = json_decode($response['response'], true);
+        $end = microtime(true);
+        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+            'time' => $end - $start,
+            'status_code' => $statusCode,
+            'response' => $body,
+        ]);
+        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        // $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];
@@ -2629,35 +2622,32 @@ function getIsoCode()
             "record" => 1000
         );
 
-        // $payloadNode = [
-        //     'payload' => $payload,
-        //     'url' => env('PRAYA_API_TOS') . "/api/containerList",
-        //     'method' => 'POST',
-        //     'token' => getTokenPraya()
-        // ];
+        $payloadNode = [
+            'payload' => $payload,
+            'url' => env('PRAYA_API_TOS') . "/api/containerList",
+            'method' => 'POST',
+            'token' => getTokenPraya()
+        ];
 
-        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
-        // $start = microtime(true);
+        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
+        $start = microtime(true);
 
-        // $response = Http::post(env('PRAYA_API_TOS') . "/api/isoCodeList", $payloadNode)->catch(function ($exception) {
-        //     Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
-        //     return response()->json(['code' => 500, 'msg' => 'Error fetching ISO codes: ' . $exception->getMessage()], 500);
-        // });
+        $response = Http::post(env('PRAYA_API_TOS') . "/api/isoCodeList", $payloadNode);
 
-        // $body = (string) $response->getBody();
-        // $statusCode = $response->getStatusCode();
-        // $json = json_decode($body, true);
-        // $json = $json['response'] ?? [];
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+        $json = json_decode($body, true);
+        $json = $json['response'] ?? [];
 
-        // $end = microtime(true);
-        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-        //     'time' => $end - $start,
-        //     'status_code' => $statusCode,
-        //     'response' => $body,
-        // ]);
+        $end = microtime(true);
+        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+            'time' => $end - $start,
+            'status_code' => $statusCode,
+            'response' => $body,
+        ]);
 
-        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
-        $response = json_decode($response['response'], true);
+        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        // $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["dataRec"])) {
             return $response['dataRec'];

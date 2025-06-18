@@ -2165,7 +2165,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        $json = getDatafromUrl($url);
+        $json = _getDatafromUrl($url);
         $json = json_decode($json, true);
 
         if ($json['code'] == 1) {
@@ -2292,6 +2292,57 @@ function mapNewIsoCode($iso)
     };
 
     return $new_iso;
+}
+function _getDatafromUrl($url)
+{
+    $token = getTokenPraya();
+
+    $options = array(
+        CURLOPT_RETURNTRANSFER => true,     // return web page
+        CURLOPT_HEADER         => false,    // don't return headers
+        CURLOPT_FOLLOWLOCATION => true,     // follow redirects
+        CURLOPT_ENCODING       => "",       // handle all encodings
+        CURLOPT_USERAGENT      => "spider", // who am i
+        CURLOPT_AUTOREFERER    => true,     // set referer on redirect
+        CURLOPT_CONNECTTIMEOUT => 0,      // timeout on connect
+        CURLOPT_TIMEOUT        => 0,      // timeout on response
+        CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
+        // dicomment, kena error ssl ca cert
+        // CURLOPT_CAINFO		   => "/var/www/html/ibis_qa/tmp/cacert.pem",
+        // CURLOPT_SSL_VERIFYPEER => false, // <- dihapus sebelum di push
+        CURLOPT_HTTPHEADER      => array(
+            "Content-Type: application/json",
+            "Authorization: Bearer $token",
+        ),
+    );
+
+    $ch      = curl_init($url);
+    curl_setopt_array($ch, $options);
+    Log::channel('praya')->info('Request to Praya', ['url' => $url]);
+    $start = microtime(true);
+
+    $content = curl_exec($ch);
+    $err     = curl_errno($ch);
+    $errmsg  = curl_error($ch);
+    $header  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    curl_close($ch);
+
+    $end = microtime(true);
+    Log::channel('praya')->info('ILCS Response Info', [
+        'time' => $end - $start,
+        'curl_info' => $header,
+        'response' => $content,
+        'error' => curl_error($ch),
+    ]);
+
+    // $header['errno']   = $err;
+    // $header['errmsg']  = $errmsg;
+
+    //change errmsg here to errno
+    if ($errmsg) {
+        echo "CURL:" . $errmsg . "<BR>";
+    }
+    return $content;
 }
 
 function getDatafromUrl($url)

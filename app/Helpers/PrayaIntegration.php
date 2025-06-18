@@ -2490,19 +2490,19 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
         // $response = getDataFromUrlGuzzle($url);
-        $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
-        $json = json_decode($response['response'], true);
+        // $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
+        // $json = json_decode($response['response'], true);
 
-        // $response = Http::post('http://localhost:3001/praya/send-data', [
-        //     'payload' => [],
-        //     'url' => $url,
-        //     'method' => 'GET',
-        //     'token' => getTokenPraya()
-        // ]);
-        // $body = (string) $response->getBody();
-        // $statusCode = $response->getStatusCode();
-        // $json = json_decode($body, true);
-        // $json = $json['response'] ?? [];
+        $response = Http::post('http://localhost:3001/praya/send-data', [
+            'payload' => [],
+            'url' => $url,
+            'method' => 'GET',
+            'token' => getTokenPraya()
+        ]);
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+        $json = json_decode($body, true);
+        $json = $json['response'] ?? [];
 
         if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
             foreach ($json['data'] as $v) {

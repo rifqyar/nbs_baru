@@ -949,13 +949,7 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
             Route::post('/data-cont', [GateInTpkController::class, 'getDataCont'])
                 ->name('');
 
-            Route::get('/view', [GateInTpkController::class, 'view'])
-                ->name('');
-
-            Route::post('/store', [GateInTpkController::class, 'store'])
-                ->name('');
-
-            Route::post('/update', [GateInTpkController::class, 'update'])
+            Route::post('/add-gatein', [GateInTpkController::class, 'addGateIn'])
                 ->name('');
         });
     });

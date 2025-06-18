@@ -45,6 +45,8 @@ if (!function_exists('sendDataFromUrl')) {
                     "Content-Type: application/json",
                     $authorization
                 ),
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
                 // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
             )
         );
@@ -308,6 +310,8 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                         "Content-Type: application/json",
                         $authorization
                     ),
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
                     // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
                 )
             );
@@ -2311,6 +2315,8 @@ function getDatafromUrl($url)
             "Content-Type: application/json",
             "Authorization: Bearer $token",
         ),
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
     );
 
     $ch      = curl_init($url);

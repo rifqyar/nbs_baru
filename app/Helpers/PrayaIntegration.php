@@ -31,8 +31,9 @@ if (!function_exists('getTokenPraya')) {
         if (Session::has('token_praya')) {
             // Check Token Expiry
             $token = Session::get('token_praya');
-            $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
-            $response = json_decode($response, true);
+            // $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
+            $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
+            $response = json_decode($response['_response'], true);
             if ($response['msg'] == 'jwt expired') {
                 // Token expired, re-login
                 Session::forget('token_praya');
@@ -168,6 +169,8 @@ if (!function_exists('sendDataFromUrl')) {
                 return [
                     'status' => 'error',
                     'response' => "HTTP Error #$statusCode: $body",
+                    '_response' => $body,
+                    // 'msg' => $body['msg'] ?? 'Unknown error',
                     'httpCode' => $statusCode
                 ];
             }
@@ -2449,8 +2452,9 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        $response = getDataFromUrlGuzzle($url);
-        $json = json_decode($response, true);
+        // $response = getDataFromUrlGuzzle($url);
+        $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
+        $json = json_decode($response['response'], true);
 
         if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
             foreach ($json['data'] as $v) {

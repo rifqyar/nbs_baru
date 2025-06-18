@@ -2164,24 +2164,54 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
     $vessel = str_replace(" ", "+", $vessel);
 
     try {
-        $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        $json = getDatafromUrl($url);
-        $json = json_decode($json, true);
+        $payload = array(
+            "terminalCode" => env('PRAYA_ITPK_PNK_TERMINAL_CODE '),
+            "vesselCode" => "",
+            "search" => "",
+            "vessel" => $vessel,
+            "voyage" => "",
+            "voyageIn" => "",
+            "voyageOut" => "",
+            "eta" => "",
+            "etb" => "",
+            "etd" => "",
+            "ata" => "",
+            "atb" => "",
+            "atd" => "",
+            "startWork" => "",
+            "endWork" => "",
+            "page" => 1,
+            "row" => 10
+        );
 
-        if ($json['code'] == 1) {
-            $vessel_resp = '';
-            foreach ($json['data'] as $k => $v) {
-                if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
-                    $vessel_resp = $v;
-                }
-            }
-            return $vessel_resp;
-        } else {
-            return $json['msg'];
+        $response = sendDataFromUrl($payload, env('PRAYA_API_VESSEL ') . "/api/terminalInfo/getVesselVoyage", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
+
+        if ($response['code'] == 1 && !empty($response["data"])) {
+            return $response['data'];
         }
     } catch (Exception $ex) {
         return $ex->getMessage();
     }
+    // try {
+    //     $url = env('PRAYA_API_VESSEL') . "/api/terminalInfo/getVesselVoyage?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
+    //     $json = sendDataFromUrlTryCatch($url);
+    //     $json = json_decode($json, true);
+
+    //     if ($json['code'] == 1) {
+    //         $vessel_resp = '';
+    //         foreach ($json['data'] as $k => $v) {
+    //             if ($v['voyage'] == $voy && $v['voyage_in'] == $voyIn && $v['voyage_out'] == $voyOut) {
+    //                 $vessel_resp = $v;
+    //             }
+    //         }
+    //         return $vessel_resp;
+    //     } else {
+    //         return $json['msg'];
+    //     }
+    // } catch (Exception $ex) {
+    //     return $ex->getMessage();
+    // }
 }
 
 function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy, $ei, $serviceCode)

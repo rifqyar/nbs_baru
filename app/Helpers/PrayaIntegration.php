@@ -38,7 +38,8 @@ if (!function_exists('getTokenPraya')) {
                 Session::forget('token_praya');
                 return getTokenPraya();
             }
-            // return Session::get('token_praya');
+
+            return Session::get('token_praya');
         } else {
             $data_payload = array(
                 "username" => "adminnbs",
@@ -166,7 +167,8 @@ if (!function_exists('sendDataFromUrl')) {
             } else {
                 return [
                     'status' => 'error',
-                    'response' => "HTTP Error #$statusCode: $body"
+                    'response' => "HTTP Error #$statusCode: $body",
+                    'httpCode' => $statusCode
                 ];
             }
         } catch (\Exception $e) {
@@ -2589,7 +2591,8 @@ function getDataFromUrlGuzzle($url, $token = '')
             'Authorization' => "Bearer $token",
         ];
 
-        Log::channel('praya')->info('Request to Praya (Guzzle)', ['url' => $url]);
+        $info = $token != '' ? 'CHECK TOKEN EXPIRY PRAYA' : '';
+        Log::channel('praya')->info('Request to Praya (Guzzle) | ' . $info, ['url' => $url]);
         $start = microtime(true);
 
         $guzzleClient = new PrayaGuzzleClient();

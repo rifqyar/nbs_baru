@@ -2162,7 +2162,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 {
 
     $vessel = str_replace(" ", "+", $vessel);
-    $vessel = 'TANTO';
+
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
         $json = getDatafromUrl($url);

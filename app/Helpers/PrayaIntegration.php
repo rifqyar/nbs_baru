@@ -2467,7 +2467,6 @@ if (!function_exists('savePaymentExternal')) {
             }
 
             insertPrayaServiceLog($url_uster_save, $payload_header, $response_uster_save_logging, $notes);
-            dd($response_uster_save_decode);
             if (isset($response_uster_save_decode['code']) && $response_uster_save_decode['code'] == 0) {
                 return response()->json($response_uster_save_logging, 500);
             } else {
@@ -2636,8 +2635,8 @@ function getIsoCode()
 
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        $response = json_decode($body, true);
+        $response = $response['response'] ?? [];
 
         $end = microtime(true);
         Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [

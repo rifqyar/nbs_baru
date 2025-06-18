@@ -206,6 +206,7 @@
                         },
                         success: function(response) {
                             jsonResponse = response;
+                            console.log("Response:", jsonResponse);
                             // Check the response code
                             if (jsonResponse.code === "0") {
                                 // Show an error message

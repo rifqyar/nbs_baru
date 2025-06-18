@@ -138,8 +138,9 @@
         var table, no_npwp;
         var cachePBM = {};
         $("#tgl_gati").bootstrapMaterialDatePicker({
+            format: 'dddd DD MMMM YYYY - HH:mm:ss',
             weekStart: 0,
-            time: false
+            time: true
         });
 
         $(document).bind("keydown", function(e) {

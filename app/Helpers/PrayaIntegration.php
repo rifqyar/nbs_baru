@@ -2561,27 +2561,27 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             'token' => getTokenPraya()
         ];
 
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
-        $start = microtime(true);
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
+        // $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode)->catch(function ($exception) {
-            Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
-            return response()->json(['code' => 500, 'msg' => 'Error fetching container data: ' . $exception->getMessage()], 500);
-        });
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode)->catch(function ($exception) {
+        //     Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
+        //     return response()->json(['code' => 500, 'msg' => 'Error fetching container data: ' . $exception->getMessage()], 500);
+        // });
 
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $json = json_decode($body, true);
+        // $json = $json['response'] ?? [];
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     'response' => $body,
+        // ]);
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];
@@ -2628,34 +2628,35 @@ function getIsoCode()
             "record" => 1000
         );
 
-        $payloadNode = [
-            'payload' => $payload,
-            'url' => env('PRAYA_API_TOS') . "/api/containerList",
-            'method' => 'POST',
-            'token' => getTokenPraya()
-        ];
+        // $payloadNode = [
+        //     'payload' => $payload,
+        //     'url' => env('PRAYA_API_TOS') . "/api/containerList",
+        //     'method' => 'POST',
+        //     'token' => getTokenPraya()
+        // ];
 
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
-        $start = microtime(true);
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
+        // $start = microtime(true);
 
-        $response = Http::post(env('PRAYA_API_TOS') . "/api/isoCodeList", $payloadNode)->catch(function ($exception) {
-            Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
-            return response()->json(['code' => 500, 'msg' => 'Error fetching ISO codes: ' . $exception->getMessage()], 500);
-        });
+        // $response = Http::post(env('PRAYA_API_TOS') . "/api/isoCodeList", $payloadNode)->catch(function ($exception) {
+        //     Log::channel('praya')->error('Guzzle Error', ['error' => $exception->getMessage()]);
+        //     return response()->json(['code' => 500, 'msg' => 'Error fetching ISO codes: ' . $exception->getMessage()], 500);
+        // });
 
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $json = json_decode($body, true);
+        // $json = $json['response'] ?? [];
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     'response' => $body,
+        // ]);
+
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["dataRec"])) {
             return $response['dataRec'];

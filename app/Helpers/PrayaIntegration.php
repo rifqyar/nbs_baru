@@ -2429,7 +2429,7 @@ if (!function_exists('savePaymentExternal')) {
             $first_char_http_code = substr(strval($response_uster_save['httpCode']), 0, 1);
 
             if ($first_char_http_code == 5 || $first_char_http_code == 1) {
-                $decodedRes = json_decode($response_uster_save["response"]["msg"]) ? json_decode($response_uster_save["response"]["msg"]) : $response_uster_save["response"]["msg"];
+                $decodedRes = json_decode($response_uster_save["_response"]["msg"]) ? json_decode($response_uster_save["_response"]["msg"]) : $response_uster_save["_response"]["msg"];
                 $defaultRes = "Service is Unavailable, please try again (HTTP Error Code : " . $response_uster_save["httpCode"] . ")";
                 $response_uster_save_logging = array(
                     "code" => "0",
@@ -2442,8 +2442,7 @@ if (!function_exists('savePaymentExternal')) {
                 return response()->json($response_uster_save_logging, 500);
             }
 
-            $response_uster_save_decode = json_decode($response_uster_save['response'], true);
-
+            $response_uster_save_decode = json_decode($response_uster_save['_response'], true);
             $response_uster_save_logging = $response_uster_save_decode["code"] == 0 ? array(
                 "code" => $response_uster_save_decode['code'],
                 "msg" => $response_uster_save_decode['msg']

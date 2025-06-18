@@ -2467,7 +2467,7 @@ if (!function_exists('savePaymentExternal')) {
             }
 
             insertPrayaServiceLog($url_uster_save, $payload_header, $response_uster_save_logging, $notes);
-
+            dd($response_uster_save_decode);
             if (isset($response_uster_save_decode['code']) && $response_uster_save_decode['code'] == 0) {
                 return response()->json($response_uster_save_logging, 500);
             } else {
@@ -2624,7 +2624,7 @@ function getIsoCode()
 
         $payloadNode = [
             'payload' => $payload,
-            'url' => env('PRAYA_API_TOS') . "/api/containerList",
+            'url' => env('PRAYA_API_TOS') . "/api/isoCodeList",
             'method' => 'POST',
             'token' => getTokenPraya()
         ];
@@ -2632,7 +2632,7 @@ function getIsoCode()
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post(env('PRAYA_API_TOS') . "/api/isoCodeList", $payloadNode);
+        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();

@@ -758,63 +758,37 @@
 
             var status_gate = $("#status_gate").val();
 
-            const returnData = data.dataRec[0]
-            let containerStatus = returnData.containerStatus == 'EMPTY' ? 'MTY' : 'FCL';
+            // if (status_gate === '2') {
+            var jenis_batal = $("#jenis_batal").val();
+            var url_disable_container = '{{ route('uster.koreksi.batal_muat.prayaGetContainer') }}';
+            $.post(url_disable_container, {
+                no_cont: data.no_container,
+                jenis_bm: jenis_batal
+            }, function(data) {
+                const returnData = data.dataRec[0]
+                if (data.code === '1') {
+                    let containerStatus = returnData.containerStatus == 'EMPTY' ? 'MTY' : 'FCL';
+                    if ($("#status_gate").val() == '1') {
+                        if (containerStatus != 'FCL') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Container Belum Realisasi!',
+                                timer: 1000,
+                                timerProgressBar: true,
+                                showConfirmButton: false
+                            });
 
-            if (status_gate === '2') {
-                var jenis_batal = $("#jenis_batal").val();
-                var url_disable_container = '{{ route('uster.koreksi.batal_muat.prayaGetContainer') }}';
-                $.post(url_disable_container, {
-                    no_cont: data.no_container,
-                    jenis_bm: jenis_batal
-                }, function(data) {
-                    if (data.code === '1') {
-                        if ($("#status_gate").val() == '1') {
-                            if (containerStatus != 'FCL') {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Container Belum Realisasi!',
-                                    timer: 1000,
-                                    timerProgressBar: true,
-                                    showConfirmButton: false
-                                });
-
-                                $("#NO_CONT").val('');
-                                $("#NO_REQUEST").val('');
-                                $("#SIZE").val('');
-                                $("#TYPE").val('');
-                                $("#STATUS").val('');
-                            } else {
-                                $("#NO_CONT").val(returnData.containerNo);
-                                $("#NO_REQUEST").val(returnData.requestId);
-                                $("#SIZE").val(returnData.containerSize);
-                                $("#TYPE").val(returnData.containerType);
-                                $("#STATUS").val(containerStatus);
-                                $.ajax({
-                                    url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
-                                    method: 'GET',
-                                    data: {
-                                        no_cont: returnData.containerNo,
-                                        no_req: returnData.requestId
-                                    },
-                                    success: function(data) {
-                                        $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
-                                    },
-                                    error: function(xhr) {
-                                        console.error(xhr.responseText);
-                                    }
-                                });
-                            }
+                            $("#NO_CONT").val('');
+                            $("#NO_REQUEST").val('');
+                            $("#SIZE").val('');
+                            $("#TYPE").val('');
+                            $("#STATUS").val('');
                         } else {
                             $("#NO_CONT").val(returnData.containerNo);
                             $("#NO_REQUEST").val(returnData.requestId);
                             $("#SIZE").val(returnData.containerSize);
                             $("#TYPE").val(returnData.containerType);
                             $("#STATUS").val(containerStatus);
-                            $("#NO_REQ_ICT").val(returnData.no_req_itc);
-                            $("#UKK_LAMA").val(returnData.ukk_lama);
-                            $("#ETD_LAMA").val(returnData.etd_old);
-
                             $.ajax({
                                 url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
                                 method: 'GET',
@@ -830,47 +804,22 @@
                                 }
                             });
                         }
-                        return false;
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: `Container in Service disableContainer : ${json.msg}`,
-                            timer: 1000,
-                            timerProgressBar: true,
-                            showConfirmButton: false
-                        });
-
-                        $("#NO_CONT").val('');
-                        return false;
-                    }
-                });
-            } else {
-                if ($("#status_gate").val() == '1') {
-                    if (containerStatus != 'FCL') {
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Container Belum Realisasi!',
-                            timer: 1000,
-                            timerProgressBar: true,
-                            showConfirmButton: false
-                        });
-                        $("#NO_CONT").val('');
-                        $("#NO_REQUEST").val('');
-                        $("#SIZE").val('');
-                        $("#TYPE").val('');
-                        $("#STATUS").val('');
                     } else {
                         $("#NO_CONT").val(returnData.containerNo);
                         $("#NO_REQUEST").val(returnData.requestId);
                         $("#SIZE").val(returnData.containerSize);
                         $("#TYPE").val(returnData.containerType);
                         $("#STATUS").val(containerStatus);
+                        $("#NO_REQ_ICT").val(returnData.no_req_itc);
+                        $("#UKK_LAMA").val(returnData.ukk_lama);
+                        $("#ETD_LAMA").val(returnData.etd_old);
+
                         $.ajax({
                             url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
                             method: 'GET',
                             data: {
                                 no_cont: returnData.containerNo,
+                                no_req: returnData.requestId
                             },
                             success: function(data) {
                                 $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
@@ -880,33 +829,83 @@
                             }
                         });
                     }
+                    return false;
                 } else {
-                    $("#NO_CONT").val(returnData.containerNo);
-                    $("#NO_REQUEST").val(returnData.requestId);
-                    $("#SIZE").val(returnData.containerSize);
-                    $("#TYPE").val(returnData.containerType);
-                    $("#STATUS").val(containerStatus);
-                    $("#NO_REQ_ICT").val(returnData.no_req_ict);
-                    $("#UKK_LAMA").val(returnData.ukk_lama);
-                    $("#ETD_LAMA").val(returnData.etd_old);
-
-                    $.ajax({
-                        url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
-                        method: 'GET',
-                        data: {
-                            no_cont: returnData.containerNo,
-                            no_req: returnData.requestId
-                        },
-                        success: function(data) {
-                            $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
-                        },
-                        error: function(xhr) {
-                            console.error(xhr.responseText);
-                        }
+                    Swal.fire({
+                        icon: 'error',
+                        title: `Container in Service disableContainer : ${json.msg}`,
+                        timer: 1000,
+                        timerProgressBar: true,
+                        showConfirmButton: false
                     });
+
+                    $("#NO_CONT").val('');
+                    return false;
                 }
-                return false;
-            }
+            });
+            // } else {
+            //     if ($("#status_gate").val() == '1') {
+            //         if (containerStatus != 'FCL') {
+
+            //             Swal.fire({
+            //                 icon: 'error',
+            //                 title: 'Container Belum Realisasi!',
+            //                 timer: 1000,
+            //                 timerProgressBar: true,
+            //                 showConfirmButton: false
+            //             });
+            //             $("#NO_CONT").val('');
+            //             $("#NO_REQUEST").val('');
+            //             $("#SIZE").val('');
+            //             $("#TYPE").val('');
+            //             $("#STATUS").val('');
+            //         } else {
+            //             $("#NO_CONT").val(returnData.containerNo);
+            //             $("#NO_REQUEST").val(returnData.requestId);
+            //             $("#SIZE").val(returnData.containerSize);
+            //             $("#TYPE").val(returnData.containerType);
+            //             $("#STATUS").val(containerStatus);
+            //             $.ajax({
+            //                 url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+            //                 method: 'GET',
+            //                 data: {
+            //                     no_cont: returnData.containerNo,
+            //                 },
+            //                 success: function(data) {
+            //                     $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+            //                 },
+            //                 error: function(xhr) {
+            //                     console.error(xhr.responseText);
+            //                 }
+            //             });
+            //         }
+            //     } else {
+            //         $("#NO_CONT").val(returnData.containerNo);
+            //         $("#NO_REQUEST").val(returnData.requestId);
+            //         $("#SIZE").val(returnData.containerSize);
+            //         $("#TYPE").val(returnData.containerType);
+            //         $("#STATUS").val(containerStatus);
+            //         $("#NO_REQ_ICT").val(returnData.no_req_ict);
+            //         $("#UKK_LAMA").val(returnData.ukk_lama);
+            //         $("#ETD_LAMA").val(returnData.etd_old);
+
+            //         $.ajax({
+            //             url: '{{ route('uster.koreksi.batal_muat.getContainerHistory') }}',
+            //             method: 'GET',
+            //             data: {
+            //                 no_cont: returnData.containerNo,
+            //                 no_req: returnData.requestId
+            //             },
+            //             success: function(data) {
+            //                 $("#TGL_PNKN_START").val(convertToHtmlDateFormat(data));
+            //             },
+            //             error: function(xhr) {
+            //                 console.error(xhr.responseText);
+            //             }
+            //         });
+            //     }
+            //     return false;
+            // }
 
 
         })

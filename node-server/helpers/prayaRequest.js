@@ -44,7 +44,7 @@ async function sendPrayaRequest({
 
     const start = Date.now();
 
-    // try {
+    try {
         const response = await axios(config);
         const duration = (Date.now() - start) / 1000;
 
@@ -69,18 +69,18 @@ async function sendPrayaRequest({
                 httpCode: response.status,
             };
         }
-    // } catch (error) {
-    //     prayaLogger.error("Axios Error", { error: error.message });
+    } catch (error) {
+        prayaLogger.error("Axios Error", { error: error.message });
 
-    //     return {
-    //         status: "error",
-    //         response: `HTTP Error #${response.status}: ${JSON.stringify(
-    //             response.data
-    //         )}`,
-    //         _response: response.data,
-    //         httpCode: response.status,
-    //     };
-    // }
+        return {
+            status: "error",
+            response: `HTTP Error #${response.status}: ${JSON.stringify(
+                response.data
+            )}`,
+            _response: response.data,
+            httpCode: response.status,
+        };
+    }
 }
 
 module.exports = { sendPrayaRequest };

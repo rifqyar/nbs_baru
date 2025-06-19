@@ -11,7 +11,7 @@ async function sendData(req, res) {
         });
     }
 
-    // try {
+    try {
         const prayaResponse = await sendPrayaRequest({
             url,
             method,
@@ -20,12 +20,12 @@ async function sendData(req, res) {
         });
 
         return res.json(prayaResponse);
-    // } catch (error) {
-    //     return res.status(500).json({
-    //         status: "error",
-    //         message: "Internal server error",
-    //     });
-    // }
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Internal server error",
+        });
+    }
 }
 
 module.exports = { sendData };

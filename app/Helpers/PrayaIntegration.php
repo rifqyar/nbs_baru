@@ -34,8 +34,9 @@ if (!function_exists('getTokenPraya')) {
             $token = Session::get('token_praya');
             // $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
             // $response = sendDataFromUrlNode([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
-            $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
-            $response = json_decode($response['_response'], true);
+            // $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
+            $response = getDatafromUrl(env('PRAYA_API_TOS') . "/api/getOperator", $token);
+            $response = json_decode($response, true);
             if ($response['msg'] == 'jwt expired') {
                 // Token expired, re-login
                 Session::forget('token_praya');
@@ -2773,9 +2774,12 @@ function getDataFromUrlGuzzle($url, $token = '')
     }
 }
 
-function getDatafromUrl($url)
+function getDatafromUrl($url, $token = '')
 {
-    $token = getTokenPraya();
+    // If token is not provided, use the default token
+    if ($token == '') {
+        $token = getTokenPraya();
+    }
 
     $curl = curl_init();
 

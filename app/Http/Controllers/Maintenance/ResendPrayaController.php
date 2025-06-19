@@ -182,7 +182,6 @@ class ResendPrayaController extends Controller
         $curl = curl_init();
 
         curl_setopt_array($curl, [
-            CURLOPT_PORT => "8013",
             CURLOPT_URL => "https://praya.ilcs.co.id:8013/api/getVessel?pol=IDPNK&eta=&etd=&orgId=2&terminalId=622&search=ICON",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",

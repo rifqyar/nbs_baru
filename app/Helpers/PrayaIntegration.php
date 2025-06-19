@@ -2604,8 +2604,10 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
         $json = json_decode($body, true);
@@ -2617,8 +2619,6 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             'status_code' => $statusCode,
             'response' => $body,
         ]);
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];
@@ -2675,7 +2675,9 @@ function getIsoCode()
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
@@ -2689,8 +2691,6 @@ function getIsoCode()
             'response' => $body,
         ]);
 
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["dataRec"])) {
             return $response['dataRec'];

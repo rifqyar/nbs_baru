@@ -74,7 +74,11 @@ async function sendPrayaRequest({
 
         return {
             status: "error",
-            response: `Axios Error: ${error.message}`,
+            response: `HTTP Error #${response.status}: ${JSON.stringify(
+                response.data
+            )}`,
+            _response: response.data,
+            httpCode: response.status,
         };
     }
 }

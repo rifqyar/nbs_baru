@@ -1022,10 +1022,10 @@ class BatalMuatService
         );
 
         $payload = array_merge($payload_header, $payload_body);
-        // $response_uster_save = sendDataFromUrlTryCatch($payload, $url_uster_save, 'POST', getTokenPraya());
-        $response_uster_save = sendDataFromUrlGuzzle($payload, $url_uster_save, 'POST', getTokenPraya());
+        $response_uster_save = sendDataFromUrl($payload, $url_uster_save, 'POST', getTokenPraya());
+        // $response_uster_save = sendDataFromUrlGuzzle($payload, $url_uster_save, 'POST', getTokenPraya());
         $notes = $jenis == "DELIVERY" ? "Payment Cash - " . $jenis . " EX REPO" : "Payment Cash - " . $jenis;
-
+        
         $first_char_http_code = substr(strval($response_uster_save['httpCode']), 0, 1);
 
         if ($first_char_http_code == 5 || $first_char_http_code == 1) {

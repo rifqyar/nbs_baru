@@ -572,11 +572,11 @@
                     }, function(data) {
                         console.log(data)
                         if (data) {
-                            var parseData = $.parseJSON(data);
+                            var parseData = data;
                             if (parseData['code'] == 0) {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: parseData['msg'],
+                                    title: parseData.message,
                                     timer: 1000,
                                     timerProgressBar: true,
                                     showConfirmButton: false
@@ -588,6 +588,7 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Failed send to Praya',
+                                text: parseData.message
                                 timer: 1000,
                                 timerProgressBar: true,
                                 showConfirmButton: false

@@ -73,3 +73,101 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /var/www/nbs_baru/public/index.php on line 34" while reading response header from upstream, client: 10.15.42.135, server: localhost, request: "GET / HTTP/1.1", upstream: "fastcgi://unix:/run/php/php-fpm.sock:", host: "10.15.42.159"
+2025/06/19 20:23:47 [error] 989#989: *18812 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "GET /billing/paymentcash/datatable?draw=1&columns%5B0%5D%5Bdata%5D=DT_RowIndex&columns%5B0%5D%5Bname%5D=DT_RowIndex&columns%5B0%5D%5Bsearchable%5D=false&columns%5B0%5D%5Borderable%5D=false&columns%5B0%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B0%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B1%5D%5Bdata%5D=&columns%5B1%5D%5Bname%5D=&columns%5B1%5D%5Bsearchable%5D=false&columns%5B1%5D%5Borderable%5D=false&columns%5B1%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B1%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B2%5D%5Bdata%5D=no_nota&columns%5B2%5D%5Bname%5D=no_nota&columns%5B2%5D%5Bsearchable%5D=true&columns%5B2%5D%5Borderable%5D=true&columns%5B2%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B2%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B3%5D%5Bdata%5D=no_nota_mti&columns%5B3%5D%5Bname%5D=no_nota_mti&columns%5B3%5D%5Bsearchable%5D=true&columns%5B3%5D%5Borderable%5D=true&columns%5B3%5D%5Bsearch%5D%5Bvalue%5D=&columns%5B3%5D%5Bsearch%5D%5Bregex%5D=false&columns%5B4%5D%5Bdata%5D=no_faktur_mti&columns%5B4%5D%5Bname%5D=no_faktur_mti&columns%5B4%5D%5Bsearchable%5D=true&columns%5B4%5D%5Borderable%5D=true&columns%5B4%5D%5B
+2025/06/19 20:23:50 [error] 992#992: *18764 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "POST /request/receiving/save-container HTTP/1.1", upstream: "fastcgi://unix:/run/php/php-fpm.sock:", host: "newnbs.multiterminal.co.id", referrer: "https://newnbs.multiterminal.co.id/request/receiving/view/UkVDMDYyNTAwMDk3NQ=="
+2025/06/19 20:23:52 [error] 989#989: *18815 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:01 [error] 989#989: *18817 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:10 [error] 989#989: *18819 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:19 [error] 989#989: *18821 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:28 [error] 989#989: *18823 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:37 [error] 989#989: *18825 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:46 [error] 985#985: *18827 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:24:55 [error] 985#985: *18829 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:25:04 [error] 985#985: *18831 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:25:13 [error] 985#985: *18833 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:25:22 [error] 985#985: *18835 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"
+2025/06/19 20:25:31 [error] 985#985: *18837 FastCGI sent in stderr: "PHP message: PHP Warning:  require(/var/www/nbs_baru/app/Helpers/AccessHelpers.php): Failed to open stream: Permission denied in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41; PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/nbs_baru/vendor/composer/../../app/Helpers/AccessHelpers.php' (include_path='.:/usr/share/php') in /var/www/nbs_baru/vendor/composer/autoload_real.php:41
+Stack trace:
+#0 /var/www/nbs_baru/vendor/composer/autoload_real.php(45): {closure}()
+#1 /var/www/nbs_baru/vendor/autoload.php(25): ComposerAutoloaderInit5841425afc6a0d5aeef2a67bbbdb08e6::getLoader()
+#2 /var/www/nbs_baru/public/index.php(34): require('...')
+#3 {main}
+  thrown in /var/www/nbs_baru/vendor/composer/autoload_real.php on line 41" while reading response header from upstream, client: 10.15.42.200, server: newnbs.multiterminal.co.id, request: "HEAD / HTTP/1.0", upstream: "fastcgi://unix:/run/php/php-fpm.sock:"

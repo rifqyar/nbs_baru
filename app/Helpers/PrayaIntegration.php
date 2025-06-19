@@ -72,21 +72,33 @@ if (!function_exists('sendDataFromUrl')) {
         curl_setopt_array(
             $curl,
             array(
-                CURLOPT_URL             => $url,
-                CURLOPT_RETURNTRANSFER  => true,
-                CURLOPT_ENCODING        => "",
-                CURLOPT_MAXREDIRS       => 10,
-                CURLOPT_TIMEOUT         => 120,
-                CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST   => $method,
-                CURLOPT_POSTFIELDS      => json_encode($payload_request),
-                CURLOPT_HTTPHEADER      => array(
-                    "Content-Type: application/json",
-                    $authorization
-                ),
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-                // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
+                // CURLOPT_URL             => $url,
+                // CURLOPT_RETURNTRANSFER  => true,
+                // CURLOPT_ENCODING        => "",
+                // CURLOPT_MAXREDIRS       => 10,
+                // CURLOPT_TIMEOUT         => 120,
+                // CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+                // CURLOPT_CUSTOMREQUEST   => $method,
+                // CURLOPT_POSTFIELDS      => json_encode($payload_request),
+                // CURLOPT_HTTPHEADER      => array(
+                //     "Content-Type: application/json",
+                //     $authorization
+                // ),
+                // CURLOPT_PORT => "8013",
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 120,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => $method,
+                CURLOPT_POSTFIELDS => json_encode($payload_request),
+                CURLOPT_COOKIE => "X-Oracle-BMC-LBS-Route=f740610cd85b7f9f8d355e25c346298586e573fe",
+                CURLOPT_HTTPHEADER => [
+                    "Authorization: Bearer $token",
+                    "Content-Type: application/json"
+                    // "User-Agent: insomnia/11.2.0"
+                ],
             )
         );
 
@@ -110,12 +122,14 @@ if (!function_exists('sendDataFromUrl')) {
         if ($err) {
             $response_curl = array(
                 'status'   => 'error',
-                'response' => "cURL Error #:" . $err
+                'response' => "cURL Error #:" . $err,
+                'httpCode' => $info['http_code'] ?? null
             );
         } else {
             $response_curl = array(
                 'status'   => 'success',
-                'response' => $response
+                'response' => $response,
+                'httpCode' => $info['http_code'] ?? null
             );
         }
 
@@ -225,6 +239,203 @@ if (!function_exists('sendDataFromUrl')) {
             ];
         }
     }
+}
+
+if (!function_exists('sendDataFromUrlTryCatch')) {
+    function sendDataFromUrlTryCatch($payload_request, $url, $method = "POST", $token = "")
+    {
+        set_time_limit(0);
+        putenv('http_proxy');
+        putenv('https_proxy');
+
+        try {
+            $curl = curl_init();
+
+            /* set configure curl */
+            $authorization = "Authorization: Bearer $token";
+            curl_setopt_array(
+                $curl,
+                array(
+                    CURLOPT_URL             => $url,
+                    CURLOPT_RETURNTRANSFER  => true,
+                    CURLOPT_ENCODING        => "",
+                    CURLOPT_MAXREDIRS       => 10,
+                    CURLOPT_CONNECTTIMEOUT  => 120,
+                    CURLOPT_TIMEOUT         => 120,
+                    CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST   => $method,
+                    CURLOPT_POSTFIELDS      => json_encode($payload_request),
+                    CURLOPT_HTTPHEADER      => array(
+                        "Content-Type: application/json",
+                        $authorization
+                    ),
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
+                )
+            );
+
+            Log::channel('praya')->info('Request to ILCS', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
+            $start = microtime(true);
+
+            $response = curl_exec($curl);
+
+            if ($response === false) {
+                throw new Exception(curl_error($curl));
+            }
+
+            // Get HTTP status code
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $end = microtime(true);
+
+            Log::channel('praya')->info('ILCS Response Info', [
+                'time' => $end - $start,
+                'curl_info' => $httpCode,
+                'response' => $response,
+                'error' => curl_error($curl),
+            ]);
+
+            //Success
+            if ($httpCode >= 200 && $httpCode < 300) {
+                $response_curl = array(
+                    'status'   => 'Success',
+                    'httpCode' => $httpCode,
+                    'response' => $response
+                );
+            } else if ($httpCode >= 100 && $httpCode < 200) {
+                // Continue with request
+                // $response_curl = array(
+                //     'status'   => 'Continue -' . $statusMessage,
+                //     'httpCode' => $httpCode,
+                //     'response' => $response
+                // );
+                throw new Exception('HTTP Server Responding Too Long: ' . $httpCode);
+            } else if ($httpCode >= 400 && $httpCode < 500) {
+                //Client Error
+                $response_curl = array(
+                    'status'   => 'Error',
+                    'httpCode' => $httpCode,
+                    'response' => $response
+                );
+            } else {
+                //Server Error
+                throw new Exception('HTTP Server Error: ' . $httpCode);
+            }
+
+            /* execute curl */
+            curl_close($curl);
+
+            return $response_curl;
+        } catch (Exception $e) {
+            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $response_curl = array(
+                'status'   => 'error',
+                'httpCode' => $httpCode,
+                'response' => "cURL Error # " . $e->getMessage()
+            );
+
+            return $response_curl;
+        }
+    }
+}
+
+
+function getDataFromUrlGuzzle($url, $token = '')
+{
+    if ($token == '') {
+        $token = getTokenPraya();
+    }
+
+    try {
+        set_time_limit(0);
+        putenv('http_proxy');
+        putenv('https_proxy');
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer $token",
+        ];
+
+        $info = $token != '' ? 'CHECK TOKEN EXPIRY PRAYA' : '';
+        Log::channel('praya')->info('Request to Praya (Guzzle) | ' . $info, ['url' => $url]);
+        $start = microtime(true);
+
+        $guzzleClient = new PrayaGuzzleClient();
+        $client = $guzzleClient->getClient();
+        $response = $client->request('GET', $url, [
+            'headers' => $headers,
+        ]);
+
+        $end = microtime(true);
+
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+
+        Log::channel('praya')->info('ILCS Response Info (Guzzle)', [
+            'time' => $end - $start,
+            'status_code' => $statusCode,
+            'response' => $body,
+        ]);
+
+        return $body;
+    } catch (\Exception $e) {
+        Log::channel('praya')->error('Guzzle Error', ['error' => $e->getMessage()]);
+        return null;
+    }
+}
+
+function getDatafromUrl($url, $token = '')
+{
+    // If token is not provided, use the default token
+    if ($token == '') {
+        $token = getTokenPraya();
+    }
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, [
+        CURLOPT_PORT => "8013",
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_POSTFIELDS => "[]",
+        CURLOPT_COOKIE => "X-Oracle-BMC-LBS-Route=f740610cd85b7f9f8d355e25c346298586e573fe",
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $token",
+            "Content-Type: application/json"
+            // "User-Agent: insomnia/11.2.0"
+        ],
+    ]);
+    // curl_setopt_array($ch, $options);
+
+    Log::channel('praya')->info('Request to Praya', ['url' => $url]);
+    $start = microtime(true);
+
+    $content = curl_exec($curl);
+    $errmsg  = curl_error($curl);
+    $header  = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
+    $end = microtime(true);
+
+    Log::channel('praya')->info('ILCS Response Info', [
+        'time' => $end - $start,
+        'curl_info' => $header,
+        'response' => $content,
+        'error' => curl_error($curl),
+    ]);
+    curl_close($curl);
+
+    // $header['errno']   = $err;
+    // $header['errmsg']  = $errmsg;
+
+    //change errmsg here to errno
+    if ($errmsg) {
+        echo "CURL:" . $errmsg . "<BR>";
+    }
+    return $content;
 }
 
 if (!function_exists('batalContainer')) {
@@ -420,105 +631,6 @@ if (!function_exists('cancelInvoice')) {
                 'code' => "0",
                 'msg' => $ex->getMessage()
             );
-        }
-    }
-}
-
-
-if (!function_exists('sendDataFromUrlTryCatch')) {
-    function sendDataFromUrlTryCatch($payload_request, $url, $method = "POST", $token = "")
-    {
-        set_time_limit(0);
-        putenv('http_proxy');
-        putenv('https_proxy');
-
-        try {
-            $curl = curl_init();
-
-            /* set configure curl */
-            $authorization = "Authorization: Bearer $token";
-            curl_setopt_array(
-                $curl,
-                array(
-                    CURLOPT_URL             => $url,
-                    CURLOPT_RETURNTRANSFER  => true,
-                    CURLOPT_ENCODING        => "",
-                    CURLOPT_MAXREDIRS       => 10,
-                    CURLOPT_CONNECTTIMEOUT  => 120,
-                    CURLOPT_TIMEOUT         => 120,
-                    CURLOPT_HTTP_VERSION    => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST   => $method,
-                    CURLOPT_POSTFIELDS      => json_encode($payload_request),
-                    CURLOPT_HTTPHEADER      => array(
-                        "Content-Type: application/json",
-                        $authorization
-                    ),
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => false,
-                    // CURLOPT_SSL_VERIFYPEER => false // <- dihapus sebelum di push
-                )
-            );
-
-            Log::channel('praya')->info('Request to ILCS', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
-            $start = microtime(true);
-
-            $response = curl_exec($curl);
-
-            if ($response === false) {
-                throw new Exception(curl_error($curl));
-            }
-
-            // Get HTTP status code
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $end = microtime(true);
-
-            Log::channel('praya')->info('ILCS Response Info', [
-                'time' => $end - $start,
-                'curl_info' => $httpCode,
-                'response' => $response,
-                'error' => curl_error($curl),
-            ]);
-
-            //Success
-            if ($httpCode >= 200 && $httpCode < 300) {
-                $response_curl = array(
-                    'status'   => 'Success',
-                    'httpCode' => $httpCode,
-                    'response' => $response
-                );
-            } else if ($httpCode >= 100 && $httpCode < 200) {
-                // Continue with request
-                // $response_curl = array(
-                //     'status'   => 'Continue -' . $statusMessage,
-                //     'httpCode' => $httpCode,
-                //     'response' => $response
-                // );
-                throw new Exception('HTTP Server Responding Too Long: ' . $httpCode);
-            } else if ($httpCode >= 400 && $httpCode < 500) {
-                //Client Error
-                $response_curl = array(
-                    'status'   => 'Error',
-                    'httpCode' => $httpCode,
-                    'response' => $response
-                );
-            } else {
-                //Server Error
-                throw new Exception('HTTP Server Error: ' . $httpCode);
-            }
-
-            /* execute curl */
-            curl_close($curl);
-
-            return $response_curl;
-        } catch (Exception $e) {
-            $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $response_curl = array(
-                'status'   => 'error',
-                'httpCode' => $httpCode,
-                'response' => "cURL Error # " . $e->getMessage()
-            );
-
-            return $response_curl;
         }
     }
 }
@@ -2599,24 +2711,26 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             'token' => getTokenPraya()
         ];
 
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
-        $start = microtime(true);
-
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
-
         // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            // 'response' => $body,
-        ]);
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
+        // $start = microtime(true);
+
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $json = json_decode($body, true);
+        // $json = $json['response'] ?? [];
+
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     // 'response' => $body,
+        // ]);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];
@@ -2648,7 +2762,6 @@ function getStuffingContainer($no_container)
 
 function getIsoCode()
 {
-
     try {
         $searchFieldColumn = array(
             "size" => "",
@@ -2669,25 +2782,27 @@ function getIsoCode()
             'method' => 'POST',
             'token' => getTokenPraya()
         ];
+        $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
-        $start = microtime(true);
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
+        // $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
         // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
         // $response = json_decode($response['response'], true);
 
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $response = json_decode($body, true);
-        $response = $response['response'] ?? [];
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $response = json_decode($body, true);
+        // $response = $response['response'] ?? [];
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     'response' => $body,
+        // ]);
 
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["dataRec"])) {
@@ -2725,102 +2840,4 @@ function mapNewIsoCode($iso)
     };
 
     return $new_iso;
-}
-function getDataFromUrlGuzzle($url, $token = '')
-{
-    if ($token == '') {
-        $token = getTokenPraya();
-    }
-
-    try {
-        set_time_limit(0);
-        putenv('http_proxy');
-        putenv('https_proxy');
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Authorization' => "Bearer $token",
-        ];
-
-        $info = $token != '' ? 'CHECK TOKEN EXPIRY PRAYA' : '';
-        Log::channel('praya')->info('Request to Praya (Guzzle) | ' . $info, ['url' => $url]);
-        $start = microtime(true);
-
-        $guzzleClient = new PrayaGuzzleClient();
-        $client = $guzzleClient->getClient();
-        $response = $client->request('GET', $url, [
-            'headers' => $headers,
-        ]);
-
-        $end = microtime(true);
-
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-
-        Log::channel('praya')->info('ILCS Response Info (Guzzle)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
-
-        return $body;
-    } catch (\Exception $e) {
-        Log::channel('praya')->error('Guzzle Error', ['error' => $e->getMessage()]);
-        return null;
-    }
-}
-
-function getDatafromUrl($url, $token = '')
-{
-    // If token is not provided, use the default token
-    if ($token == '') {
-        $token = getTokenPraya();
-    }
-
-    $curl = curl_init();
-
-    curl_setopt_array($curl, [
-        CURLOPT_PORT => "8013",
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => "GET",
-        CURLOPT_POSTFIELDS => "[]",
-        CURLOPT_COOKIE => "X-Oracle-BMC-LBS-Route=f740610cd85b7f9f8d355e25c346298586e573fe",
-        CURLOPT_HTTPHEADER => [
-            "Authorization: Bearer $token",
-            "Content-Type: application/json"
-            // "User-Agent: insomnia/11.2.0"
-        ],
-    ]);
-    // curl_setopt_array($ch, $options);
-
-    Log::channel('praya')->info('Request to Praya', ['url' => $url]);
-    $start = microtime(true);
-
-    $content = curl_exec($curl);
-    $err     = curl_errno($curl);
-    $errmsg  = curl_error($curl);
-    $header  = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
-    $end = microtime(true);
-
-    Log::channel('praya')->info('ILCS Response Info', [
-        'time' => $end - $start,
-        'curl_info' => $header,
-        'response' => $content,
-        'error' => curl_error($curl),
-    ]);
-    curl_close($curl);
-
-    // $header['errno']   = $err;
-    // $header['errmsg']  = $errmsg;
-
-    //change errmsg here to errno
-    if ($errmsg) {
-        echo "CURL:" . $errmsg . "<BR>";
-    }
-    return $content;
 }

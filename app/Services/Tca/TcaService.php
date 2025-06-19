@@ -30,7 +30,7 @@ class TcaService
             );
 
             // $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', $this->praya->getTokenPraya());
             $response = json_decode($response['response'], true);
             if ($response['code'] == 1 && !empty($response["dataRec"])) {
                 return $response['dataRec'];
@@ -53,7 +53,7 @@ class TcaService
             );
 
             // $response = $this->praya->sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/truckList", 'POST', $this->praya->getTokenPraya());
             $response = json_decode($response['response'], true);
 
             if ($response['code'] == 1 && !empty($response["data"])) {
@@ -128,7 +128,7 @@ class TcaService
 
         try {
             // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

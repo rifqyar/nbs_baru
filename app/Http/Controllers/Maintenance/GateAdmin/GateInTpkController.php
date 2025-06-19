@@ -26,7 +26,7 @@ class GateInTpkController extends Controller
             ];
 
             $apiUrl = env('PRAYA_API_INTEGRATION') . "/api/getContainerInOut";
-            $response = sendDataFromUrlGuzzle($payload, $apiUrl, 'POST', getTokenPraya());
+            $response = sendDataFromUrl($payload, $apiUrl, 'POST', getTokenPraya());
             $responseData = json_decode($response['response'], true);
 
             if (isset($responseData['dataRec'])) {

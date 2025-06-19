@@ -50,7 +50,7 @@ if (!function_exists('getTokenPraya')) {
                 "password" => "Nbs2023!",
                 "statusApp" => "Web"
             );
-            $response = sendDataFromUrlGuzzle($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+            $response = sendDataFromUrl($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
             // $response = sendDataFromUrlNode($data_payload, env('PRAYA_API_TOS') . "/api/getOperator", 'POST');
             $obj = json_decode($response['response'], true);
 
@@ -123,6 +123,7 @@ if (!function_exists('sendDataFromUrl')) {
             $response_curl = array(
                 'status'   => 'error',
                 'response' => "cURL Error #:" . $err,
+                '_response' => $response,
                 'httpCode' => $info['http_code'] ?? null
             );
         } else {
@@ -450,7 +451,7 @@ if (!function_exists('batalContainer')) {
             );
 
             $url_batal = env('PRAYA_API_TOS') . "/api/usterProcess";
-            $response_batal = sendDataFromUrlGuzzle($payload_batal, $url_batal, 'POST', getTokenPraya());
+            $response_batal = sendDataFromUrl($payload_batal, $url_batal, 'POST', getTokenPraya());
             $response_batal = json_decode($response_batal['response'], true);
 
             insertPrayaServiceLog($url_batal, $payload_batal, $response_batal, $note);
@@ -514,7 +515,7 @@ if (!function_exists('getDisableContainer')) {
             );
 
             $url_disable_container = ENV('PRAYA_API_TOS') . "/api/disableContainer";
-            $response_disable_container = sendDataFromUrlGuzzle($payload_disable_container, $url_disable_container, 'POST', getTokenPraya());
+            $response_disable_container = sendDataFromUrl($payload_disable_container, $url_disable_container, 'POST', getTokenPraya());
 
             $response_disable_container = json_decode($response_disable_container['response'], true);
 
@@ -585,7 +586,7 @@ if (!function_exists('disableContainerSave')) {
 
             $url_disable_container_save = ENV('PRAYA_API_TOS') . "/api/disableContainerSave";
 
-            $response_disable_container_save = sendDataFromUrlGuzzle($payload_disable_container_save, $url_disable_container_save, 'POST', getTokenPraya());
+            $response_disable_container_save = sendDataFromUrl($payload_disable_container_save, $url_disable_container_save, 'POST', getTokenPraya());
 
             $response_disable_container_save = json_decode($response_disable_container_save['response'], true);
 
@@ -617,7 +618,7 @@ if (!function_exists('cancelInvoice')) {
             );
 
             $url_cancel_invoice = ENV('PRAYA_API_INTEGRATION') . "/api/usterDelete";
-            $response_cancel_invoice = sendDataFromUrlGuzzle($payload_cancel_invoice, $url_cancel_invoice, 'POST', getTokenPraya());
+            $response_cancel_invoice = sendDataFromUrl($payload_cancel_invoice, $url_cancel_invoice, 'POST', getTokenPraya());
 
             $response_cancel_invoice = json_decode($response_cancel_invoice['response'], true);
 
@@ -2578,7 +2579,7 @@ if (!function_exists('savePaymentExternal')) {
 
             $payload = array_merge($payload_header, $payload_body);
 
-            $response_uster_save = sendDataFromUrlGuzzle($payload, $url_uster_save, 'POST', getTokenPraya());
+            $response_uster_save = sendDataFromUrl($payload, $url_uster_save, 'POST', getTokenPraya());
             // $response_uster_save = sendDataFromUrlNode($payload, $url_uster_save, 'POST', getTokenPraya());
             $notes = $jenis == "DELIVERY" ? "Payment Cash - " . $jenis . " EX REPO" : "Payment Cash - " . $jenis;
             $first_char_http_code = substr(strval($response_uster_save['httpCode']), 0, 1);
@@ -2749,7 +2750,8 @@ function getStuffingContainer($no_container)
             "containerNo" => $no_container
         );
 
-        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/stuffingContainerList", 'POST', getTokenPraya());
+        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/stuffingContainerList", 'POST', getTokenPraya());
+        $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/stuffingContainerList", 'POST', getTokenPraya());
         $response = json_decode($response['response'], true);
 
         if ($response['code'] == 1 && !empty($response["dataRec"])) {

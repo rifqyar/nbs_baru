@@ -61,7 +61,7 @@ class TcaByContainerController extends Controller
                 $payload["tcaCancelation"] = true;
             }
 
-            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', getTokenPraya());
+            $response = sendDataFromUrl($payload, ENV('PRAYA_API_TOS') . "/api/getRequestTca", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
 
 
@@ -88,7 +88,7 @@ class TcaByContainerController extends Controller
                 "terminalId" => ENV('PRAYA_ITPK_PNK_TERMINAL_ID'),
             );
 
-            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . "/api/truckList", 'POST', getTokenPraya());
+            $response = sendDataFromUrl($payload, ENV('PRAYA_API_TOS') . "/api/truckList", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
 
             if ($response['code'] == 1 && !empty($response["data"])) {
@@ -139,7 +139,7 @@ class TcaByContainerController extends Controller
 
         try {
             // $response = sendDataFromUrlTryCatch($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
+            $response = sendDataFromUrl($payload, ENV('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

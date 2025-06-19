@@ -36,7 +36,7 @@ class TcaReportService
 
         try {
             // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . '/api/getReportTca', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];
@@ -153,7 +153,7 @@ class TcaReportService
 
         try {
             // $response = $this->praya->sendDataFromUrlTryCatch($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . '/api/tcaSaveContainerNew', 'POST', $this->praya->getTokenPraya());
             if ($response['httpCode'] < 200 && $response['httpCode'] >= 300) {
                 $response_decode = json_decode($response['response'], true);
                 $msg = $response_decode['msg'] ? $response_decode['msg'] : $response['response'];

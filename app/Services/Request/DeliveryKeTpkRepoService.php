@@ -441,8 +441,10 @@ class DeliveryKeTpkRepoService
         $voyage     = $request->voyage;
         $term       = strtoupper($request->term);
         try {
-            $json = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator?orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&voyage=" . $voyage . "&search=" . $term);
+            // $json = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator?orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&voyage=" . $voyage . "&search=" . $term);
             // $json = $this->prayaServices->getDatafromUrl(env('PRAYA_API_TOS') . "/api/getOperator?orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&voyage=" . $voyage . "&search=" . $term);
+
+            $json = getDataFromUrl(env('PRAYA_API_TOS') . "/api/getOperator?orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&voyage=" . $voyage . "&search=" . $term);
             $json = json_decode($json, true);
 
             if ($json['code'] == 1) {

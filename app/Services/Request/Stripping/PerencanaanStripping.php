@@ -302,7 +302,7 @@ class PerencanaanStripping
                 "serviceCode" => "DEL"
             );
 
-            $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+            $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
             $response = json_decode($response['response'], true);
             if ($response['code'] == 1 && !empty($response["data"])) {
                 return $response['data'];

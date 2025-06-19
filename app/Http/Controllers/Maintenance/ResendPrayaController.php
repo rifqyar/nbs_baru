@@ -198,7 +198,7 @@ class ResendPrayaController extends Controller
                 // "User-Agent: insomnia/11.2.0"
             ],
             CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
+            // CURLOPT_SSL_VERIFYHOST => false,
         ]);
 
         $response = curl_exec($curl);

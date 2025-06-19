@@ -2529,34 +2529,34 @@ if (!function_exists('savePaymentExternal')) {
 function getVessel($vessel, $voy, $voyIn, $voyOut)
 {
     $vessel = str_replace(" ", "+", $vessel);
+    // $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
 
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        // $response = getDataFromUrlGuzzle($url);
-        // $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
-        // $json = json_decode($response['response'], true);
+        $response = getDatafromUrl($url);
+        $json = json_decode($response['response'], true);
 
-        $payload = [
-            'payload' => [],
-            'url' => $url,
-            'method' => 'GET',
-            'token' => getTokenPraya()
-        ];
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
-        $start = microtime(true);
+        // $payload = [
+        //     'payload' => [],
+        //     'url' => $url,
+        //     'method' => 'GET',
+        //     'token' => getTokenPraya()
+        // ];
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
+        // $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payload);
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payload);
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $json = json_decode($body, true);
+        // $json = $json['response'] ?? [];
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     'response' => $body,
+        // ]);
 
         if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
             foreach ($json['data'] as $v) {
@@ -2776,37 +2776,34 @@ function getDatafromUrl($url)
 {
     $token = getTokenPraya();
 
-    $options = array(
-        CURLOPT_RETURNTRANSFER => true,     // return web page
-        CURLOPT_HEADER         => false,    // don't return headers
-        CURLOPT_FOLLOWLOCATION => true,     // follow redirects
-        CURLOPT_ENCODING       => "",       // handle all encodings
-        CURLOPT_USERAGENT      => "spider", // who am i
-        CURLOPT_AUTOREFERER    => true,     // set referer on redirect
-        CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
-        CURLOPT_TIMEOUT        => 120,      // timeout on respon0120e
-        CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
-        // dicomment, kena error ssl ca cert
-        // CURLOPT_CAINFO		   => "/var/www/html/ibis_qa/tmp/cacert.pem",
-        // CURLOPT_SSL_VERIFYPEER => false, // <- dihapus sebelum di push
-        CURLOPT_HTTPHEADER      => array(
-            "Content-Type: application/json",
-            "Authorization: Bearer $token",
-        ),
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-    );
+    $curl = curl_init();
 
-    $ch      = curl_init($url);
-    curl_setopt_array($ch, $options);
+    curl_setopt_array($curl, [
+        CURLOPT_PORT => "8013",
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "GET",
+        CURLOPT_POSTFIELDS => "[]",
+        CURLOPT_COOKIE => "X-Oracle-BMC-LBS-Route=f740610cd85b7f9f8d355e25c346298586e573fe",
+        CURLOPT_HTTPHEADER => [
+            "Authorization: Bearer $token",
+            "Content-Type: application/json"
+            // "User-Agent: insomnia/11.2.0"
+        ],
+    ]);
+    // curl_setopt_array($ch, $options);
 
     Log::channel('praya')->info('Request to Praya', ['url' => $url]);
     $start = microtime(true);
 
-    $content = curl_exec($ch);
-    $err     = curl_errno($ch);
-    $errmsg  = curl_error($ch);
-    $header  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    $content = curl_exec($curl);
+    $err     = curl_errno($curl);
+    $errmsg  = curl_error($curl);
+    $header  = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL);
     $end = microtime(true);
 
     Log::channel('praya')->info('ILCS Response Info', [
@@ -2815,7 +2812,7 @@ function getDatafromUrl($url)
         'response' => $content,
         'error' => curl_error($ch),
     ]);
-    curl_close($ch);
+    curl_close($curl);
 
     // $header['errno']   = $err;
     // $header['errmsg']  = $errmsg;

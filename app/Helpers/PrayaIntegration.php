@@ -2810,7 +2810,7 @@ function getDatafromUrl($url)
         'time' => $end - $start,
         'curl_info' => $header,
         'response' => $content,
-        'error' => curl_error($ch),
+        'error' => curl_error($curl),
     ]);
     curl_close($curl);
 

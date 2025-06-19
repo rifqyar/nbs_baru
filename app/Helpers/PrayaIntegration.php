@@ -33,8 +33,8 @@ if (!function_exists('getTokenPraya')) {
             // Check Token Expiry
             $token = Session::get('token_praya');
             // $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
-            $response = sendDataFromUrlNode([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
-            // $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
+            // $response = sendDataFromUrlNode([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
+            $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
             $response = json_decode($response['_response'], true);
             if ($response['msg'] == 'jwt expired') {
                 // Token expired, re-login
@@ -49,8 +49,8 @@ if (!function_exists('getTokenPraya')) {
                 "password" => "Nbs2023!",
                 "statusApp" => "Web"
             );
-            // $response = sendDataFromUrlGuzzle($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
-            $response = sendDataFromUrlNode($data_payload, env('PRAYA_API_TOS') . "/api/getOperator", 'POST');
+            $response = sendDataFromUrlGuzzle($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+            // $response = sendDataFromUrlNode($data_payload, env('PRAYA_API_TOS') . "/api/getOperator", 'POST');
             $obj = json_decode($response['response'], true);
 
             Session::put('token_praya', $obj["token"]);

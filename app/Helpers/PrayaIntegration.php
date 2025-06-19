@@ -2532,31 +2532,31 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
 
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
-        $response = getDataFromUrl($url);
+        // $response = getDataFromUrlGuzzle($url);
         // $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
-        $json = json_decode($response['response'], true);
+        // $json = json_decode($response['response'], true);
 
-        // $payload = [
-        //     'payload' => [],
-        //     'url' => $url,
-        //     'method' => 'GET',
-        //     'token' => getTokenPraya()
-        // ];
-        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
-        // $start = microtime(true);
+        $payload = [
+            'payload' => [],
+            'url' => $url,
+            'method' => 'GET',
+            'token' => getTokenPraya()
+        ];
+        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
+        $start = microtime(true);
 
-        // $response = Http::post('http://localhost:3001/praya/send-data', $payload);
-        // $body = (string) $response->getBody();
-        // $statusCode = $response->getStatusCode();
-        // $json = json_decode($body, true);
-        // $json = $json['response'] ?? [];
+        $response = Http::post('http://localhost:3001/praya/send-data', $payload);
+        $body = (string) $response->getBody();
+        $statusCode = $response->getStatusCode();
+        $json = json_decode($body, true);
+        $json = $json['response'] ?? [];
 
-        // $end = microtime(true);
-        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-        //     'time' => $end - $start,
-        //     'status_code' => $statusCode,
-        //     'response' => $body,
-        // ]);
+        $end = microtime(true);
+        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+            'time' => $end - $start,
+            'status_code' => $statusCode,
+            'response' => $body,
+        ]);
 
         if (isset($json['code']) && $json['code'] == 1 && !empty($json['data'])) {
             foreach ($json['data'] as $v) {
@@ -2775,6 +2775,7 @@ function getDataFromUrlGuzzle($url, $token = '')
 function getDatafromUrl($url)
 {
     $token = getTokenPraya();
+
     $options = array(
         CURLOPT_RETURNTRANSFER => true,     // return web page
         CURLOPT_HEADER         => false,    // don't return headers

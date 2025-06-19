@@ -2599,24 +2599,24 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
             'token' => getTokenPraya()
         ];
 
-        Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
-        $start = microtime(true);
+        // Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
+        // $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $json = json_decode($body, true);
-        $json = $json['response'] ?? [];
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $json = json_decode($body, true);
+        // $json = $json['response'] ?? [];
 
-        $end = microtime(true);
-        Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
-            'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
-        ]);
+        // $end = microtime(true);
+        // Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
+        //     'time' => $end - $start,
+        //     'status_code' => $statusCode,
+        //     // 'response' => $body,
+        // ]);
 
         if (isset($response['code']) && $response['code'] == 1 && !empty($response["data"])) {
             return $response['data'];

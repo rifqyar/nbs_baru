@@ -2534,7 +2534,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
     try {
         $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
         $response = getDatafromUrl($url);
-        $json = json_decode($response['response'], true);
+        $json = json_decode($response, true);
 
         // $payload = [
         //     'payload' => [],

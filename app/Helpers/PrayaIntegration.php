@@ -66,10 +66,6 @@ if (!function_exists('sendDataFromUrl')) {
         Log::channel('praya')->info('Request to Praya', ['payload' => $payload_request, 'url' => $url, 'method' => $method]);
         $start = microtime(true);
 
-        set_time_limit(0);
-        putenv('http_proxy');
-        putenv('https_proxy');
-
         $curl = curl_init();
         /* set configure curl */
         $authorization = "Authorization: Bearer $token";
@@ -2677,20 +2673,21 @@ function getIsoCode()
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
-        // $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
-        // $response = json_decode($response['response'], true);
+        // $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
+        $response = sendDataFromUrlGuzzle($payload, env('PRAYA_API_TOS') . "/api/isoCodeList", 'POST', getTokenPraya());
+        $response = json_decode($response['response'], true);
 
-        $body = (string) $response->getBody();
-        $statusCode = $response->getStatusCode();
-        $response = json_decode($body, true);
-        $response = $response['response'] ?? [];
+        // $body = (string) $response->getBody();
+        // $statusCode = $response->getStatusCode();
+        // $response = json_decode($body, true);
+        // dd($response);
+        // $response = $response['response'] ?? [];
 
         $end = microtime(true);
         Log::channel('praya')->info('Praya Response Info (Using Guzzle HTTP via NodeJS Backend)', [
             'time' => $end - $start,
-            'status_code' => $statusCode,
-            'response' => $body,
+            // 'status_code' => $statusCode,
+            'response' => $response,
         ]);
 
 

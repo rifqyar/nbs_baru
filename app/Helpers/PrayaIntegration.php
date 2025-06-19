@@ -49,7 +49,7 @@ if (!function_exists('getTokenPraya')) {
                 "password" => "Nbs2023!",
                 "statusApp" => "Web"
             );
-            $response = sendDataFromUrlNode($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
+            $response = sendDataFromUrlGuzzle($data_payload, env('PRAYA_API_LOGIN') . "/api/login");
             $obj = json_decode($response['response'], true);
 
             Session::put('token_praya', $obj["token"]);
@@ -197,7 +197,7 @@ if (!function_exists('sendDataFromUrl')) {
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload_request, 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://10.15.42.159:3001/praya/send-data', $payload);
+        $response = Http::post('http://localhost:3001/praya/send-data', $payload);
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
         $json = json_decode($body, true);
@@ -212,7 +212,20 @@ if (!function_exists('sendDataFromUrl')) {
             'method' => $method,
         ]);
 
-        dd($json);
+        if ($statusCode >= 200 && $statusCode < 300) {
+            return [
+                'status' => 'success',
+                'response' => $body
+            ];
+        } else {
+            return [
+                'status' => 'error',
+                'response' => "HTTP Error #$statusCode: $body",
+                '_response' => $body,
+                // 'msg' => $body['msg'] ?? 'Unknown error',
+                'httpCode' => $statusCode
+            ];
+        }
     }
 }
 
@@ -2455,8 +2468,8 @@ if (!function_exists('savePaymentExternal')) {
 
             $payload = array_merge($payload_header, $payload_body);
 
-            // $response_uster_save = sendDataFromUrlGuzzle($payload, $url_uster_save, 'POST', getTokenPraya());
-            $response_uster_save = sendDataFromUrlNode($payload, $url_uster_save, 'POST', getTokenPraya());
+            $response_uster_save = sendDataFromUrlGuzzle($payload, $url_uster_save, 'POST', getTokenPraya());
+            // $response_uster_save = sendDataFromUrlNode($payload, $url_uster_save, 'POST', getTokenPraya());
             $notes = $jenis == "DELIVERY" ? "Payment Cash - " . $jenis . " EX REPO" : "Payment Cash - " . $jenis;
             $first_char_http_code = substr(strval($response_uster_save['httpCode']), 0, 1);
 
@@ -2518,7 +2531,8 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
     $vessel = str_replace(" ", "+", $vessel);
 
     try {
-        $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
+        // $url = env('PRAYA_API_TOS') . "/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
+        $url = "https://158.178.230.156:8013/api/getVessel?pol=" . env('PRAYA_ITPK_PNK_PORT_CODE') . "&eta=1&etd=1&orgId=" . env('PRAYA_ITPK_PNK_ORG_ID') . "&terminalId=" . env('PRAYA_ITPK_PNK_TERMINAL_ID') . "&search=$vessel";
         // $response = getDataFromUrlGuzzle($url);
         // $response = sendDataFromUrlGuzzle([], $url, 'GET', getTokenPraya());
         // $json = json_decode($response['response'], true);
@@ -2532,7 +2546,7 @@ function getVessel($vessel, $voy, $voyIn, $voyOut)
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => [], 'payload_node' => $payload, 'url' => $url, 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://10.15.42.159:3001/praya/send-data', $payload);
+        $response = Http::post('http://localhost:3001/praya/send-data', $payload);
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
         $json = json_decode($body, true);
@@ -2591,7 +2605,7 @@ function getContainer($no_container, $vessel_code, $voyage_in, $voyage_out, $voy
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/containerList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://10.15.42.159:3001/praya/send-data', $payloadNode);
+        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();
@@ -2662,7 +2676,7 @@ function getIsoCode()
         Log::channel('praya')->info('Request to Praya (Using Guzzle HTTP via NodeJS Backend)', ['payload_praya' => $payload, 'payload_node' => $payloadNode, 'url' => env('PRAYA_API_TOS') . "/api/isoCodeList", 'method' => 'POST']);
         $start = microtime(true);
 
-        $response = Http::post('http://10.15.42.159:3001/praya/send-data', $payloadNode);
+        $response = Http::post('http://localhost:3001/praya/send-data', $payloadNode);
 
         $body = (string) $response->getBody();
         $statusCode = $response->getStatusCode();

@@ -615,8 +615,8 @@ Route::group(['prefix' => 'billing', 'as' => 'uster.billing.', 'middleware' => '
             });
             Route::get('/insert-proforma-relokmty/{no_req}', [NotaStrippingController::class, 'insertProformaRelokMTY'])->name('.insert_proforma_relokmty');
             Route::get('/insert-proforma-stripping/{no_req}', [NotaStrippingController::class, 'insertProformaStripping'])->name('.insert_proforma_strip');
-            Route::post('/recalculate', [NotaStrippingController::class, 'recalculate'])->name('');
-            Route::post('/recalculate-pnk', [NotaStrippingController::class, 'recalculatePnk'])->name('');
+            Route::post('/recalculate', [NotaStrippingController::class, 'recalculate'])->name('recalc');
+            Route::post('/recalculate-pnk', [NotaStrippingController::class, 'recalculatePnk'])->name('recalc_pnk');
         });
 
         // Perpanjangan Stripping

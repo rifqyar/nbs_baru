@@ -56,11 +56,13 @@
                                 <input type="hidden" name="ID_YARD" id="ID_YARD" />
                                 <input type="hidden" name="BP_ID" id="BP_ID" />
                                 <input type="hidden" name="NO_REQ_TPK" id="NO_REQ_TPK" />
+                                <input type="hidden" name="CONT_NO" id="CONT_NO" />
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="CONT_NO" class="form-label">No. Container</label>
-                                        <input type="text" class="form-control" id="CONT_NO" name="CONT_NO" required
+                                        <label for="CONT_NO_AUTOCOMPLETE" class="form-label">No. Container</label>
+                                        <input type="text" class="form-control" id="CONT_NO_AUTOCOMPLETE" name="CONT_NO_AUTOCOMPLETE" required
                                             style="text-transform:uppercase">
+
                                         <div class="invalid-feedback">
                                             No. Container wajib diisi.
                                         </div>
@@ -148,7 +150,7 @@
             return true;
         });
 
-        $("#CONT_NO").autocomplete({
+        $("#CONT_NO_AUTOCOMPLETE").autocomplete({
             minLength: 3,
             source: function(request, response) {
                 $.ajax({
@@ -171,7 +173,7 @@
                                 data.map(function(value) {
                                     console.log(value);
                                     return {
-                                        label: `${value.NO_CONTAINER}`,
+                                        label: `${value.NO_CONTAINER} | ${value.NO_REQUEST}`,
                                         NO_CONTAINER: value.NO_CONTAINER,
                                         NO_REQUEST: value.NO_REQUEST,
                                         NM_PBM: value.NM_PBM,
@@ -187,7 +189,7 @@
                             );
                         }
 
-                        $("#CONT_NO").removeClass("ui-autocomplete-loading");
+                        $("#CONT_NO_AUTOCOMPLETE").removeClass("ui-autocomplete-loading");
                     },
                 });
             },

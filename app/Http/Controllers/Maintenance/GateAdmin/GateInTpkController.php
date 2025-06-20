@@ -37,7 +37,8 @@ class GateInTpkController extends Controller
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data not found'
+                    'message' => 'Data not found',
+                    'response' => $responseData
                 ], 404);
             }
         } catch (\Exception $ex) {

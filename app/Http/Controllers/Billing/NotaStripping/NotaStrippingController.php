@@ -45,13 +45,15 @@ class NotaStrippingController extends Controller
             ->make(true);
     }
 
-    private function previewRelokBtn($koreksi, $no_req){
-        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_relok', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Relokasi MTY"> <b><i> Preview Proforma Relokasi MTY</i></b></a>';
+    private function previewRelokBtn($koreksi, $no_req)
+    {
+        $btn = '<a href="' . route('uster.billing.nota_stripping.print.preview_relok', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Relokasi MTY"> <b><i> Preview Proforma Relokasi MTY</i></b></a>';
         return $btn;
     }
 
-    private function previewProformaBtn($koreksi, $no_req){
-        $btn = '<a href="'.route('uster.billing.nota_stripping.print.preview_proforma', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Stripping"> <b><i> Preview Proforma Stripping</i></b></a> </br>';
+    private function previewProformaBtn($koreksi, $no_req)
+    {
+        $btn = '<a href="' . route('uster.billing.nota_stripping.print.preview_proforma', ['no_req' => $no_req, 'n' => '999', 'koreksi' => $koreksi]) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Preview Proforma Stripping"> <b><i> Preview Proforma Stripping</i></b></a> </br>';
         return $btn;
     }
 
@@ -71,8 +73,8 @@ class NotaStrippingController extends Controller
             $no_req = base64_encode($no_req);
             $notas      = $row_cek->no_nota;
 
-            $cetakProformaStripBtn = '<a href="'.route('uster.billing.nota_stripping.print.print_proforma', 'no_req='.$no_req).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Proforma Stripping"><b><i> Cetak Proforma Stripping </i></b></a>';
-            $cetakRelokasiBtn = '<a href="'.route('uster.billing.nota_stripping.print.print_relok', 'no_req='.$no_req).'" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Proforma Relokasi MTY"> <b><i> Cetak Proforma Relokasi MTY </i></b></a> ';
+            $cetakProformaStripBtn = '<a href="' . route('uster.billing.nota_stripping.print.print_proforma', 'no_req=' . $no_req) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Proforma Stripping"><b><i> Cetak Proforma Stripping </i></b></a>';
+            $cetakRelokasiBtn = '<a href="' . route('uster.billing.nota_stripping.print.print_relok', 'no_req=' . $no_req) . '" target="_blank" class="link font-14" data-toggle="tooltip" data-placement="top" title="Cetak Proforma Relokasi MTY"> <b><i> Cetak Proforma Relokasi MTY </i></b></a> ';
 
             if ($row_cek->status_cutoff == 'YES') {
                 if ($row_cek->nota <> 'Y' && $row_cek->koreksi <> 'Y' && $row_cek->nota_pnkn <> 'Y' && $row_cek->koreksi_pnkn <> 'Y') {
@@ -200,7 +202,7 @@ class NotaStrippingController extends Controller
         $data = $this->service->previewNota($no_req, $koreksi);
         $data = $data->getData(true);
 
-        if(isset($data['st_nota']) && $data['st_nota'] == 'Y'){
+        if (isset($data['st_nota']) && $data['st_nota'] == 'Y') {
             return response()->redirectToRoute('uster.billing.nota_stripping.print.print_proforma', ['no_req' => base64_encode($no_req)]);
         } else {
             $data['row_nota'] = json_decode(json_encode($data['row_nota']));
@@ -208,18 +210,18 @@ class NotaStrippingController extends Controller
         }
     }
 
-    public function insertProformaRelokMTY(Request $request,$no_req)
+    public function insertProformaRelokMTY(Request $request, $no_req)
     {
         $no_req = base64_decode($no_req);
-        $query_cek_nota 	= "SELECT NO_NOTA, STATUS FROM NOTA_RELOKASI_MTY WHERE NO_REQUEST = '$no_req'";
-        $nota				= DB::connection('uster')->selectOne($query_cek_nota);
-        $no_nota_cek		= $nota->no_nota ?? null;
-        $nota_status		= $nota->status ?? null;
+        $query_cek_nota     = "SELECT NO_NOTA, STATUS FROM NOTA_RELOKASI_MTY WHERE NO_REQUEST = '$no_req'";
+        $nota                = DB::connection('uster')->selectOne($query_cek_nota);
+        $no_nota_cek        = $nota->no_nota ?? null;
+        $nota_status        = $nota->status ?? null;
 
         try {
-            if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)){
+            if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)) {
                 $saveProforma = $this->service->insertProformaRelokMty($no_req, $request->koreksi);
-                if($saveProforma->getStatusCode() != 200){
+                if ($saveProforma->getStatusCode() != 200) {
                     throw new Exception('Gagal Menyimpan Proforma Nota', 500);
                 }
             } else {
@@ -235,15 +237,15 @@ class NotaStrippingController extends Controller
     public function insertProformaStripping(Request $request, $no_req)
     {
         $no_req = base64_decode($no_req);
-        $query_cek_nota 	= "SELECT NO_NOTA, STATUS FROM NOTA_STRIPPING WHERE NO_REQUEST = '$no_req'";
-        $nota				= DB::connection('uster')->selectOne($query_cek_nota);
-        $no_nota_cek		= $nota->no_nota ?? null;
-        $nota_status		= $nota->status ?? null;
+        $query_cek_nota     = "SELECT NO_NOTA, STATUS FROM NOTA_STRIPPING WHERE NO_REQUEST = '$no_req'";
+        $nota                = DB::connection('uster')->selectOne($query_cek_nota);
+        $no_nota_cek        = $nota->no_nota ?? null;
+        $nota_status        = $nota->status ?? null;
 
         try {
-            if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)){
+            if (($no_nota_cek != NULL && $nota_status == 'BATAL') || ($no_nota_cek == NULL && $nota_status == NULL)) {
                 $saveProforma = $this->service->insertProformaStripping($no_req, $request->koreksi);
-                if($saveProforma->getStatusCode() != 200){
+                if ($saveProforma->getStatusCode() != 200) {
                     throw new Exception('Gagal Menyimpan Proforma Nota', 500);
                 }
             } else {
@@ -253,6 +255,47 @@ class NotaStrippingController extends Controller
             return response()->redirectToRoute('uster.billing.nota_stripping.print.print_proforma', ['no_req' => base64_encode($no_req), 'first=1']);
         } catch (Exception $th) {
             return redirect()->back()->with(['error' => 'Gagal Menyimpan Proforma Nota Ini, Harap Coba Lagi Nanti']);
+        }
+    }
+
+    public function recalculate(Request $request)
+    {
+        $no_req = $request->no_req;
+        $no_nota = $request->no_nota;
+
+        try {
+            $this->service->recalculateStripping($no_req, $no_nota);
+            return response()->json([
+                'success' => true,
+                'message' => 'Recalculate Stripping berhasil.',
+                'status' => 200
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Recalculate Stripping gagal: ' . $e->getMessage(),
+                'status' => 200
+            ], 500);
+        }
+    }
+
+    public function recalculatePnk(Request $request)
+    {
+        $no_req = $request->no_req;
+
+        try {
+            $this->service->recalculateStrippingPnk($no_req);
+            return response()->json([
+                'success' => true,
+                'message' => 'Recalculate Stripping Penumpukan berhasil.',
+                'status' => 200
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Recalculate Stripping Penumpukan gagal: ' . $e->getMessage(),
+                'status' => 200
+            ], 500);
         }
     }
 }

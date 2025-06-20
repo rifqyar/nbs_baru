@@ -1,44 +1,52 @@
-var table, s_no_req, s_tgl_awal, s_tgl_akhir
-$( function(){
-    if($('#data-section').length > 0 && $('.alert').css('display') == 'none'){
-        $('html, body').animate({
-            scrollTop: $("#data-section").offset().top
-        }, 1000);
+var table, s_no_req, s_tgl_awal, s_tgl_akhir;
+$(function () {
+    if ($("#data-section").length > 0 && $(".alert").css("display") == "none") {
+        $("html, body").animate(
+            {
+                scrollTop: $("#data-section").offset().top,
+            },
+            1000
+        );
     }
 
-    var forms = document.querySelectorAll('form')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
+    var forms = document.querySelectorAll("form");
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener(
+            "submit",
+            function (event) {
                 if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
+                    event.preventDefault();
+                    event.stopPropagation();
                 }
-            }, false)
-        })
+            },
+            false
+        );
+    });
 
-    $('#search-data').on('submit', function (e) {
+    $("#search-data").on("submit", function (e) {
         if (this.checkValidity()) {
             e.preventDefault();
-            $('input[name="search"]').val('true')
-            if($('#search-data').find('input.form-control').val() == ''){
-                $('input[name="search"]').val('false')
+            $('input[name="search"]').val("true");
+            if ($("#search-data").find("input.form-control").val() == "") {
+                $('input[name="search"]').val("false");
             }
 
-            $('html, body').animate({
-                scrollTop: $("#data-section").offset().top
-            }, 1250);
-            table.ajax.reload()
+            $("html, body").animate(
+                {
+                    scrollTop: $("#data-section").offset().top,
+                },
+                1250
+            );
+            table.ajax.reload();
         }
 
-        $(this).addClass('was-validated');
-
+        $(this).addClass("was-validated");
     });
-    $('#start_date').bootstrapMaterialDatePicker({ weekStart: 0, time: false });
-    $('#end_date').bootstrapMaterialDatePicker({ weekStart: 0, time: false });
+    $("#start_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
+    $("#end_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
     // $('#list-cont-table').DataTable()
-    getData()
-})
+    getData();
+});
 
 function getData() {
     table = $(".data-table").DataTable({
@@ -67,7 +75,7 @@ function getData() {
                 width: "20px",
                 orderable: false,
                 searchable: false,
-                responsivePriority: -1
+                responsivePriority: -1,
             },
             {
                 data: "action",
@@ -75,7 +83,7 @@ function getData() {
                 orderable: false,
                 searchable: false,
                 width: "200px",
-                responsivePriority: -1
+                responsivePriority: -1,
             },
             {
                 data: "no_request",
@@ -101,7 +109,7 @@ function getData() {
             {
                 data: "jml",
                 name: "jml",
-                className: 'text-center text-wrap',
+                className: "text-center text-wrap",
                 responsivePriority: 1,
             },
         ],
@@ -112,85 +120,96 @@ function getData() {
     });
 }
 
-function resetSearch(){
-    $('#search-data').find('input.form-control').val('').trigger('blur')
-    $('#search-data').find('input.form-control').removeClass('was-validated')
-    $('input[name="search"]').val('false')
-    $('html, body').animate({
-        scrollTop: $("#data-section").offset().top
-    }, 1250);
-    table.ajax.reload()
+function resetSearch() {
+    $("#search-data").find("input.form-control").val("").trigger("blur");
+    $("#search-data").find("input.form-control").removeClass("was-validated");
+    $('input[name="search"]').val("false");
+    $("html, body").animate(
+        {
+            scrollTop: $("#data-section").offset().top,
+        },
+        1250
+    );
+    table.ajax.reload();
 }
 
-function recalc(noReq, noNota){
+function recalc(noReq, noNota) {
     Swal.fire({
-        title: 'Apakah anda yakin ingin menghitung ulang nota stripping?',
-        type: 'question',
+        title: "Apakah anda yakin ingin menghitung ulang nota stripping?",
+        type: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hitung ulang"
+        confirmButtonText: "Ya, hitung ulang",
     }).then(async (conf) => {
-        if(conf.value == true){
-            var data = new FormData()
-            data.append('noReq', noReq)
-            data.append('noNota', noNota)
-            data.append('_token', $('meta[name="csrf-token"]').attr('content'))
+        if (conf.value == true) {
+            var data = new FormData();
+            data.append("no_req", noReq);
+            data.append("no_nota", noNota);
+            data.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
-            await ajaxPostFile('/billing/nota-receiving/recalculate', data, 'input_success')
-            table.ajax.reload()
+            await ajaxPostFile(
+                "/billing/nota-stripping/recalculate",
+                data,
+                "input_success"
+            );
+            table.ajax.reload();
         } else {
             return false;
         }
     });
 }
 
-function recalc_relok(noReq, noNota){
+function recalc_relok(noReq, noNota) {
     Swal.fire({
-        title: 'Apakah anda yakin ingin menghitung ulang nota relokasi?',
-        type: 'question',
+        title: "Apakah anda yakin ingin menghitung ulang nota relokasi?",
+        type: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hitung ulang"
+        confirmButtonText: "Ya, hitung ulang",
     }).then(async (conf) => {
-        if(conf.value == true){
-            var data = new FormData()
-            data.append('noReq', noReq)
-            data.append('noNota', noNota)
-            data.append('_token', $('meta[name="csrf-token"]').attr('content'))
+        if (conf.value == true) {
+            var data = new FormData();
+            data.append("no_req", noReq);
+            data.append("_token", $('meta[name="csrf-token"]').attr("content"));
 
-            await ajaxPostFile('/billing/nota-receiving/recalculate', data, 'input_success')
-            table.ajax.reload()
+            await ajaxPostFile(
+                "/billing/nota-stripping/recalculate-pnk",
+                data,
+                "input_success"
+            );
+            table.ajax.reload();
         } else {
             return false;
         }
     });
 }
 
-function input_success(res){
+function input_success(res) {
     if (res.status != 200) {
-        input_error(res)
-        return false
+        input_error(res);
+        return false;
     }
 
-    swal.close()
+    swal.close();
     $.toast({
-        heading: 'Berhasil!',
+        heading: "Berhasil!",
         text: res.message,
-        position: 'top-right',
-        icon: 'success',
-        hideAfter: 2500
+        position: "top-right",
+        icon: "success",
+        hideAfter: 2500,
     });
 }
 
-function input_error(err){
-    console.log(err)
+function input_error(err) {
+    console.log(err);
+    swal.close();
     $.toast({
-        heading: 'Gagal memproses data!',
+        heading: "Gagal memproses data!",
         text: err.message,
-        position: 'top-right',
-        icon: 'error',
+        position: "top-right",
+        icon: "error",
         hideAfter: 5000,
     });
 }

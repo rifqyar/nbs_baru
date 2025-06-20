@@ -988,7 +988,7 @@ class NotaStrippingServices
                                 VALUES('$no_nota_mti',TO_CHAR(SYSDATE,'YYYY'),'$no_req')";
                 $execQueryMti = DB::connection('uster')->statement($query_mti);
 
-                $query_detail	= "SELECT ID_ISO,TARIF,BIAYA,KETERANGAN,JML_CONT,HZ,TO_CHAR(START_STACK,'mm/dd/rrrr') START_STACK,TO_CHAR(END_STACK,'mm/dd/rrrr') END_STACK, JML_HARI, COA, PPN,URUT,TEKSTUAL,RELOK,DISKON  FROM temp_detail_nota WHERE no_request = '$no_req' ";
+                $query_detail    = "SELECT ID_ISO,TARIF,BIAYA,KETERANGAN,JML_CONT,HZ,TO_CHAR(START_STACK,'mm/dd/rrrr') START_STACK,TO_CHAR(END_STACK,'mm/dd/rrrr') END_STACK, JML_HARI, COA, PPN,URUT,TEKSTUAL,RELOK,DISKON  FROM temp_detail_nota WHERE no_request = '$no_req' ";
                 $row = DB::connection('uster')->select($query_detail);
 
                 foreach ($row as $key => $item) {
@@ -1064,6 +1064,53 @@ class NotaStrippingServices
             return response()->json([
                 'status' => 'Error',
                 'msg' => 'Gagal Menyimpan Proforma Nota Ini',
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+    public function recalculateStripping($no_req, $no_nota)
+    {
+        try {
+            $query = "BEGIN
+                PACK_RECALC_NOTA.recalc_stripping('$no_req', '$no_nota');
+                  END;";
+            DB::connection('uster')->statement($query);
+
+            return response()->json([
+                'status' => 'OK',
+                'msg' => 'Recalculate Stripping Berhasil',
+                'code' => 200
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'Error',
+                'msg' => 'Gagal melakukan recalculate stripping',
+                'code' => 500,
+            ], 500);
+        }
+    }
+
+    public function recalculateStrippingPnk($no_req)
+    {
+        try {
+            $ceknota = "SELECT NO_NOTA FROM nota_relokasi_mty WHERE NO_REQUEST = '$no_req' AND STATUS <> 'BATAL'";
+            $rnota = DB::connection('uster')->selectOne($ceknota);
+            $no_nota = $rnota ? $rnota->no_nota : null;
+            $query = "BEGIN
+                PACK_RECALC_NOTA.recalc_relokasimty('$no_req', '$no_nota');
+                  END;";
+            DB::connection('uster')->statement($query);
+
+            return response()->json([
+                'status' => 'OK',
+                'msg' => 'Recalculate Stripping PNK Berhasil',
+                'code' => 200
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'Error',
+                'msg' => 'Gagal melakukan recalculate stripping PNK',
                 'code' => 500,
             ], 500);
         }

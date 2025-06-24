@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Session;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
 use App\Traits\NpwpCheckPengkinianTrait;
+use Illuminate\Support\Facades\Log; // Tambahkan ini
 
 class RequestReceivingController extends Controller
 {
@@ -27,11 +28,18 @@ class RequestReceivingController extends Controller
 
     public function index()
     {
+        Log::channel('request_receiving')->info('Akses halaman index request receiving', [
+            'user_id' => Session::get('id')
+        ]);
         return view('request.receiving.index');
     }
 
     public function data(Request $reqeust)
     {
+        Log::channel('request_receiving')->info('Load data request receiving', [
+            'params' => $reqeust->all(),
+            'user_id' => Session::get('id')
+        ]);
         $data = $this->receiving->getData($reqeust);
         return DataTables::of($data)
             ->addIndexColumn()
@@ -50,6 +58,7 @@ class RequestReceivingController extends Controller
 
     private function renderAction($data)
     {
+        // Tidak perlu log di sini, hanya render html
         $nota        = $data->nota_cek_nota;
         $koreksi    = $data->koreksi_cek_nota;
         $lunas    = $data->lunas_cek_nota;
@@ -85,15 +94,22 @@ class RequestReceivingController extends Controller
 
     public function addRequest()
     {
+        Log::channel('request_receiving')->info('Akses halaman tambah request receiving', [
+            'user_id' => Session::get('id')
+        ]);
         return view('request.receiving.add');
     }
 
     public function overview($noReq)
     {
-        $noReq = base64_decode($noReq);
-        $data['request'] = $this->receiving->getOverviewData($noReq, 'overview');
+        $noReqDecoded = base64_decode($noReq);
+        Log::channel('request_receiving')->info('Akses overview request receiving', [
+            'no_request' => $noReqDecoded,
+            'user_id' => Session::get('id')
+        ]);
+        $data['request'] = $this->receiving->getOverviewData($noReqDecoded, 'overview');
         $data['request'] = $data['request'][0];
-        $data['container'] = $this->receiving->contList($noReq);
+        $data['container'] = $this->receiving->contList($noReqDecoded);
         $data['overview'] = true;
 
         return view('request.receiving.overview-nota', $data);
@@ -101,16 +117,16 @@ class RequestReceivingController extends Controller
 
     public function view($noReq)
     {
+        $noReqDecoded = base64_decode($noReq);
+        Log::channel('request_receiving')->info('Akses view request receiving', [
+            'no_request' => $noReqDecoded,
+            'user_id' => Session::get('id')
+        ]);
         // Validate Paid
-        $noReq = base64_decode($noReq);
-        $queryCek = "SELECT PAID_VALIDATE('$noReq') CEK FROM DUAL";
+        $queryCek = "SELECT PAID_VALIDATE('$noReqDecoded') CEK FROM DUAL";
         $dataCek = DB::connection('uster')->select($queryCek);
 
-        // if($dataCek[0]->cek > 0){
-        //     return redirect()->route('uster.new_request.receiving.receiving_luar')->with(['notifCekPaid' => 'Nota dengan nomor request <b> ' . $noReq . ' </b> belum dilakukan pembayaran']);
-        // }
-
-        $data['request'] = $this->receiving->getOverviewData($noReq, 'view');
+        $data['request'] = $this->receiving->getOverviewData($noReqDecoded, 'view');
         $data['request'] = $data['request'][0];
         $data['overview'] = false;
 
@@ -119,6 +135,10 @@ class RequestReceivingController extends Controller
 
     public function contList(Request $request)
     {
+        Log::channel('request_receiving')->info('Load daftar container pada request receiving', [
+            'no_request' => $request->no_request,
+            'user_id' => Session::get('id')
+        ]);
         $overview = false;
         $data = $this->receiving->contList($request->no_request);
         return DataTables::of($data)
@@ -136,15 +156,26 @@ class RequestReceivingController extends Controller
 
     public function addEdit(Request $request)
     {
+        Log::channel('request_receiving')->info('Proses add/edit request receiving', [
+            'request' => $request->all(),
+            'user_id' => Session::get('id')
+        ]);
         $validatedNpwp = $this->validateNpwp($request);
 
-        // Check if the response is a failed validation JSON response
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
-            return $validatedNpwp; // Return error response if NPWP validation failed
+            Log::channel('request_receiving')->warning('Validasi NPWP gagal', [
+                'request' => $request->all(),
+                'user_id' => Session::get('id')
+            ]);
+            return $validatedNpwp;
         }
 
         $validatePconnect = pconnectIntegration($request->acc_consignee);
         if ($validatePconnect != 'MATCH') {
+            Log::channel('request_receiving')->warning('Validasi PConnect gagal', [
+                'result' => $validatePconnect,
+                'user_id' => Session::get('id')
+            ]);
             if ($validatePconnect == '404') {
                 throw new Exception('Data Customer tidak ditemukan di PConnect', 400);
             } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
@@ -187,9 +218,18 @@ class RequestReceivingController extends Controller
             $statusCode = $process->getData()->status->code;
 
             if ($statusCode != 200) {
+                Log::channel('request_receiving')->error('Gagal update data request receiving', [
+                    'data' => $data,
+                    'user_id' => Session::get('id')
+                ]);
                 throw new Exception('Gagal Update Data', 500);
             }
 
+            DB::commit();
+            Log::channel('request_receiving')->info('Berhasil add/edit request receiving', [
+                'data' => $data,
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => $request->type == 'edit' ? 'Berhasil Rubah Data Request Receiving' : 'Berhasil membuat request receiving baru',
@@ -198,9 +238,12 @@ class RequestReceivingController extends Controller
                     'to' => $request->type == 'add' ? route('uster.new_request.receiving.view', base64_encode($noReq)) : null,
                 ]
             ]);
-            DB::commit();
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error add/edit request receiving', [
+                'error' => $th->getMessage(),
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -215,6 +258,10 @@ class RequestReceivingController extends Controller
 
     public function saveCont(Request $request)
     {
+        Log::channel('request_receiving')->info('Proses tambah container pada request receiving', [
+            'request' => $request->all(),
+            'user_id' => Session::get('id')
+        ]);
         DB::beginTransaction();
         try {
             $this->validate($request, [
@@ -244,16 +291,24 @@ class RequestReceivingController extends Controller
 
             $input = $this->receiving->saveCont($data);
             DB::commit();
+            Log::channel('request_receiving')->info('Berhasil tambah container', [
+                'data' => $data,
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Tambah Container',
                 'redirect' => [
                     'need' => false,
-                    'to' => null, //route('uster.new_request.receiving.view', base64_encode($request->no_req)),
+                    'to' => null,
                 ]
             ]);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error tambah container', [
+                'error' => $th->getMessage(),
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -268,7 +323,12 @@ class RequestReceivingController extends Controller
 
     function cekCont($request)
     {
-        // Cek Container
+        Log::channel('request_receiving')->info('Cek dan update master container', [
+            'no_container' => $request->no_cont,
+            'user_id' => Session::get('id')
+        ]);
+        // ... kode tetap ...
+        // (tidak perlu diubah, log sudah cukup di awal)
         $queryCekCont = "SELECT NO_CONTAINER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '" . $request->no_cont . "'";
         $result_cek_cont = DB::connection('uster')->selectOne($queryCekCont);
         $cek_cont         = $result_cek_cont;
@@ -324,11 +384,20 @@ class RequestReceivingController extends Controller
 
     function validasiSaveCont($request)
     {
+        Log::channel('request_receiving')->info('Validasi sebelum simpan container', [
+            'no_container' => $request->no_cont,
+            'user_id' => Session::get('id')
+        ]);
+        // ... kode tetap ...
         $queryCekGato = "SELECT AKTIF
                             FROM CONTAINER_DELIVERY
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y' ORDER BY AKTIF DESC";
         $cekGato = DB::connection('uster')->select($queryCekGato);
         if (count($cekGato) > 0 && $cekGato[0]->aktif == 'Y') {
+            Log::channel('request_receiving')->warning('Container masih aktif di request SP2', [
+                'no_container' => $request->no_cont,
+                'user_id' => Session::get('id')
+            ]);
             throw new Exception('Container Masih Aktif di Request SP2 / Belum Gate Out, Cek History', 400);
         }
         $queryCekStuf = "SELECT AKTIF
@@ -336,6 +405,10 @@ class RequestReceivingController extends Controller
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y' ORDER BY AKTIF DESC";
         $cekStuf = DB::connection('uster')->select($queryCekStuf);
         if (count($cekStuf) > 0 && $cekStuf[0]->aktif == 'Y') {
+            Log::channel('request_receiving')->warning('Container masih aktif di request stuffing', [
+                'no_container' => $request->no_cont,
+                'user_id' => Session::get('id')
+            ]);
             throw new Exception('Container Masih Aktif di Request Stuffing', 400);
         }
         $queryCekStrip = "SELECT AKTIF
@@ -343,6 +416,10 @@ class RequestReceivingController extends Controller
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y'";
         $cekStrip = DB::connection('uster')->select($queryCekStrip);
         if (count($cekStrip) > 0 && $cekStrip[0]->aktif == 'Y') {
+            Log::channel('request_receiving')->warning('Container masih aktif di request stripping', [
+                'no_container' => $request->no_cont,
+                'user_id' => Session::get('id')
+            ]);
             throw new Exception('Container Masih Aktif di Request Stripping', 400);
         }
 
@@ -358,17 +435,21 @@ class RequestReceivingController extends Controller
             $rw_locate =  DB::connection('uster')->selectOne($cek_locate);
             $count_hist = DB::connection('uster')->selectOne("SELECT COUNT(*) JUM FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$request->no_cont'");
             if ($count_hist->jum > 1 && $rw_locate->location != "GATO") {
+                Log::channel('request_receiving')->warning('Container belum GATO pada siklus sebelumnya', [
+                    'no_container' => $request->no_cont,
+                    'user_id' => Session::get('id')
+                ]);
                 throw new Exception('Container Masih Aktif di Siklus Sebelumnya / Belum GATO', 400);
             }
 
             $query_cek1        = " SELECT CONTAINER_RECEIVING.AKTIF
-					   FROM CONTAINER_RECEIVING, REQUEST_RECEIVING
-					   WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
-					   AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont'
-					   AND REQUEST_RECEIVING.TGL_REQUEST = (SELECT MAX(REQUEST_RECEIVING.TGL_REQUEST)
-					   FROM CONTAINER_RECEIVING, REQUEST_RECEIVING
-					   WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
-					   AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont')";
+                       FROM CONTAINER_RECEIVING, REQUEST_RECEIVING
+                       WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
+                       AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont'
+                       AND REQUEST_RECEIVING.TGL_REQUEST = (SELECT MAX(REQUEST_RECEIVING.TGL_REQUEST)
+                       FROM CONTAINER_RECEIVING, REQUEST_RECEIVING
+                       WHERE CONTAINER_RECEIVING.NO_REQUEST = REQUEST_RECEIVING.NO_REQUEST
+                       AND CONTAINER_RECEIVING.NO_CONTAINER = '$request->no_cont')";
 
             $query_rec_dari = "SELECT RECEIVING_DARI
                                     FROM REQUEST_RECEIVING
@@ -382,6 +463,10 @@ class RequestReceivingController extends Controller
         }
 
         if ($aktif == 'Y') {
+            Log::channel('request_receiving')->warning('Container sudah terdaftar receiving', [
+                'no_container' => $request->no_cont,
+                'user_id' => Session::get('id')
+            ]);
             throw new Exception('Container Sudah Terdaftar Receiving', 400);
         } else if (($aktif != "Y") &&  ($request->berbahaya != NULL) && $request->status != NULL) {
             $ukk_ = $request->id_vsb;
@@ -393,19 +478,33 @@ class RequestReceivingController extends Controller
 
             return ['ukk' => $ukk_, 'ex_kapal' => $ex_kapal, 'canInsert' => true];
         } else {
+            Log::channel('request_receiving')->error('Validasi container gagal, alasan tidak diketahui', [
+                'no_container' => $request->no_cont,
+                'user_id' => Session::get('id')
+            ]);
             throw new Exception('Terjadi Kesalahan yang tidak diketahui, harap hubungi tim IT', 500);
         }
     }
 
     public function delCont($noCont, $noReq)
     {
-        $noCont = base64_decode($noCont);
-        $noReq = base64_decode($noReq);
+        $noContDecoded = base64_decode($noCont);
+        $noReqDecoded = base64_decode($noReq);
 
+        Log::channel('request_receiving')->info('Proses hapus container dari request receiving', [
+            'no_container' => $noContDecoded,
+            'no_request' => $noReqDecoded,
+            'user_id' => Session::get('id')
+        ]);
         DB::beginTransaction();
         try {
-            $input = $this->receiving->delContProcess($noCont, $noReq);
+            $input = $this->receiving->delContProcess($noContDecoded, $noReqDecoded);
             DB::commit();
+            Log::channel('request_receiving')->info('Berhasil hapus container', [
+                'no_container' => $noContDecoded,
+                'no_request' => $noReqDecoded,
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Menhapus Container',
@@ -416,6 +515,12 @@ class RequestReceivingController extends Controller
             ]);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error hapus container', [
+                'error' => $th->getMessage(),
+                'no_container' => $noContDecoded,
+                'no_request' => $noReqDecoded,
+                'user_id' => Session::get('id')
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -431,30 +536,50 @@ class RequestReceivingController extends Controller
     // Get Master Data
     public function getDataPBM(Request $request)
     {
+        Log::channel('request_receiving')->info('Get data PBM', [
+            'search' => $request->search,
+            'user_id' => Session::get('id')
+        ]);
         $data['PBM'] = $this->receiving->getPbm(strtoupper($request->search));
         return response()->json($data['PBM']);
     }
 
     public function getDataContainer(Request $request)
     {
+        Log::channel('request_receiving')->info('Get data container', [
+            'search' => $request->search,
+            'user_id' => Session::get('id')
+        ]);
         $data['Container'] = $this->receiving->getContainer($request->search);
         return response()->json($data['Container']);
     }
 
     public function getDataKomoditi(Request $reqeust)
     {
+        Log::channel('request_receiving')->info('Get data komoditi', [
+            'search' => $reqeust->search,
+            'user_id' => Session::get('id')
+        ]);
         $data['komoditi'] = $this->receiving->getKomoditi($reqeust->search);
         return response()->json($data['komoditi']);
     }
 
     public function getDataOwner(Request $request)
     {
+        Log::channel('request_receiving')->info('Get data owner', [
+            'search' => $request->search,
+            'user_id' => Session::get('id')
+        ]);
         $data['owner'] = $this->receiving->getOwner($request->search);
         return response()->json($data['owner']);
     }
 
     public function getContList($noReq)
     {
+        Log::channel('request_receiving')->info('Get daftar container by no_request', [
+            'no_request' => $noReq,
+            'user_id' => Session::get('id')
+        ]);
         $data['container'] = $this->receiving->contList($noReq);
         $data['no_req'] = $noReq;
         return response()->json($data);

@@ -128,11 +128,25 @@ return [
         ],
 
         'praya' => [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/praya.log'),
             'level' => 'info',
+            'days' => 7
         ],
 
+        'request_receiving' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/req_receiving.log'),
+            'level' => 'info',
+            'days' => 7
+        ],
+
+        'request_stripping' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/req_stripping.log'),
+            'level' => 'info',
+            'days' => 7
+        ]
     ],
 
 ];

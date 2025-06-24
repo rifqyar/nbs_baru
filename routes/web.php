@@ -120,7 +120,6 @@ Route::get('/api/dashboard-data', [HomeController::class, 'getDashboardData'])->
 Route::middleware(['checkLogin'])->group(function () {
     Route::get('/', [HomeController::class, 'index']);
     Route::get('/home', [HomeController::class, 'index'])->name('home');
-    Route::get('/logs', [LogViewerController::class, 'index'])->name('logs');
 });
 
 Route::group(['prefix' => 'request', 'as' => 'uster.new_request.', 'middleware' => 'checkLogin'], function () {

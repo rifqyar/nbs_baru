@@ -77,7 +77,7 @@ class KartuMerahService
     {
         $nota = DB::connection("uster")->selectOne("SELECT LUNAS FROM NOTA_RECEIVING WHERE NO_REQUEST = '$no_req' ORDER BY NO_NOTA DESC");
 
-        return $nota->lunas;
+        return $nota->lunas ?? null;
     }
 
     public function getDataRecLuar($no_req)

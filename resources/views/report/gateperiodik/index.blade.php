@@ -187,7 +187,7 @@
                                         <i class="mdi mdi-refresh"></i>
                                     </button>
                                     <button type="submit" data-action="generate" class="btn btn-rounded btn-info mr-3">
-                                        Generate Nota
+                                        Generate Data
                                         <i class="mdi mdi-settings"></i>
                                     </button>
                                     <button type="submit" data-action="exportExcel" class="btn btn-primary btn-rounded">

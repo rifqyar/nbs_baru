@@ -1,5 +1,6 @@
 <div class="table-responsive px-3">
-    <table class="display no-wrap table data-table" width="100%"  @if (!empty($data)) <div id="data-list"></div> @endif>
+    <table class="display no-wrap table data-table" width="100%"
+        @if (!empty($data)) <div id="data-list"></div> @endif>
         <thead>
             <tr>
                 <th class="text-center">#</th>
@@ -21,7 +22,10 @@
             @forelse ($data as $key => $dt)
                 <tr>
                     <td>{{ $key + 1 }}</td>
-                    <td>{{ $dt->no_container }}</td>
+                    <td style="text-align:center">
+                        <b>{{ $dt->no_container }}</b><br>
+                        {{ $dt->size_ }} | {{ $dt->type_ }} | {{ $dt->status }}
+                    </td>
                     <td>{{ $dt->no_request }}</td>
                     <td>
                         <span class="badge bg-info rounded-pill p-2 text-white">

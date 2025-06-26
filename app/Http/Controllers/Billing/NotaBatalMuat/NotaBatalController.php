@@ -309,11 +309,12 @@ class NotaBatalController extends Controller
             $tbl = <<<EOD
             <table border='0'>
             <tr>
-                <td COLSPAN="2" align="left"><font size="8"><b>$data->no_nota_mti</b></font></td>
+                <td width="150" COLSPAN="1" align="left"><font size="8"><b>$data->no_nota_mti</b></font></td>
                 <td width="100"><font size="8"><b>$date</b></font></td>
             </tr>
             <tr>
-                <td COLSPAN="3" align="left"><font size="8"><b>$data->no_request</b></font></td>
+                <td width="150" COLSPAN="1" align="left"><font size="8"><b>$data->no_request</b></font></td>
+                <td width="120"><font size="7">No Nota : <b>$data->no_nota</b></font></td>
             </tr>
             <tr>
                 <td COLSPAN="6">POD: $data->ipod | $data->pelabuhan_tujuan</td>

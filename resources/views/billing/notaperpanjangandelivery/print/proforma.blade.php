@@ -107,8 +107,12 @@
             <td>{{ $data->no_nota_mti }}</td>
             <td style="text-align: right;">{{ $date }}</td>
         </tr>
+        <tr>
+            <td>{{ $data->no_request }}</td>
+            <td style="text-align: right; font-size: 7pt !important"><span style="font-weight: normal;">No. Nota : </span>{{ $data->no_nota }}</td>
+        </tr>
     </table>
-    <b><span>{{ $data->no_request }}</span></b><br>
+    {{-- <b><span>{{ $data->no_request }}</span></b><br> --}}
     <b>PERPANJANGAN DELIVERY KE LUAR</b><br />
     <b><span>{{ $data->nama }}</span></b><br>
     <b><span>{{ $data->npwp }}</span></b><br>
@@ -196,7 +200,7 @@
     <p>Nomor Invoice: {{ $data->no_nota_mti }}</p>
     <p>Customer: {{ $data->nama }}</p>
     <p>Jumlah Dibayar: Rp. {{ $data->total_tagihan }}</p>
-    <br/>    
+    <br/>
 
 
 </body>

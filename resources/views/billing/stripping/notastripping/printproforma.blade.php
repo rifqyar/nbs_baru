@@ -91,8 +91,12 @@
             <td>{{ $data->no_nota_mti }}</td>
             <td style="text-align: right;">{{ $date }}</td>
         </tr>
+        <tr>
+            <td>{{ $data->no_request }}</td>
+            <td style="text-align: right; font-size: 7pt !important"><span style="font-weight: normal;">No. Nota : </span>{{ $data->no_nota }}</td>
+        </tr>
     </table>
-    <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br>
+    {{-- <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br> --}}
     <span>POD : | </span><br>
     <b style="font-size: 6pt">STRIPPING</b><br />
     <b><span>{{ $data->nama }}</span></b><br>

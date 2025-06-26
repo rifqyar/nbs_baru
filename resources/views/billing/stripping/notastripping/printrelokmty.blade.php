@@ -91,8 +91,13 @@
             <td>{{ $data->no_nota_mti }}</td>
             <td style="text-align: right;">{{ $date }}</td>
         </tr>
+        <tr>
+            <td>{{ $data->no_request }}</td>
+            <td style="text-align: right; font-size: 7pt !important"><span style="font-weight: normal;">No. Nota :
+                </span>{{ $data->no_nota }}</td>
+        </tr>
     </table>
-    <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br>
+    {{-- <b><span style="font-size: 9pt">{{ $data->no_request }}</span></b><br> --}}
     <span>POD : | </span><br>
     <b style="font-size: 6pt">RELOKASI MTY</b><br />
     <b><span>{{ $data->nama }}</span></b><br>
@@ -283,7 +288,7 @@
                 <b style="font-size: 8pt">Nomor Invoice :</b>
             </td>
             <td colspan="4" align="left">
-                 <b style="font-size: 8pt">{{$data->no_nota_mti}}</b>
+                <b style="font-size: 8pt">{{ $data->no_nota_mti }}</b>
             </td>
         </tr>
         <tr>
@@ -291,7 +296,7 @@
                 <b style="font-size: 8pt">Customer :</b>
             </td>
             <td colspan="4" align="left">
-                 <b style="font-size: 8pt">{{$data->nama}}</b>
+                <b style="font-size: 8pt">{{ $data->nama }}</b>
             </td>
         </tr>
         <tr>
@@ -300,11 +305,11 @@
                 <b style="font-size: 8pt">Jumlah Dibayar :</b>
             </td>
             <td colspan="4" align="left" style="font-size: 8pt">
-                 Rp. <b>{{$data->total_tagihan}}</b>
+                Rp. <b>{{ $data->total_tagihan }}</b>
             </td>
         </tr>
     </table>
-        {!! $listcont !!}
+    {!! $listcont !!}
 </body>
 
 </html>

@@ -302,7 +302,12 @@ class PerencanaanStripping
                 "serviceCode" => "DEL"
             );
 
+            Log::channel('request_stripping')->info('getCont payload', $payload);
             $response = sendDataFromUrl($payload, env('PRAYA_API_TOS') . "/api/containerList", 'POST', getTokenPraya());
+            Log::channel('request_stripping')->info('getCont Praya Response', [
+                'response' => $response
+            ]);
+
             $response = json_decode($response['response'], true);
             if ($response['code'] == 1 && !empty($response["data"])) {
                 return $response['data'];
@@ -310,6 +315,10 @@ class PerencanaanStripping
                 return [];
             }
         } catch (Exception $ex) {
+            Log::channel('request_stripping')->error('getCont Praya exception', [
+                'message' => $ex->getMessage(),
+                'trace' => $ex->getTraceAsString()
+            ]);
             return false;
         }
     }
@@ -479,71 +488,43 @@ class PerencanaanStripping
             $outNoReq = "";
             $outMsg = "";
 
-            // $param['out_noreq'] = $outNoReq;
-            // $param['out_msg'] = $outMsg;
-            // DB::connection('uster')->statement(
-            //     "
-            //     begin pack_create_req_stripping.create_header_strip_praya(
-            //         :in_accpbm,
-            //         :in_pbm,
-            //         :in_personal,
-            //         :in_do,
-            //         :in_datesppb,
-            //         :in_nosppb,
-            //         :in_keterangan,
-            //         :in_user,
-            //         :in_di,
-            //         :in_vessel,
-            //         :in_voyin,
-            //         :in_voyout,
-            //         :in_idvsb,
-            //         :in_nobooking,
-            //         :in_callsign,
-            //         :in_bl,
-            //         :in_vessel_code,
-            //         :in_tanggal_jam_tiba,
-            //         :in_tanggal_jam_berangkat,
-            //         :in_operator_name,
-            //         :in_operator_id,
-            //         :in_pod,
-            //         :in_pol,
-            //         :in_voyage,
-            //         :out_noreq,
-            //         :out_msg
-            //     ); end;",$param
-            // );
-
             $procedureName = 'uster.pack_create_req_stripping.create_header_strip_praya';
+
+            // Logging input parameters
+            Log::channel('request_stripping')->info('addRequestPraya input', [
+                'params' => $param
+            ]);
+
             $stmt = $pdo->prepare(
                 "
-                        DECLARE BEGIN " . $procedureName . " (
-                            :in_accpbm,
-                            :in_pbm,
-                            :in_personal,
-                            :in_do,
-                            :in_datesppb,
-                            :in_nosppb,
-                            :in_keterangan,
-                            :in_user,
-                            :in_di,
-                            :in_vessel,
-                            :in_voyin,
-                            :in_voyout,
-                            :in_idvsb,
-                            :in_nobooking,
-                            :in_callsign,
-                            :in_bl,
-                            :in_vessel_code,
-                            :in_tanggal_jam_tiba,
-                            :in_tanggal_jam_berangkat,
-                            :in_operator_name,
-                            :in_operator_id,
-                            :in_pod,
-                            :in_pol,
-                            :in_voyage,
-                            :out_noreq,
-                            :out_msg
-                        ); END;"
+                DECLARE BEGIN " . $procedureName . " (
+                    :in_accpbm,
+                    :in_pbm,
+                    :in_personal,
+                    :in_do,
+                    :in_datesppb,
+                    :in_nosppb,
+                    :in_keterangan,
+                    :in_user,
+                    :in_di,
+                    :in_vessel,
+                    :in_voyin,
+                    :in_voyout,
+                    :in_idvsb,
+                    :in_nobooking,
+                    :in_callsign,
+                    :in_bl,
+                    :in_vessel_code,
+                    :in_tanggal_jam_tiba,
+                    :in_tanggal_jam_berangkat,
+                    :in_operator_name,
+                    :in_operator_id,
+                    :in_pod,
+                    :in_pol,
+                    :in_voyage,
+                    :out_noreq,
+                    :out_msg
+                ); END;"
             );
 
             foreach ($param as $key => &$value) {
@@ -553,6 +534,12 @@ class PerencanaanStripping
             $stmt->bindParam(":out_noreq", $outNoReq, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->bindParam(":out_msg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
+
+            // Logging output
+            Log::channel('request_stripping')->info('addRequestPraya output', [
+                'out_noreq' => $outNoReq,
+                'out_msg' => $outMsg
+            ]);
 
             DB::commit();
             return response()->json([
@@ -567,6 +554,11 @@ class PerencanaanStripping
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            // Logging error
+            Log::channel('request_stripping')->error('addRequestPraya exception', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -583,22 +575,43 @@ class PerencanaanStripping
     {
         DB::beginTransaction();
         try {
+            // Logging input data
+            Log::channel('request_stripping')->info('saveEdit input', [
+                'noReq' => $noReq,
+                'data' => $data
+            ]);
+
             $dataPlanStripping = generateQueryEdit($data['plan_request']);
             $dataRequestStrip = generateQueryEdit($data['request_strip']);
 
             $query_save = "UPDATE PLAN_REQUEST_STRIPPING SET $dataPlanStripping WHERE NO_REQUEST = '$noReq'";
+            Log::channel('request_stripping')->info('saveEdit PLAN_REQUEST_STRIPPING query', [
+                'query' => $query_save
+            ]);
             $exec = DB::connection('uster')->statement($query_save);
             if (!$exec) {
+                Log::channel('request_stripping')->error('saveEdit failed updating PLAN_REQUEST_STRIPPING', [
+                    'query' => $query_save
+                ]);
                 throw new Exception('Gagal Update Data Plan Request Stripping', 500);
             }
 
             $query_save_ = "UPDATE REQUEST_STRIPPING SET $dataRequestStrip WHERE NO_REQUEST = REPLACE('$noReq','P','S')";
+            Log::channel('request_stripping')->info('saveEdit REQUEST_STRIPPING query', [
+                'query' => $query_save_
+            ]);
             $exec_ = DB::connection('uster')->statement($query_save_);
             if (!$exec_) {
+                Log::channel('request_stripping')->error('saveEdit failed updating REQUEST_STRIPPING', [
+                    'query' => $query_save_
+                ]);
                 throw new Exception('Gagal Update Data Request Stripping', 500);
             }
 
             DB::commit();
+            Log::channel('request_stripping')->info('saveEdit success', [
+                'noReq' => $noReq
+            ]);
             return response()->json([
                 'status' => [
                     'code' => 200,
@@ -607,6 +620,10 @@ class PerencanaanStripping
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_stripping')->error('saveEdit exception', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -627,32 +644,37 @@ class PerencanaanStripping
 
             $outMsg = "";
 
+            // Logging input parameters
+            Log::channel('request_stripping')->info('saveCont input', [
+                'params' => $param
+            ]);
+
             DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT= 'dd/mm/rrrr'");
             $procedureName = 'uster.pack_create_req_stripping.create_detail_strip';
             $stmt = $pdo->prepare(
                 "
-                        DECLARE BEGIN " . $procedureName . " (
-                            :in_nocont,
-                            :in_planreq,
-                            :in_size,
-                            :in_type,
-                            :in_status,
-                            :in_hz,
-                            :in_commodity,
-                            :in_voyin,
-                            :in_after_strip,
-                            :in_asalcont,
-                            :in_datedisch,
-                            :in_tglmulai,
-                            :in_tglselesai,
-                            :in_blok,
-                            :in_slot,
-                            :in_row,
-                            :in_tier,
-                            :in_nobooking,
-                            :in_iduser,
-                            :p_ErrMsg);
-                        end;"
+                DECLARE BEGIN " . $procedureName . " (
+                    :in_nocont,
+                    :in_planreq,
+                    :in_size,
+                    :in_type,
+                    :in_status,
+                    :in_hz,
+                    :in_commodity,
+                    :in_voyin,
+                    :in_after_strip,
+                    :in_asalcont,
+                    :in_datedisch,
+                    :in_tglmulai,
+                    :in_tglselesai,
+                    :in_blok,
+                    :in_slot,
+                    :in_row,
+                    :in_tier,
+                    :in_nobooking,
+                    :in_iduser,
+                    :p_ErrMsg);
+                end;"
             );
 
             foreach ($param as $key => &$value) {
@@ -660,6 +682,11 @@ class PerencanaanStripping
             }
             $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
+
+            // Logging output
+            Log::channel('request_stripping')->info('saveCont output', [
+                'outmsg' => $outMsg
+            ]);
 
             DB::commit();
             return response()->json([
@@ -673,6 +700,11 @@ class PerencanaanStripping
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            // Logging error
+            Log::channel('request_stripping')->error('saveCont exception', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -693,15 +725,20 @@ class PerencanaanStripping
 
             $outMsg = "";
 
+            // Logging input parameters
+            Log::channel('request_stripping')->info('approveContTPK input', [
+                'params' => $param
+            ]);
+
             $queryProc = "
-                DECLARE BEGIN USTER.PACK_CREATE_REQ_STRIPPING.CREATE_APPROVE_STRIP_PRAYA2 (:in_nocont,:in_planreq,:in_reqnbs,:in_asalcont,
-                            :in_container_size,:in_container_type,:in_container_status,:in_container_hz,:in_container_imo,
-                            :in_container_iso_code,:in_container_height,:in_container_carrier,:in_container_reefer_temp,
-                            :in_container_booking_sl,:in_container_over_width,:in_container_over_length,:in_container_over_height,
-                            :in_container_over_front,:in_container_over_rear,:in_container_over_left,:in_container_over_right,
-                            :in_container_un_number,:in_container_pod,:in_container_pol,:in_container_vessel_confirm,
-                            :in_container_comodity,:in_container_c_type_code,:p_ErrMsg);
-                        end;
+            DECLARE BEGIN USTER.PACK_CREATE_REQ_STRIPPING.CREATE_APPROVE_STRIP_PRAYA2 (:in_nocont,:in_planreq,:in_reqnbs,:in_asalcont,
+                    :in_container_size,:in_container_type,:in_container_status,:in_container_hz,:in_container_imo,
+                    :in_container_iso_code,:in_container_height,:in_container_carrier,:in_container_reefer_temp,
+                    :in_container_booking_sl,:in_container_over_width,:in_container_over_length,:in_container_over_height,
+                    :in_container_over_front,:in_container_over_rear,:in_container_over_left,:in_container_over_right,
+                    :in_container_un_number,:in_container_pod,:in_container_pol,:in_container_vessel_confirm,
+                    :in_container_comodity,:in_container_c_type_code,:p_ErrMsg);
+                end;
             ";
 
             $stmt = $pdo->prepare($queryProc);
@@ -711,6 +748,11 @@ class PerencanaanStripping
 
             $stmt->bindParam(":p_ErrMsg", $outMsg, PDO::PARAM_STR | PDO::PARAM_INPUT_OUTPUT, 4000);
             $stmt->execute();
+
+            // Logging output
+            Log::channel('request_stripping')->info('approveContTPK output', [
+                'outmsg' => $outMsg
+            ]);
 
             DB::commit();
             return response()->json([
@@ -725,7 +767,12 @@ class PerencanaanStripping
         } catch (Exception $th) {
             DB::rollBack();
             $error = DB::connection('uster')->getPdo()->errorInfo();
-            Log::error("Error inserting data into nota_stripping_d: " . implode(', ', $error));
+            // Logging error
+            Log::channel('request_stripping')->error('approveContTPK exception', [
+                'message' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+                'db_error' => $error
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',

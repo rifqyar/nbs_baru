@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Yajra\DataTables\DataTables;
 use App\Traits\NpwpCheckPengkinianTrait;
+use Illuminate\Support\Facades\Log;
 use PDO;
 
 class PerencanaanStrippingController extends Controller
@@ -148,14 +149,23 @@ class PerencanaanStrippingController extends Controller
 
         // Check if the response is a failed validation JSON response
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
+            Log::channel('request_stripping')->warning('Validasi NPWP gagal', [
+                'request' => $request->all(),
+                'user_id' => Session::get('id')
+            ]);
+
             return $validatedNpwp; // Return error response if NPWP validation failed
         }
 
         $validatePconnect = pconnectIntegration($request->NO_ACC_CONS);
-        if($validatePconnect != 'MATCH'){
-            if($validatePconnect == '404'){
+        if ($validatePconnect != 'MATCH') {
+            Log::channel('request_stripping')->warning('Validasi PConnect gagal', [
+                'result' => $validatePconnect,
+                'user_id' => Session::get('id')
+            ]);
+            if ($validatePconnect == '404') {
                 throw new Exception('Data Customer tidak ditemukan di PConnect', 400);
-            } else if($validatePconnect == 'BELUM PENGKINIAN NPWP') {
+            } else if ($validatePconnect == 'BELUM PENGKINIAN NPWP') {
                 throw new Exception('Customer belum melakukan pengkinian data NPWP di Pconnect', 400);
             }
         }
@@ -189,15 +199,37 @@ class PerencanaanStrippingController extends Controller
                 "in_voyage" => $request->VOYAGE
             );
 
+            Log::channel('request_stripping')->info('Request Stripping Praya - Add Request', [
+                'user_id' => Session::get('id'),
+                'params' => $param,
+                'request_data' => $request->all()
+            ]);
+
             $storeData = $this->stripping_plan->addRequestPraya($param);
             $noReq = null;
 
             if ($storeData->getData()->status->code != 200) {
+                Log::channel('request_stripping')->error('Gagal Membuat Perencanaan Stripping', [
+                    'user_id' => Session::get('id'),
+                    'params' => $param,
+                    'response' => $storeData->getData()
+                ]);
                 throw new Exception('Gagal Membuat Perencanaan Stripping' . $storeData->getData()->status->msg, 500);
             } else if ($storeData->getData()->data->outmsg == 'F') {
+                Log::channel('request_stripping')->error('Gagal Membuat Perencanaan Stripping (outmsg F)', [
+                    'user_id' => Session::get('id'),
+                    'params' => $param,
+                    'response' => $storeData->getData()
+                ]);
                 throw new Exception('Gagal Membuat Perencanaan Stripping' . $storeData->getData()->status->msg, 500);
             } else {
                 $noReq = base64_encode($storeData->getData()->data->out_noreq);
+                Log::channel('request_stripping')->info('Berhasil Membuat Perencanaan Stripping', [
+                    'user_id' => Session::get('id'),
+                    'params' => $param,
+                    'response' => $storeData->getData(),
+                    'redirect_to' => route('uster.new_request.stripping.stripping_plan.view', $noReq)
+                ]);
             }
 
             DB::commit();
@@ -211,6 +243,13 @@ class PerencanaanStrippingController extends Controller
             ]);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_stripping')->error('Exception saat membuat Perencanaan Stripping', [
+                'user_id' => Session::get('id'),
+                'params' => isset($param) ? $param : [],
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -247,11 +286,32 @@ class PerencanaanStrippingController extends Controller
                 'KETERANGAN' => $request->keterangan,
             ];
 
+            // Logging before update
+            Log::channel('request_stripping')->info('Edit Perencanaan Stripping - Before Update', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'plan_request' => $data['plan_request'],
+                'request_strip' => $data['request_strip'],
+                'request_data' => $request->all()
+            ]);
+
             $process = $this->stripping_plan->saveEdit($data, $request->no_req);
             $statusCode = $process->getData()->status->code;
             if ($statusCode != 200) {
+                Log::channel('request_stripping')->error('Gagal Update Data Perencanaan Stripping', [
+                    'user_id' => Session::get('id'),
+                    'no_req' => $request->no_req,
+                    'response' => $process->getData()
+                ]);
                 throw new Exception('Gagal Update Data', 500);
             }
+
+            // Logging after update success
+            Log::channel('request_stripping')->info('Berhasil Rubah Data Perencanaan Stripping', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'response' => $process->getData()
+            ]);
 
             DB::commit();
             return response()->json([
@@ -264,6 +324,13 @@ class PerencanaanStrippingController extends Controller
             ]);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_stripping')->error('Exception saat Edit Perencanaan Stripping', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req ?? null,
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -280,9 +347,19 @@ class PerencanaanStrippingController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Logging request data before validation
+            Log::channel('request_stripping')->info('Save Container - Before Validation', [
+                'user_id' => Session::get('id'),
+                'request_data' => $request->all()
+            ]);
+
             $validasiContainerAktif = $this->cekCont($request->NO_CONT);
 
             if ($request->TGL_BONGKAR == null) {
+                Log::channel('request_stripping')->warning('Tanggal Bongkar Kosong', [
+                    'user_id' => Session::get('id'),
+                    'request_data' => $request->all()
+                ]);
                 throw new Exception('Tanggal Bongkar Kosong, Silahkan Hubungi Admin', 400);
             }
 
@@ -303,6 +380,12 @@ class PerencanaanStrippingController extends Controller
                 $r_counthi = DB::connection('uster')->selectOne("SELECT COUNT(*) JUM FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$request->NO_CONT'");
                 if ($r_counthi->jum > 1) {
                     if ($rw_locate->location != "GATO") {
+                        Log::channel('request_stripping')->warning('Container Bukan GATO', [
+                            'user_id' => Session::get('id'),
+                            'no_container' => $request->NO_CONT,
+                            'location' => $rw_locate->location ?? null,
+                            'request_data' => $request->all()
+                        ]);
                         throw new Exception('Container Masih Aktif di Siklus Sebelumnya / Bukan GATO', 400);
                     }
                 }
@@ -331,12 +414,31 @@ class PerencanaanStrippingController extends Controller
                 "in_iduser" => Session::get('id')
             );
 
+            // Logging parameters before saving
+            Log::channel('request_stripping')->info('Save Container - Before Save', [
+                'user_id' => Session::get('id'),
+                'params' => $param,
+                'request_data' => $request->all()
+            ]);
+
             $process = $this->stripping_plan->saveCont($param);
             $statusCode = $process->getData()->status->code;
 
             if ($statusCode != 200) {
+                Log::channel('request_stripping')->error('Gagal Simpan Container', [
+                    'user_id' => Session::get('id'),
+                    'params' => $param,
+                    'response' => $process->getData()
+                ]);
                 throw new Exception('Gagal Simpan Container' . $process->getData()->status->msg, 500);
             }
+
+            Log::channel('request_stripping')->info('Berhasil Simpan Data Container', [
+                'user_id' => Session::get('id'),
+                'params' => $param,
+                'response' => $process->getData(),
+                'redirect_to' => route('uster.new_request.stripping.stripping_plan.view', base64_encode($request->no_req))
+            ]);
 
             DB::commit();
             return response()->json([
@@ -349,6 +451,13 @@ class PerencanaanStrippingController extends Controller
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_stripping')->error('Exception saat Simpan Data Container', [
+                'user_id' => Session::get('id'),
+                'request_data' => $request->all(),
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -405,6 +514,12 @@ class PerencanaanStrippingController extends Controller
             $id_user = Session::get('ID_USER');
             $id_yard = Session::get("IDYARD_STORAGE");
 
+            // Logging request data before processing
+            Log::channel('request_stripping')->info('Approve Container - Start', [
+                'user_id' => $id_user,
+                'request_data' => $request->all()
+            ]);
+
             $q_cek_double = "SELECT count(no_container) jum from container_stripping where no_request = REPLACE('$request->no_req','P','S') and no_container = '$request->no_cont' ";
             $rcekd = DB::connection('uster')->selectOne($q_cek_double);
 
@@ -413,6 +528,15 @@ class PerencanaanStrippingController extends Controller
                 $rcekd = DB::connection('uster')->statement($q_update_p);
                 $q_update_r = "UPDATE CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd') WHERE NO_REQUEST = REPLACE('$request->no_req','P','S') AND NO_CONTAINER = '$request->no_cont'";
                 $rcekd = DB::connection('uster')->statement($q_update_r);
+
+                // Logging after update
+                Log::channel('request_stripping')->info('Approve Container - Updated existing container', [
+                    'user_id' => $id_user,
+                    'no_req' => $request->no_req,
+                    'no_cont' => $request->no_cont,
+                    'tgl_approve' => $request->tgl_approve,
+                    'tgl_app_selesai' => $request->tgl_app_selesai
+                ]);
 
                 DB::commit();
                 return response()->json([
@@ -426,14 +550,14 @@ class PerencanaanStrippingController extends Controller
             }
 
             $query_cx         = "SELECT DISTINCT PLAN_CONTAINER_STRIPPING.HZ,
-                                        PLAN_CONTAINER_STRIPPING.COMMODITY,
-                                        PLAN_CONTAINER_STRIPPING.UKURAN,
-                                        PLAN_CONTAINER_STRIPPING.TYPE,
-                                        PLAN_CONTAINER_STRIPPING.NO_BOOKING,
-                                        PLAN_CONTAINER_STRIPPING.ID_YARD
-                                        FROM PLAN_CONTAINER_STRIPPING
-                                        WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
-                                        AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
+                        PLAN_CONTAINER_STRIPPING.COMMODITY,
+                        PLAN_CONTAINER_STRIPPING.UKURAN,
+                        PLAN_CONTAINER_STRIPPING.TYPE,
+                        PLAN_CONTAINER_STRIPPING.NO_BOOKING,
+                        PLAN_CONTAINER_STRIPPING.ID_YARD
+                        FROM PLAN_CONTAINER_STRIPPING
+                        WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
+                        AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
             $row_cx = DB::connection('uster')->selectOne($query_cx);
             $hz             = $row_cx->hz;
             $komoditi         = $row_cx->commodity;
@@ -473,29 +597,48 @@ class PerencanaanStrippingController extends Controller
                     "in_container_c_type_code" => $request->CONTAINER_COMODITY_TYPE_CODE ?? '',
                 );
 
+                // Logging before approve TPK
+                Log::channel('request_stripping')->info('Approve Container - TPK Params', [
+                    'user_id' => $id_user,
+                    'params' => $param,
+                    'request_data' => $request->all()
+                ]);
+
                 $process = $this->stripping_plan->approveContTPK($request, $param);
                 $statusCode = $process->getData()->status->code;
 
                 if ($statusCode != 200) {
+                    Log::channel('request_stripping')->error('Approve Container - Gagal Approve Container TPK', [
+                        'user_id' => $id_user,
+                        'params' => $param,
+                        'response' => $process->getData()
+                    ]);
                     DB::rollBack();
                     throw new Exception('Gagal Approve Container' . $process->getData()->status->msg, 500);
                 } else {
+                    // Logging after approve TPK success
+                    Log::channel('request_stripping')->info('Approve Container - Approve TPK Success', [
+                        'user_id' => $id_user,
+                        'params' => $param,
+                        'response' => $process->getData()
+                    ]);
+
                     $query_insert_rec    = "INSERT INTO CONTAINER_RECEIVING(NO_CONTAINER,
-                                                    NO_REQUEST,
-                                                    STATUS,
-                                                    AKTIF,
-                                                    HZ,
-                                                    TGL_BONGKAR,
-                                                    KOMODITI,
-                                                    DEPO_TUJUAN)
-                                            VALUES('$request->no_cont',
-                                                    '$request->NO_REQ_REC',
-                                                    'FCL',
-                                                    'Y',
-                                                    '$hz',
-                                                    TO_DATE('$request->tgl_bongkar','yyyy-mm-dd'),
-                                                    '$komoditi',
-                                                    '$depo_tujuan')";
+                                NO_REQUEST,
+                                STATUS,
+                                AKTIF,
+                                HZ,
+                                TGL_BONGKAR,
+                                KOMODITI,
+                                DEPO_TUJUAN)
+                            VALUES('$request->no_cont',
+                                '$request->NO_REQ_REC',
+                                'FCL',
+                                'Y',
+                                '$hz',
+                                TO_DATE('$request->tgl_bongkar','yyyy-mm-dd'),
+                                '$komoditi',
+                                '$depo_tujuan')";
 
                     $row_cx = DB::connection('uster')->statement($query_insert_rec);
 
@@ -504,33 +647,33 @@ class PerencanaanStrippingController extends Controller
                     $cur_counter = $row_cx->counter;
                     $cur_booking = $row_cx->no_booking;
                     $history_rec    = "INSERT INTO history_container
-                                            (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
-                                        VALUES ('$request->no_cont','$request->NO_REQ_REC','REQUEST RECEIVING',SYSDATE,'$id_user','$id_yard','$cur_booking', '$cur_counter','FCL')";
+                            (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
+                        VALUES ('$request->no_cont','$request->NO_REQ_REC','REQUEST RECEIVING',SYSDATE,'$id_user','$id_yard','$cur_booking', '$cur_counter','FCL')";
                     $execHistory = DB::connection('uster')->statement($history_rec);
 
                     $query = "UPDATE PLAN_CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'), REMARK = '$request->remark'
-                                WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
+                    WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
                     $query_r = "SELECT NO_REQUEST,
-                                    --ID_YARD,
-                                    KETERANGAN,
-                                    -- NO_BOOKING,
-                                    TGL_REQUEST,
-                                    TGL_AWAL,
-                                    TGL_AKHIR,
-                                    NO_DO,
-                                    NO_BL,
-                                    TYPE_STRIPPING,
-                                    STRIPPING_DARI,
-                                    NO_REQUEST_RECEIVING,
-                                    ID_USER,
-                                    KD_CONSIGNEE,
-                                    KD_PENUMPUKAN_OLEH,
-                                    NO_SPPB,
-                                    TGL_SPPB,
-                                    AFTER_STRIP,
-                                    CONSIGNEE_PERSONAL
-                                FROM PLAN_REQUEST_STRIPPING
-                                WHERE NO_REQUEST = '$request->no_req'";
+                        --ID_YARD,
+                        KETERANGAN,
+                        -- NO_BOOKING,
+                        TGL_REQUEST,
+                        TGL_AWAL,
+                        TGL_AKHIR,
+                        NO_DO,
+                        NO_BL,
+                        TYPE_STRIPPING,
+                        STRIPPING_DARI,
+                        NO_REQUEST_RECEIVING,
+                        ID_USER,
+                        KD_CONSIGNEE,
+                        KD_PENUMPUKAN_OLEH,
+                        NO_SPPB,
+                        TGL_SPPB,
+                        AFTER_STRIP,
+                        CONSIGNEE_PERSONAL
+                    FROM PLAN_REQUEST_STRIPPING
+                    WHERE NO_REQUEST = '$request->no_req'";
                     $row_r    = DB::connection('uster')->selectOne($query_r);
 
                     $no_request_a         = $row_r->no_request;
@@ -553,25 +696,25 @@ class PerencanaanStrippingController extends Controller
 
 
                     $query_c = "SELECT DISTINCT
-                                    PLAN_CONTAINER_STRIPPING.AFTER_STRIP,
-                                    PLAN_CONTAINER_STRIPPING.ID_YARD,
-                                    PLAN_CONTAINER_STRIPPING.HZ,
-                                    PLAN_CONTAINER_STRIPPING.NO_REQUEST,
-                                    PLAN_CONTAINER_STRIPPING.NO_CONTAINER,
-                                    PLAN_CONTAINER_STRIPPING.AKTIF,
-                                    --PLAN_CONTAINER_STRIPPING.KETERANGAN,
-                                    PLAN_CONTAINER_STRIPPING.TGL_APPROVE,
-                                    PLAN_CONTAINER_STRIPPING.TGL_BONGKAR,
-                                    PLAN_CONTAINER_STRIPPING.TGL_SELESAI,
-                                    PLAN_CONTAINER_STRIPPING.VIA,
-                                    PLAN_CONTAINER_STRIPPING.VOYAGE,
-                                    PLAN_CONTAINER_STRIPPING.REMARK,
-                                    PLAN_CONTAINER_STRIPPING.UKURAN,
-                                    PLAN_CONTAINER_STRIPPING.TYPE,
-                                    PLAN_CONTAINER_STRIPPING.COMMODITY
-                                FROM PLAN_CONTAINER_STRIPPING
-                                WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
-                                    AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
+                        PLAN_CONTAINER_STRIPPING.AFTER_STRIP,
+                        PLAN_CONTAINER_STRIPPING.ID_YARD,
+                        PLAN_CONTAINER_STRIPPING.HZ,
+                        PLAN_CONTAINER_STRIPPING.NO_REQUEST,
+                        PLAN_CONTAINER_STRIPPING.NO_CONTAINER,
+                        PLAN_CONTAINER_STRIPPING.AKTIF,
+                        --PLAN_CONTAINER_STRIPPING.KETERANGAN,
+                        PLAN_CONTAINER_STRIPPING.TGL_APPROVE,
+                        PLAN_CONTAINER_STRIPPING.TGL_BONGKAR,
+                        PLAN_CONTAINER_STRIPPING.TGL_SELESAI,
+                        PLAN_CONTAINER_STRIPPING.VIA,
+                        PLAN_CONTAINER_STRIPPING.VOYAGE,
+                        PLAN_CONTAINER_STRIPPING.REMARK,
+                        PLAN_CONTAINER_STRIPPING.UKURAN,
+                        PLAN_CONTAINER_STRIPPING.TYPE,
+                        PLAN_CONTAINER_STRIPPING.COMMODITY
+                    FROM PLAN_CONTAINER_STRIPPING
+                    WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
+                        AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
                     $row_c    = DB::connection('uster')->select($query_c);
 
                     $query_cek_request = "SELECT NO_REQUEST FROM REQUEST_STRIPPING WHERE NO_REQUEST = '$request->no_req'";
@@ -581,10 +724,10 @@ class PerencanaanStrippingController extends Controller
                     $row_cek_cont    = DB::connection("uster")->select($query_cek_cont);
                     $no_req_strip = str_replace('P', 'S', $request->no_req);
                     $query_tgl_app = "UPDATE CONTAINER_STRIPPING
-                                        SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
-                                        TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
-                                        REMARK = '$request->remark'
-                                    WHERE NO_REQUEST = '$no_req_strip' AND NO_CONTAINER = '$request->no_cont'";
+                        SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
+                        TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
+                        REMARK = '$request->remark'
+                        WHERE NO_REQUEST = '$no_req_strip' AND NO_CONTAINER = '$request->no_cont'";
 
                     if (count($row_cek_request) > 0 && count($row_cek_cont) > 0) {
                         DB::connection('uster')->statement($query);
@@ -614,22 +757,22 @@ class PerencanaanStrippingController extends Controller
                             $voyage         = $rc->voyage;
                             $remark         = $rc->remark;
                             $query_ic        = "INSERT INTO CONTAINER_STRIPPING (NO_CONTAINER,NO_REQUEST, AKTIF,
-                                                VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_GATE, TGL_SELESAI)
-                                                VALUES('$cont',
-                                                '$no_req_strip',
-                                                '$aktif',
-                                                '$request->ASAL_CONT',
-                                                '$voyage',
-                                                '$tgl_bongkar',
-                                                '$commo',
-                                                '$hz',
-                                                '$idyard_c',
-                                                '$after_strip',
-                                                TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
-                                                TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
-                                                '$remark',
-                                                TO_DATE('$tgl_gate','dd/mm/rrrr'),
-                                                '$tgl_selesai')";
+                            VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_GATE, TGL_SELESAI)
+                            VALUES('$cont',
+                            '$no_req_strip',
+                            '$aktif',
+                            '$request->ASAL_CONT',
+                            '$voyage',
+                            '$tgl_bongkar',
+                            '$commo',
+                            '$hz',
+                            '$idyard_c',
+                            '$after_strip',
+                            TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
+                            TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
+                            '$remark',
+                            TO_DATE('$tgl_gate','dd/mm/rrrr'),
+                            '$tgl_selesai')";
 
                             $execInsertContainer = DB::connection('uster')->statement($query_ic);
                         }
@@ -651,30 +794,37 @@ class PerencanaanStrippingController extends Controller
                             $remark         = $rc->remark;
                             $commo             = $rc->commodity;
                             $query_ic        = "INSERT INTO CONTAINER_STRIPPING (NO_CONTAINER,NO_REQUEST, AKTIF,
-                                                    VIA, VOYAGE, TGL_BONGKAR,COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_SELESAI)
-                                                    VALUES('$cont',
-                                                    '$no_req_strip',
-                                                    '$aktif',
-                                                    '$request->ASAL_CONT',
-                                                    '$voyage',
-                                                    '$tgl_bongkar',
-                                                    '$commo',
-                                                    '$hz',
-                                                    '$idyard_c',
-                                                    '$after_strip',
-                                                    TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
-                                                    TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
-                                                    '$remark',
-                                                    '$tgl_selesai')";
+                                VIA, VOYAGE, TGL_BONGKAR,COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_SELESAI)
+                                VALUES('$cont',
+                                '$no_req_strip',
+                                '$aktif',
+                                '$request->ASAL_CONT',
+                                '$voyage',
+                                '$tgl_bongkar',
+                                '$commo',
+                                '$hz',
+                                '$idyard_c',
+                                '$after_strip',
+                                TO_DATE('$request->tgl_approve','yyyy-mm-dd'),
+                                TO_DATE('$request->tgl_app_selesai','yyyy-mm-dd'),
+                                '$remark',
+                                '$tgl_selesai')";
                             $execInsertContainer = DB::connection('uster')->statement($query_ic);
                         }
                     }
 
                     $history_stripp        = "INSERT INTO history_container
-                                                    (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
-                                                VALUES ('$request->no_cont','$no_req_strip','REQUEST STRIPPING',SYSDATE,'$id_user','$id_yard','$cur_booking','$cur_counter','FCL')";
+                                (NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
+                            VALUES ('$request->no_cont','$no_req_strip','REQUEST STRIPPING',SYSDATE,'$id_user','$id_yard','$cur_booking','$cur_counter','FCL')";
                     $execHistoryStrip = DB::connection('uster')->statement($history_stripp);
                 }
+
+                // Logging after all TPK process
+                Log::channel('request_stripping')->info('Approve Container - TPK Process Completed', [
+                    'user_id' => $id_user,
+                    'no_req' => $request->no_req,
+                    'no_cont' => $request->no_cont
+                ]);
 
                 DB::commit();
                 return response()->json([
@@ -687,29 +837,29 @@ class PerencanaanStrippingController extends Controller
                 ], 200);
             } elseif ($request->ASAL_CONT == 'DEPO') {
                 $query = "UPDATE PLAN_CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yy-mm-dd'), REMARK = '$request->remark'
-                                WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
+                    WHERE NO_REQUEST = '$request->no_req' AND NO_CONTAINER = '$request->no_cont'";
 
                 $query_r = "SELECT NO_REQUEST,
-                           --ID_YARD,
-                           KETERANGAN,
-                          -- NO_BOOKING,
-                           TGL_REQUEST,
-                           TGL_AWAL,
-                           TGL_AKHIR,
-                           NO_DO,
-                           NO_BL,
-                           TYPE_STRIPPING,
-                           STRIPPING_DARI,
-                           NO_REQUEST_RECEIVING,
-                           ID_USER,
-                           KD_CONSIGNEE,
-                           KD_PENUMPUKAN_OLEH,
-                           NO_SPPB,
-                           TGL_SPPB,
-                           AFTER_STRIP,
-                           CONSIGNEE_PERSONAL
-                      FROM PLAN_REQUEST_STRIPPING
-                      WHERE NO_REQUEST = '$request->no_req'";
+                   --ID_YARD,
+                   KETERANGAN,
+                  -- NO_BOOKING,
+                   TGL_REQUEST,
+                   TGL_AWAL,
+                   TGL_AKHIR,
+                   NO_DO,
+                   NO_BL,
+                   TYPE_STRIPPING,
+                   STRIPPING_DARI,
+                   NO_REQUEST_RECEIVING,
+                   ID_USER,
+                   KD_CONSIGNEE,
+                   KD_PENUMPUKAN_OLEH,
+                   NO_SPPB,
+                   TGL_SPPB,
+                   AFTER_STRIP,
+                   CONSIGNEE_PERSONAL
+                  FROM PLAN_REQUEST_STRIPPING
+                  WHERE NO_REQUEST = '$request->no_req'";
                 $row_r    = DB::connection('uster')->selectOne($query_r);
 
                 $no_request_a   = $row_r->no_request;
@@ -731,23 +881,23 @@ class PerencanaanStrippingController extends Controller
                 $CONSIGNEE_PERSONAL = $row_r->consignee_personal;
 
                 $query_c = "SELECT DISTINCT PLAN_CONTAINER_STRIPPING.AFTER_STRIP,
-                                PLAN_CONTAINER_STRIPPING.ID_YARD,
-                                PLAN_CONTAINER_STRIPPING.HZ,
-                                PLAN_CONTAINER_STRIPPING.NO_REQUEST,
-                                PLAN_CONTAINER_STRIPPING.NO_CONTAINER,
-                                PLAN_CONTAINER_STRIPPING.AKTIF,
-                                PLAN_CONTAINER_STRIPPING.UKURAN KD_SIZE,
-                                PLAN_CONTAINER_STRIPPING.TYPE KD_TYPE,
-                                PLAN_CONTAINER_STRIPPING.TGL_APPROVE,
-                                PLAN_CONTAINER_STRIPPING.TGL_BONGKAR,
-                                PLAN_CONTAINER_STRIPPING.TGL_SELESAI,
-                                PLAN_CONTAINER_STRIPPING.VIA,
-                                PLAN_CONTAINER_STRIPPING.VOYAGE,
-                                PLAN_CONTAINER_STRIPPING.REMARK,
-                                PLAN_CONTAINER_STRIPPING.COMMODITY
-                               FROM PLAN_CONTAINER_STRIPPING
-                               WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
-                               AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
+                    PLAN_CONTAINER_STRIPPING.ID_YARD,
+                    PLAN_CONTAINER_STRIPPING.HZ,
+                    PLAN_CONTAINER_STRIPPING.NO_REQUEST,
+                    PLAN_CONTAINER_STRIPPING.NO_CONTAINER,
+                    PLAN_CONTAINER_STRIPPING.AKTIF,
+                    PLAN_CONTAINER_STRIPPING.UKURAN KD_SIZE,
+                    PLAN_CONTAINER_STRIPPING.TYPE KD_TYPE,
+                    PLAN_CONTAINER_STRIPPING.TGL_APPROVE,
+                    PLAN_CONTAINER_STRIPPING.TGL_BONGKAR,
+                    PLAN_CONTAINER_STRIPPING.TGL_SELESAI,
+                    PLAN_CONTAINER_STRIPPING.VIA,
+                    PLAN_CONTAINER_STRIPPING.VOYAGE,
+                    PLAN_CONTAINER_STRIPPING.REMARK,
+                    PLAN_CONTAINER_STRIPPING.COMMODITY
+                       FROM PLAN_CONTAINER_STRIPPING
+                       WHERE PLAN_CONTAINER_STRIPPING.NO_REQUEST = '$request->no_req'
+                       AND PLAN_CONTAINER_STRIPPING.NO_CONTAINER = '$request->no_cont'";
                 $row_c    = DB::connection('uster')->select($query_c);
                 $no_req_strip = str_replace('P', 'S', $request->no_req);
                 $query_cek_request = "SELECT NO_REQUEST FROM REQUEST_STRIPPING WHERE NO_REQUEST = '$no_req_strip'";
@@ -757,7 +907,7 @@ class PerencanaanStrippingController extends Controller
                 $row_cek_cont    = DB::connection('uster')->select($query_cek_cont);
 
                 $query_tgl_app = "UPDATE CONTAINER_STRIPPING SET TGL_APPROVE = TO_DATE('$request->tgl_approve','yy-mm-dd'), TGL_APP_SELESAI = TO_DATE('$request->tgl_app_selesai','yy-mm-dd'), REMARK = '$request->remark'
-                                    WHERE NO_REQUEST = '$no_req_strip' AND NO_CONTAINER = '$request->no_cont'";
+                        WHERE NO_REQUEST = '$no_req_strip' AND NO_CONTAINER = '$request->no_cont'";
 
                 if (count($row_cek_request) > 0 && count($row_cek_cont) > 0) {
                     DB::connection('uster')->statement($query);
@@ -783,21 +933,21 @@ class PerencanaanStrippingController extends Controller
                         $commo         = $rc->commodity;
 
                         $query_ic        = "INSERT INTO CONTAINER_STRIPPING (NO_CONTAINER,NO_REQUEST, AKTIF,
-                                        VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK,TGL_SELESAI)
-                                        VALUES('$cont',
-                                        '$no_req_strip',
-                                        '$aktif',
-                                        '$request->ASAL_CONT',
-                                        '$voyage',
-                                        '$tgl_bongkar',
-                                        '$commo',
-                                        '$hz',
-                                        '$idyard_c',
-                                        '$after_strip',
-                                        TO_DATE('$request->tgl_approve','yy-mm-dd'),
-                                        TO_DATE('$request->tgl_app_selesai','yy-mm-dd'),
-                                        '$remark',
-                                        '$tgl_selesai')";
+                        VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK,TGL_SELESAI)
+                        VALUES('$cont',
+                        '$no_req_strip',
+                        '$aktif',
+                        '$request->ASAL_CONT',
+                        '$voyage',
+                        '$tgl_bongkar',
+                        '$commo',
+                        '$hz',
+                        '$idyard_c',
+                        '$after_strip',
+                        TO_DATE('$request->tgl_approve','yy-mm-dd'),
+                        TO_DATE('$request->tgl_app_selesai','yy-mm-dd'),
+                        '$remark',
+                        '$tgl_selesai')";
 
                         $execContainerStrip = DB::connection('uster')->statement($query_ic);
                     }
@@ -822,22 +972,22 @@ class PerencanaanStrippingController extends Controller
                         $commo         = $rc->commodity;
 
                         $query_ic        = "INSERT INTO CONTAINER_STRIPPING (NO_CONTAINER,NO_REQUEST, AKTIF,
-                                        VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_GATE, TGL_SELESAI)
-                                        VALUES('$cont',
-                                        '$no_req_strip',
-                                        '$aktif',
-                                        '$request->ASAL_CONT',
-                                        '$voyage',
-                                        '$tgl_bongkar',
-                                        '$commo',
-                                        '$hz',
-                                        '$idyard_c',
-                                        '$after_strip',
-                                        TO_DATE('$request->tgl_approve','yy-mm-dd'),
-                                        TO_DATE('$request->tgl_app_selesai','yy-mm-dd'),
-                                        '$remark',
-                                        TO_DATE('$request->tgl_gate','yy-mm-dd'),
-                                        '$tgl_selesai')";
+                        VIA, VOYAGE, TGL_BONGKAR, COMMODITY, HZ, ID_YARD, AFTER_STRIP, TGL_APPROVE, TGL_APP_SELESAI, REMARK, TGL_GATE, TGL_SELESAI)
+                        VALUES('$cont',
+                        '$no_req_strip',
+                        '$aktif',
+                        '$request->ASAL_CONT',
+                        '$voyage',
+                        '$tgl_bongkar',
+                        '$commo',
+                        '$hz',
+                        '$idyard_c',
+                        '$after_strip',
+                        TO_DATE('$request->tgl_approve','yy-mm-dd'),
+                        TO_DATE('$request->tgl_app_selesai','yy-mm-dd'),
+                        '$remark',
+                        TO_DATE('$request->tgl_gate','yy-mm-dd'),
+                        '$tgl_selesai')";
 
                         $execContainerStrip = DB::connection('uster')->statement($query_ic);
                     }
@@ -849,10 +999,24 @@ class PerencanaanStrippingController extends Controller
                 $cur_booking2 = $rw_getcounter2->no_booking;
 
                 $history_stripp2  = "INSERT INTO history_container(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, NO_BOOKING, COUNTER, STATUS_CONT)
-                                                              VALUES ('$request->no_cont','$no_req_strip','REQUEST STRIPPING',SYSDATE,'$id_user','$id_yard','$cur_booking2','$cur_counter2','FCL')";
+                                      VALUES ('$request->no_cont','$no_req_strip','REQUEST STRIPPING',SYSDATE,'$id_user','$id_yard','$cur_booking2','$cur_counter2','FCL')";
 
                 $execHistory = DB::connection('uster')->statement($history_stripp2);
+
+                // Logging after all DEPO process
+                Log::channel('request_stripping')->info('Approve Container - DEPO Process Completed', [
+                    'user_id' => $id_user,
+                    'no_req' => $request->no_req,
+                    'no_cont' => $request->no_cont
+                ]);
             }
+
+            // Logging after all process
+            Log::channel('request_stripping')->info('Approve Container - Success', [
+                'user_id' => $id_user,
+                'no_req' => $request->no_req,
+                'no_cont' => $request->no_cont
+            ]);
 
             DB::commit();
             return response()->json([
@@ -865,6 +1029,15 @@ class PerencanaanStrippingController extends Controller
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            // Logging error
+            Log::channel('request_stripping')->error('Approve Container - Exception', [
+                'user_id' => Session::get('ID_USER'),
+                'no_req' => $request->no_req ?? null,
+                'no_cont' => $request->no_cont ?? null,
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -881,11 +1054,33 @@ class PerencanaanStrippingController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Logging before approval check
+            Log::channel('request_stripping')->info('SaveReq - Before Approval Check', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'no_cont' => $request->no_cont,
+                'remark' => $request->remark,
+                'request_data' => $request->all()
+            ]);
+
             // Cek Approval Container dulu
             $totalCont = DB::connection('uster')->selectOne("SELECT COUNT(1) AS TOTAL_CONT FROM PLAN_CONTAINER_STRIPPING WHERE NO_REQUEST = '$request->no_req'");
             $totalApprovedCont = DB::connection('uster')->selectOne("SELECT COUNT(1) AS TOTAL_CONT FROM PLAN_CONTAINER_STRIPPING WHERE NO_REQUEST = '$request->no_req' AND TGL_APPROVE IS NOT NULL");
 
+            Log::channel('request_stripping')->info('SaveReq - Approval Count', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'total_cont' => $totalCont->total_cont ?? null,
+                'total_approved_cont' => $totalApprovedCont->total_cont ?? null
+            ]);
+
             if ($totalCont->total_cont > $totalApprovedCont->total_cont) {
+                Log::channel('request_stripping')->warning('SaveReq - Not all containers approved', [
+                    'user_id' => Session::get('id'),
+                    'no_req' => $request->no_req,
+                    'total_cont' => $totalCont->total_cont ?? null,
+                    'total_approved_cont' => $totalApprovedCont->total_cont ?? null
+                ]);
                 throw new Exception('Harap Approve Container Terlebih Dahulu', 400);
             }
 
@@ -895,13 +1090,34 @@ class PerencanaanStrippingController extends Controller
             $execPlanContStrip = DB::connection('uster')->statement($updatePlanContStrip);
             $execContStrip = DB::connection('uster')->statement($updateContStrip);
 
+            Log::channel('request_stripping')->info('SaveReq - Updated Remarks', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'no_cont' => $request->no_cont,
+                'update_plan_cont_strip' => $execPlanContStrip,
+                'update_cont_strip' => $execContStrip
+            ]);
+
             $updatePlanStrip = "UPDATE PLAN_REQUEST_STRIPPING SET CLOSING = 'CLOSED' WHERE NO_REQUEST = '$request->no_req'";
             $execPlanStrip = DB::connection('uster')->statement($updatePlanStrip);
 
             if ($execPlanStrip) {
                 $updateStrip = "UPDATE REQUEST_STRIPPING SET CLOSING = 'CLOSED' WHERE NO_REQUEST = REPLACE('$request->no_req', 'P' , 'S')";
                 $execStrip = DB::connection('uster')->statement($updateStrip);
+
+                Log::channel('request_stripping')->info('SaveReq - Closed Plan and Request Stripping', [
+                    'user_id' => Session::get('id'),
+                    'no_req' => $request->no_req,
+                    'exec_plan_strip' => $execPlanStrip,
+                    'exec_strip' => $execStrip
+                ]);
             }
+
+            Log::channel('request_stripping')->info('SaveReq - Success', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req,
+                'no_cont' => $request->no_cont
+            ]);
 
             DB::commit();
             return response()->json([
@@ -914,6 +1130,14 @@ class PerencanaanStrippingController extends Controller
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_stripping')->error('SaveReq - Exception', [
+                'user_id' => Session::get('id'),
+                'no_req' => $request->no_req ?? null,
+                'no_cont' => $request->no_cont ?? null,
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -929,12 +1153,48 @@ class PerencanaanStrippingController extends Controller
     public function deleteCont($no_cont, $no_req, $no_req2)
     {
         try {
+            // Logging before delete
+            Log::channel('request_stripping')->info('Delete Container Stripping - Start', [
+                'user_id' => Session::get('id'),
+                'no_cont' => $no_cont,
+                'no_req' => $no_req,
+                'no_req2' => $no_req2
+            ]);
+
             $exec = $this->stripping_plan->deleteCont($no_cont, $no_req, $no_req2);
+
+            // Logging after delete attempt
+            Log::channel('request_stripping')->info('Delete Container Stripping - After deleteCont call', [
+                'user_id' => Session::get('id'),
+                'no_cont' => $no_cont,
+                'no_req' => $no_req,
+                'no_req2' => $no_req2,
+                'status_code' => $exec->getStatusCode(),
+                'response' => method_exists($exec, 'getData') ? $exec->getData() : null
+            ]);
+
             if ($exec->getStatusCode() != 200) {
+                Log::channel('request_stripping')->error('Delete Container Stripping - Failed', [
+                    'user_id' => Session::get('id'),
+                    'no_cont' => $no_cont,
+                    'no_req' => $no_req,
+                    'no_req2' => $no_req2,
+                    'status_code' => $exec->getStatusCode(),
+                    'response' => method_exists($exec, 'getData') ? $exec->getData() : null
+                ]);
                 throw new Exception("Gagal Menghapus Container Stripping", 500);
             }
 
             $noReq = base64_encode($no_req);
+
+            Log::channel('request_stripping')->info('Delete Container Stripping - Success', [
+                'user_id' => Session::get('id'),
+                'no_cont' => $no_cont,
+                'no_req' => $no_req,
+                'no_req2' => $no_req2,
+                'redirect_to' => route('uster.new_request.stripping.perencanaan.edit', $noReq)
+            ]);
+
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Menghapus Container Stripping',
@@ -944,6 +1204,15 @@ class PerencanaanStrippingController extends Controller
                 ]
             ], 200);
         } catch (Exception $th) {
+            Log::channel('request_stripping')->error('Delete Container Stripping - Exception', [
+                'user_id' => Session::get('id'),
+                'no_cont' => $no_cont,
+                'no_req' => $no_req,
+                'no_req2' => $no_req2,
+                'error_message' => $th->getMessage(),
+                'error_code' => $th->getCode(),
+                'trace' => $th->getTraceAsString()
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',

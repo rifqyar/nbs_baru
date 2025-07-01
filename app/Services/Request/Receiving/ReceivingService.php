@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use PDO;
+use Illuminate\Support\Facades\Log;
 
 class ReceivingService
 {
@@ -80,7 +81,7 @@ class ReceivingService
     function getOverviewData($noReq, $from)
     {
         $otherCondJoin = $from == 'view' ? "AND d.KD_CABANG = '05'" : '';
-        $query_request	= "SELECT a.NO_REQUEST AS NO_REQUEST,
+        $query_request    = "SELECT a.NO_REQUEST AS NO_REQUEST,
 							  a.KETERANGAN AS KETERANGAN,
 							  a.RECEIVING_DARI AS RECEIVING_DARI,
 							  a.KD_CONSIGNEE AS KD_CONSIGNEE,
@@ -96,7 +97,7 @@ class ReceivingService
         $query = '(' . $query_request . ') data_receiving';
 
         $data = array();
-        DB::connection('uster')->table(DB::raw($query))->orderBy('data_receiving.NO_REQUEST')->chunk(100, function($chunk) use (&$data){
+        DB::connection('uster')->table(DB::raw($query))->orderBy('data_receiving.NO_REQUEST')->chunk(100, function ($chunk) use (&$data) {
             foreach ($chunk as $dt) {
                 $data[] = $dt;
             }
@@ -107,7 +108,7 @@ class ReceivingService
 
     function contList($noReq)
     {
-        $query_list		= "SELECT a.*,
+        $query_list        = "SELECT a.*,
                                     b.*,
                                     'USTER' AS NAMA_YARD,
                                     c.TGL_UPDATE
@@ -128,9 +129,9 @@ class ReceivingService
 
     function addEdit($data, $noReq = null)
     {
-        if($noReq != null){
+        if ($noReq != null) {
             $updateQuery = generateQueryEdit($data);
-            $query	= "UPDATE REQUEST_RECEIVING SET $updateQuery WHERE NO_REQUEST = '$noReq'";
+            $query    = "UPDATE REQUEST_RECEIVING SET $updateQuery WHERE NO_REQUEST = '$noReq'";
         } else {
             $insertQuery = generateQuerySimpan($data);
             $query = "INSERT INTO REQUEST_RECEIVING $insertQuery";
@@ -141,6 +142,10 @@ class ReceivingService
             $exec = DB::connection('uster')->statement($query);
 
             DB::commit();
+            Log::channel('request_receiving')->info('Success Insert / Update Data', [
+                'query' => $query,
+                'data' => $data
+            ]);
             return response()->json([
                 'status' => [
                     'code' => 200,
@@ -149,6 +154,12 @@ class ReceivingService
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error Insert / Update Data', [
+                'query' => $query,
+                'data' => $data,
+                'error' => $th->getMessage(),
+                'exception' => $th
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -161,15 +172,19 @@ class ReceivingService
         }
     }
 
-    function saveCont($data){
+    function saveCont($data)
+    {
         DB::beginTransaction();
         try {
             $insertQuery = generateQuerySimpan($data);
             $query = "INSERT INTO CONTAINER_RECEIVING $insertQuery";
-
             $exec = DB::connection('uster')->statement($query);
 
             DB::commit();
+            Log::channel('request_receiving')->info('Success Insert Cont Receiving', [
+                'query' => $query,
+                'data' => $data
+            ]);
             return response()->json([
                 'status' => [
                     'code' => 200,
@@ -178,6 +193,12 @@ class ReceivingService
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error Insert Cont Receiving', [
+                'query' => isset($query) ? $query : null,
+                'data' => $data,
+                'error' => $th->getMessage(),
+                'exception' => $th
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
@@ -202,10 +223,14 @@ class ReceivingService
             $queryDelHistory = "DELETE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = '$noCont' AND COUNTER = '$counter' AND NO_REQUEST = '$noReq'";
             $execDelHistory = DB::connection('uster')->statement($queryDelHistory);
 
-            $query_del	= "DELETE FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$noCont' AND NO_REQUEST = '$noReq'";
+            $query_del    = "DELETE FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = '$noCont' AND NO_REQUEST = '$noReq'";
             $execDelContRec = DB::connection('uster')->statement($query_del);
 
             DB::commit();
+            Log::channel('request_receiving')->info('Success Processing Data (Delete Container)', [
+                'no_container' => $noCont,
+                'no_request' => $noReq
+            ]);
             return response()->json([
                 'status' => [
                     'code' => 200,
@@ -214,6 +239,12 @@ class ReceivingService
             ], 200);
         } catch (Exception $th) {
             DB::rollBack();
+            Log::channel('request_receiving')->error('Error Processing Data (Delete Container)', [
+                'no_container' => $noCont,
+                'no_request' => $noReq,
+                'error' => $th->getMessage(),
+                'exception' => $th
+            ]);
             return response()->json([
                 'status' => [
                     'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',

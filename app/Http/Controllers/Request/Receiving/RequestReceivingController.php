@@ -28,18 +28,11 @@ class RequestReceivingController extends Controller
 
     public function index()
     {
-        Log::channel('request_receiving')->info('Akses halaman index request receiving', [
-            'user_id' => Session::get('id')
-        ]);
         return view('request.receiving.index');
     }
 
     public function data(Request $reqeust)
     {
-        Log::channel('request_receiving')->info('Load data request receiving', [
-            'params' => $reqeust->all(),
-            'user_id' => Session::get('id')
-        ]);
         $data = $this->receiving->getData($reqeust);
         return DataTables::of($data)
             ->addIndexColumn()
@@ -94,19 +87,12 @@ class RequestReceivingController extends Controller
 
     public function addRequest()
     {
-        Log::channel('request_receiving')->info('Akses halaman tambah request receiving', [
-            'user_id' => Session::get('id')
-        ]);
         return view('request.receiving.add');
     }
 
     public function overview($noReq)
     {
         $noReqDecoded = base64_decode($noReq);
-        Log::channel('request_receiving')->info('Akses overview request receiving', [
-            'no_request' => $noReqDecoded,
-            'user_id' => Session::get('id')
-        ]);
         $data['request'] = $this->receiving->getOverviewData($noReqDecoded, 'overview');
         $data['request'] = $data['request'][0];
         $data['container'] = $this->receiving->contList($noReqDecoded);
@@ -118,10 +104,6 @@ class RequestReceivingController extends Controller
     public function view($noReq)
     {
         $noReqDecoded = base64_decode($noReq);
-        Log::channel('request_receiving')->info('Akses view request receiving', [
-            'no_request' => $noReqDecoded,
-            'user_id' => Session::get('id')
-        ]);
         // Validate Paid
         $queryCek = "SELECT PAID_VALIDATE('$noReqDecoded') CEK FROM DUAL";
         $dataCek = DB::connection('uster')->select($queryCek);
@@ -135,16 +117,12 @@ class RequestReceivingController extends Controller
 
     public function contList(Request $request)
     {
-        Log::channel('request_receiving')->info('Load daftar container pada request receiving', [
-            'no_request' => $request->no_request,
-            'user_id' => Session::get('id')
-        ]);
         $overview = false;
         $data = $this->receiving->contList($request->no_request);
         return DataTables::of($data)
             ->addIndexColumn()
             ->editColumn('action', function ($data) use ($request) {
-                $html = "<button class='btn btn-rounded btn-danger' onclick='delCont(`".base64_encode($data->no_container)."`, `".base64_encode($request->no_request)."`)'>
+                $html = "<button class='btn btn-rounded btn-danger' onclick='delCont(`" . base64_encode($data->no_container) . "`, `" . base64_encode($request->no_request) . "`)'>
                             <i class='mdi mdi-delete h5'></i>
                         </button>";
 
@@ -156,12 +134,7 @@ class RequestReceivingController extends Controller
 
     public function addEdit(Request $request)
     {
-        Log::channel('request_receiving')->info('Proses add/edit request receiving', [
-            'request' => $request->all(),
-            'user_id' => Session::get('id')
-        ]);
         $validatedNpwp = $this->validateNpwp($request);
-
         if ($validatedNpwp instanceof \Illuminate\Http\JsonResponse) {
             Log::channel('request_receiving')->warning('Validasi NPWP gagal', [
                 'request' => $request->all(),
@@ -218,7 +191,7 @@ class RequestReceivingController extends Controller
             $statusCode = $process->getData()->status->code;
 
             if ($statusCode != 200) {
-                Log::channel('request_receiving')->error('Gagal update data request receiving', [
+                Log::channel('request_receiving')->error('Gagal add/edit data request receiving', [
                     'data' => $data,
                     'user_id' => Session::get('id')
                 ]);
@@ -258,10 +231,6 @@ class RequestReceivingController extends Controller
 
     public function saveCont(Request $request)
     {
-        Log::channel('request_receiving')->info('Proses tambah container pada request receiving', [
-            'request' => $request->all(),
-            'user_id' => Session::get('id')
-        ]);
         DB::beginTransaction();
         try {
             $this->validate($request, [
@@ -323,12 +292,6 @@ class RequestReceivingController extends Controller
 
     function cekCont($request)
     {
-        Log::channel('request_receiving')->info('Cek dan update master container', [
-            'no_container' => $request->no_cont,
-            'user_id' => Session::get('id')
-        ]);
-        // ... kode tetap ...
-        // (tidak perlu diubah, log sudah cukup di awal)
         $queryCekCont = "SELECT NO_CONTAINER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '" . $request->no_cont . "'";
         $result_cek_cont = DB::connection('uster')->selectOne($queryCekCont);
         $cek_cont         = $result_cek_cont;
@@ -384,11 +347,6 @@ class RequestReceivingController extends Controller
 
     function validasiSaveCont($request)
     {
-        Log::channel('request_receiving')->info('Validasi sebelum simpan container', [
-            'no_container' => $request->no_cont,
-            'user_id' => Session::get('id')
-        ]);
-        // ... kode tetap ...
         $queryCekGato = "SELECT AKTIF
                             FROM CONTAINER_DELIVERY
                         WHERE NO_CONTAINER = '$request->no_cont' AND AKTIF = 'Y' ORDER BY AKTIF DESC";
@@ -491,11 +449,6 @@ class RequestReceivingController extends Controller
         $noContDecoded = base64_decode($noCont);
         $noReqDecoded = base64_decode($noReq);
 
-        Log::channel('request_receiving')->info('Proses hapus container dari request receiving', [
-            'no_container' => $noContDecoded,
-            'no_request' => $noReqDecoded,
-            'user_id' => Session::get('id')
-        ]);
         DB::beginTransaction();
         try {
             $input = $this->receiving->delContProcess($noContDecoded, $noReqDecoded);
@@ -536,50 +489,30 @@ class RequestReceivingController extends Controller
     // Get Master Data
     public function getDataPBM(Request $request)
     {
-        Log::channel('request_receiving')->info('Get data PBM', [
-            'search' => $request->search,
-            'user_id' => Session::get('id')
-        ]);
         $data['PBM'] = $this->receiving->getPbm(strtoupper($request->search));
         return response()->json($data['PBM']);
     }
 
     public function getDataContainer(Request $request)
     {
-        Log::channel('request_receiving')->info('Get data container', [
-            'search' => $request->search,
-            'user_id' => Session::get('id')
-        ]);
         $data['Container'] = $this->receiving->getContainer($request->search);
         return response()->json($data['Container']);
     }
 
     public function getDataKomoditi(Request $reqeust)
     {
-        Log::channel('request_receiving')->info('Get data komoditi', [
-            'search' => $reqeust->search,
-            'user_id' => Session::get('id')
-        ]);
         $data['komoditi'] = $this->receiving->getKomoditi($reqeust->search);
         return response()->json($data['komoditi']);
     }
 
     public function getDataOwner(Request $request)
     {
-        Log::channel('request_receiving')->info('Get data owner', [
-            'search' => $request->search,
-            'user_id' => Session::get('id')
-        ]);
         $data['owner'] = $this->receiving->getOwner($request->search);
         return response()->json($data['owner']);
     }
 
     public function getContList($noReq)
     {
-        Log::channel('request_receiving')->info('Get daftar container by no_request', [
-            'no_request' => $noReq,
-            'user_id' => Session::get('id')
-        ]);
         $data['container'] = $this->receiving->contList($noReq);
         $data['no_req'] = $noReq;
         return response()->json($data);

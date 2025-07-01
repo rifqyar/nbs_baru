@@ -94,7 +94,9 @@ $(function () {
 
     $("#start_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
     $("#end_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
-    $("#list-cont-table").DataTable();
+    $("#list-cont-table").DataTable({
+        pageLength: 100
+    });
 
     getData();
 });

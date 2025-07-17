@@ -272,7 +272,7 @@ class PerencanaanStrippingController extends Controller
                 'NO_DO' => $request->no_do,
                 'NO_BL' => $request->no_bl,
                 'NO_SPPB' => $request->no_sppb,
-                'TGL_SPPB' => "TO_DATE('$request->tgl_sppb', 'yyyy-mm-dd')@ORA",
+                'TGL_SPPB' => "TO_DATE('$request->tgl_sppb', 'yyyy-mm-dd HH24:MI:SS')@ORA",
                 'TYPE_STRIPPING' => $request->type_s,
                 'KETERANGAN' => $request->keterangan,
             ];
@@ -318,8 +318,8 @@ class PerencanaanStrippingController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Rubah Data Perencanaan Stripping',
                 'redirect' => [
-                    'need' => false,
-                    'to' => null,
+                    'need' => true,
+                    'to' => route('uster.new_request.stripping.stripping_plan.view', base64_encode($request->no_req)),
                 ]
             ]);
         } catch (Exception $th) {

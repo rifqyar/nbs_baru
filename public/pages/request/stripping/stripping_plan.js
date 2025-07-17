@@ -541,7 +541,7 @@ function updateTglApprove(noCont, index) {
         var formContainer = new FormData();
         formContainer.append("_token", $('input[name="_token"]').val());
         formContainer.append("search", noCont);
-        formContainer.append("voyage", $("#VOYAGE_IN").val());
+        formContainer.append("voyage", $("#_VOYAGE").val());
         formContainer.append("voyage_out", $("#VOYAGE_OUT").val());
         formContainer.append("voyage_in", $("#VOYAGE_IN").val());
         formContainer.append("vessel_code", $("#VESCODE").val());

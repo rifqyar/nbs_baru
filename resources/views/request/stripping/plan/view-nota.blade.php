@@ -95,6 +95,7 @@
 
                                     <div class="col-md-6 col-12 mb-2">
                                         <label for="almt_consignee">Nama Kapal</label>
+                                        <input type="hidden" name="NO_BOOKING" id="_NO_BOOKING" />
                                         <div class="row align-items-start">
                                             <div class="col-md-5 col-12">
                                                 <input id="NM_KAPAL" name="nm_kapal" type="text"
@@ -103,6 +104,8 @@
                                             <div class="col-md-2 col-12">
                                                 <input type="text" id="VOYAGE_IN" class="form-control"
                                                     name="voyage_in" value="{{ $request->row_request->o_voyin }}" />
+                                                <input type="hidden" id="_VOYAGE" class="form-control" name="voyage"
+                                                    value="{{ $request->row_request->o_voyage }}" />
                                             </div>
                                             <div class="col-md-2 col-12">
                                                 <input type="text" id="VOYAGE_OUT" class="form-control"

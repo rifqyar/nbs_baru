@@ -276,7 +276,6 @@ class PerencanaanStrippingController extends Controller
                 'TYPE_STRIPPING' => $request->type_s,
                 'KETERANGAN' => $request->keterangan,
             ];
-
             $data['request_strip'] = [
                 'KD_CONSIGNEE' => $request->id_consignee,
                 'KD_PENUMPUKAN_OLEH' => $request->id_consignee,
@@ -284,6 +283,11 @@ class PerencanaanStrippingController extends Controller
                 'NO_BL' => $request->no_bl,
                 'TYPE_STRIPPING' => $request->type_s,
                 'KETERANGAN' => $request->keterangan,
+                'O_VOYIN' => $request->voyage_in,
+                'O_VOYOUT' => $request->voyage_out,
+                'O_IDVSB' => $request->IDVSB,
+                'NO_BOOKING' => $request->NO_BOOKING,
+                'O_VOYAGE' => $request->voyage,
             ];
 
             // Logging before update

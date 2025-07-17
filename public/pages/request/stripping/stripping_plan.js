@@ -96,7 +96,10 @@ $(function () {
     $("#end_date").bootstrapMaterialDatePicker({ weekStart: 0, time: false });
     $("#list-cont-table").DataTable({
         pageLength: 100,
-        lengthMenu: [ [100, 10, 25, 50, 200, -1], [100, 10, 25, 50, 200, "All"] ]
+        lengthMenu: [
+            [100, 10, 25, 50, 200, -1],
+            [100, 10, 25, 50, 200, "All"],
+        ],
     });
 
     getData();
@@ -284,10 +287,15 @@ $("#NM_KAPAL").autocomplete({
         });
     },
     select: function (event, ui) {
+        console.log(ui.item);
         $("#VOYAGE_IN").val(ui.item.VOYAGE_IN);
         $("#VOYAGE_OUT").val(ui.item.VOYAGE_OUT);
         if (ui.item.VESSEL_CODE && ui.item.ID_VSB_VOYAGE) {
             $("#NO_BOOKING").val(
+                `BP${ui.item.VESSEL_CODE}${ui.item.ID_VSB_VOYAGE}`
+            );
+
+            $("#_NO_BOOKING").val(
                 `BP${ui.item.VESSEL_CODE}${ui.item.ID_VSB_VOYAGE}`
             );
         }
@@ -304,6 +312,7 @@ $("#NM_KAPAL").autocomplete({
         $("#POD").val(ui.item.ID_POD);
         $("#POL").val(ui.item.ID_POL);
         $("#VOYAGE").val(ui.item.VOYAGE);
+        $("#_VOYAGE").val(ui.item.VOYAGE);
         return false;
     },
 });

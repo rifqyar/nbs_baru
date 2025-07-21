@@ -74,7 +74,9 @@ use App\Http\Controllers\Tca\TcaByCancelationController;
 use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
 use App\Http\Controllers\Maintenance\ResendPrayaController;
+use App\Http\Controllers\Operation\Gate\UsterGateController;
 use App\Http\Controllers\Print\CetakSP2Controller;
+use Illuminate\Support\Facades\Http;
 use Rap2hpoutre\LaravelLogViewer\LogViewerController;
 
 /*
@@ -105,11 +107,13 @@ Route::group([], function () {
     Route::get('/resend-praya', [ResendPrayaController::class, 'resendPraya'])
         ->name('');
 
+    Route::get('/uster-gate', [UsterGateController::class, 'handleGate'])
+        ->name('');
+
     Route::get('/node-api', [ResendPrayaController::class, 'checkKoneksiBackend'])
         ->name('');
-    // // Check koneksi backend praya integration
+    // Check koneksi backend praya integration
     // Route::get('/node-api', function () {
-    //     dd(env('NODE_API_URL') . '/api/hello');
     //     $response = Http::get(env('NODE_API_URL') . '/api/hello');
     //     return $response->json();
     // });

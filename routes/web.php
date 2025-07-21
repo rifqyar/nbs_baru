@@ -110,7 +110,7 @@ Route::group([], function () {
     Route::get('/uster-gate', [UsterGateController::class, 'handleGate'])
         ->name('');
 
-    Route::get('/node-api', [ResendPrayaController::class, 'checkKoneksiBackend'])
+    Route::get('/praya-api', [ResendPrayaController::class, 'checkKoneksiPraya'])
         ->name('');
     // Check koneksi backend praya integration
     // Route::get('/node-api', function () {

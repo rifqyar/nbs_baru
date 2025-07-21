@@ -177,40 +177,37 @@ class ResendPrayaController extends Controller
         }
     }
 
-    public function checkKoneksiBackend()
+    public function checkKoneksiPraya()
     {
-        // $res = getIsoCode();
-        // $curl = curl_init();
+        $url = env('PRAYA_API_INTEGRATION');
+        if (empty($url)) {
+            return response()->json([
+            'code' => '0',
+            'msg' => 'PRAYA_API_INTEGRATION environment variable is not set'
+            ]);
+        }
 
-        // curl_setopt_array($curl, [
-        //     CURLOPT_PORT => "8013",
-        //     CURLOPT_URL => "https://praya.ilcs.co.id:8013/api/getVessel?pol=IDPNK&eta=&etd=&orgId=2&terminalId=622&search=ICON",
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => "",
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 30,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => "GET",
-        //     CURLOPT_POSTFIELDS => "[]",
-        //     CURLOPT_COOKIE => "X-Oracle-BMC-LBS-Route=f740610cd85b7f9f8d355e25c346298586e573fe",
-        //     CURLOPT_HTTPHEADER => [
-        //         "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWlubmJzIiwiYmlsbGVySWQiOiIwMDAwOSIsImFjY2Vzc0xpc3QiOlsiREVMSVZFUlkiLCJSRUFMSVpBVElPTiBESVNDSEFSR0UgTE9BRCIsIlJFRVhQT1JUIiwiUEVSSU9ERSBUUkFOU0FDVElPTiIsIkNPTlRBSU5FUiBISVNUT1JZIiwiTElTVCBDT05UQUlORVIgQlkgU1RBVFVTIiwiVVBFUiBCTSIsIlNFRSIsIlRJQ0tFVCAmIFRSQU5TUE9SVCIsIlRDQSIsIkJFSEFORExFIiwiSU5DT01FIFNURVZFRE9SSU5HIiwiUkVBTElaQVRJT04iLCJUVEQgTUFOQUdFUiIsIlJFUE9SVCBNQU5BR0VNRU5UIiwiTE9BRElORyBDQU5DRUwiLCJFWFRSQSBNT1ZFTUVOVCIsIkFQUFJPVkFMIiwiVElDS0VUIE1BTkFHRU1FTlQiLCJSRVFVRVNUIEJPT0tJTkciLCJSRUNFSVZJTkciLCJERUxJVkVSWSBFWFRFTlNJT04iLCJJTkNPTUUgUkVDRUlWSU5HL0RFTElWRVJZIiwiTU9OSVRPUklORyJdLCJzdGF0dXNBcHAiOiJXZWIiLCJ2ZXJzaW9uU2VydmljZSI6IiIsImlhdCI6MTc1MDMwNzUzOSwiZXhwIjoxNzUwMzM2MzM5fQ.gZegQffk4FdePfPucM95sFGyR0Ba_KHqq03Hx5uRrog",
-        //         "Content-Type: application/json"
-        //         // "User-Agent: insomnia/11.2.0"
-        //     ],
-        //     CURLOPT_SSL_VERIFYPEER => false,
-        //     // CURLOPT_SSL_VERIFYHOST => false,
-        // ]);
-
-        // $response = curl_exec($curl);
-        // $err = curl_error($curl);
-
-        // curl_close($curl);
-
-        // if ($err) {
-        //     echo "cURL Error #:" . $err;
-        // } else {
-        //     echo $response;
-        // }
+        try {
+            $response = Http::get($url);
+            if ($response->successful()) {
+            return response()->json([
+                'code' => '1',
+                'msg' => 'Connection to PRAYA API successful',
+                'data' => $response->json()
+            ]);
+            } else {
+            return response()->json([
+                'code' => '0',
+                'msg' => 'Failed to connect to PRAYA API',
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+            'code' => '0',
+            'msg' => 'Error connecting to PRAYA API: ' . $e->getMessage()
+            ]);
+        }
     }
 }

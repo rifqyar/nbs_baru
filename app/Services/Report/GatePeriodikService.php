@@ -45,7 +45,7 @@ class GatePeriodikService
             } else if ($shift == 'ALL') {
                 $time1 = $tgl_awal;
                 $time2 = $tgl_akhir;
-                $query_shift = "and a.tgl_in between to_date('$time1', 'YYYY-MM-DD') and to_date('$time2', 'YYYY-MM-DD')";
+                $query_shift = "and TRUNC(a.tgl_in) between to_date('$time1', 'YYYY-MM-DD') and to_date('$time2', 'YYYY-MM-DD')";
             } else {
                 $time1 = $tgl_awal . " 07:00";
                 $time2 = $tgl_akhir . " 07:00";

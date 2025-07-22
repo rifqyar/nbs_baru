@@ -975,7 +975,7 @@ Route::group(['middleware' => 'csrfVerify'], function () {
                 Route::post('/data-cont', [GateOutTpkController::class, 'getDataCont'])
                     ->name('');
 
-                Route::post('/add-gatein', [GateOutTpkController::class, 'addGateOut'])
+                Route::post('/add-gateout', [GateOutTpkController::class, 'addGateOut'])
                     ->name('');
             });
         });

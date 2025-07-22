@@ -70,7 +70,7 @@
                                     <div class="col-md-6 mb-3">
                                         <label for="NO_TRUCK" class="form-label">No. Truck</label>
                                         <input type="text" class="form-control" id="NO_TRUCK" name="NO_TRUCK"
-                                            style="text-transform:uppercase" required>
+                                            style="text-transform:uppercase">
                                         <div class="invalid-feedback">
                                             No. Truck wajib diisi.
                                         </div>
@@ -78,8 +78,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="REQ_REC" class="form-label">No. Request</label>
-                                        <input type="text" class="form-control" id="REQ_REC" name="REQ_REC" readonly>
+                                        <label for="NO_REQ" class="form-label">No. Request</label>
+                                        <input type="text" class="form-control" id="NO_REQ" name="NO_REQ" readonly>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="NO_SEAL" class="form-label">No. Seal</label>
@@ -139,7 +139,7 @@
     <script>
         var table, no_npwp;
         var cachePBM = {};
-        $("#tgl_gati").bootstrapMaterialDatePicker({
+        $("#tgl_gato").bootstrapMaterialDatePicker({
             format: 'YYYY-MM-DD HH:mm:ss',
             weekStart: 0,
             time: true
@@ -156,7 +156,7 @@
                 $.ajax({
                     url: `${$('meta[name="baseurl"]').attr(
                 "content"
-            )}maintenance/gate_admin/gate-in-tpk/data-cont`,
+            )}maintenance/gate_admin/gate-out-tpk/data-cont`,
                     type: "POST",
                     dataType: "json",
                     data: {
@@ -194,8 +194,9 @@
                 });
             },
             select: function(event, ui) {
+                console.log(ui)
                 $("#CONT_NO").val(ui.item.NO_CONTAINER);
-                $("#REQ_REC").val(ui.item.NO_REQUEST);
+                $("#NO_REQ").val(ui.item.NO_REQUEST);
                 $("#NM_PBM").val(ui.item.NM_PBM);
                 $("#SIZE").val(ui.item.SIZE_);
                 $("#TYPE").val(ui.item.TYPE_);
@@ -244,7 +245,7 @@
                 cancelButtonText: "Batal",
             }).then((result) => {
                 if (result.value) {
-                    if ($("#tgl_gati").val() == "" || $("#CONT_NO").val() == "") {
+                    if ($("#tgl_gato").val() == "" || $("#CONT_NO").val() == "") {
                         Swal.fire({
                             icon: "warning",
                             title: "Peringatan",
@@ -252,14 +253,14 @@
                         });
                     } else {
                         var no_cont_ = $("#CONT_NO").val();
-                        var no_req_ = $("#REQ_REC").val();
+                        var no_req_ = $("#NO_REQ").val();
                         var no_truck_ = $("#NO_TRUCK").val();
                         var no_seal_ = $("#NO_SEAL").val();
                         var no_nota_ = $("#NO_NOTA").val();
                         var status_ = $("#STATUS").val();
                         var masa_berlaku_ = $("#MASA_BERLAKU").val();
                         var keterangan_ = $("#KETERANGAN").val();
-                        var tgl_gati = $("#tgl_gati").val();
+                        var tgl_gato = $("#tgl_gato").val();
                         var id_yard_ = $("#ID_YARD").val();
                         var bp_id_ = $("#BP_ID").val();
                         var no_req_tpk_ = $("#NO_REQ_TPK").val();
@@ -274,7 +275,7 @@
                         });
 
                         $.ajax({
-                            url: `${$('meta[name="baseurl"]').attr("content")}maintenance/gate_admin/gate-in-tpk/add-gatein`,
+                            url: `${$('meta[name="baseurl"]').attr("content")}maintenance/gate_admin/gate-out-tpk/add-gateout`,
                             type: "POST",
                             data: {
                                 _token: $('meta[name="csrf-token"]').attr("content"),
@@ -289,7 +290,7 @@
                                 ID_YARD: id_yard_,
                                 BP_ID: bp_id_,
                                 NO_REQ_TPK: no_req_tpk_,
-                                tgl_gati: tgl_gati,
+                                tgl_gato: tgl_gato,
                             },
                             dataType: "json",
                             success: function(data) {
@@ -297,12 +298,12 @@
                                 Swal.close();
                                 if (data == "TRUCK") {
                                     Swal.fire("Peringatan", "No Truck Harus Diisi", "warning");
-                                } else if (data == "EXIST" || data == "EXIST_GATI") {
+                                } else if (data == "EXIST" || data == "EXIST_GATO") {
                                     Swal.fire("Peringatan", "Container Sudah Gate in", "warning");
                                 } else if (data.message == "OK" || data.status == 200) {
                                     Swal.fire("Berhasil", "Gate IN Container Berhasil", "success");
                                     $("#CONT_NO").val("");
-                                    $("#REQ_REC").val("");
+                                    $("#NO_REQ").val("");
                                     $("#NO_SEAL").val("");
                                     $("#SIZE").val("");
                                     $("#TYPE").val("");

@@ -5,159 +5,199 @@ namespace App\Http\Controllers\Operation\Gate;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UsterGateController extends Controller
 {
     public function handleGate(Request $request)
     {
-        $username = $request->header('USERNAME');
-        $password = $request->header('PASSWORD');
+        try {
+            $username = $request->header('USERNAME');
+            $password = $request->header('PASSWORD');
 
-        if ($username !== 'uster' || $password !== 'uster') {
-            return response('Not Authorized', 401);
-        }
+            if ($username !== 'uster' || $password !== 'uster') {
+                Log::channel('uster_gate')->warning('Unauthorized access attempt', [
+                    'headers' => $request->headers->all()
+                ]);
+                return response('Not Authorized', 401);
+            }
 
-        $payload = $request->all();
+            $payload = $request->all();
 
-        $inTipe = $payload['inOut'] ?? null;
-        $inContainer = $payload['containerNo'] ?? null;
-        $vessel = $payload['vessel'] ?? null;
-        $voyIn = $payload['voyIn'] ?? null;
-        $voyOut = $payload['voyOut'] ?? null;
-        $user = $payload['user'] ?? null;
-        $truckId = $payload['truckId'] ?? null;
-        $status = $payload['containerStatus'] ?? null;
-        $seal = $payload['seal'] ?? null;
-        $gateDate = $payload['date'] ?? null;
-        $requestId = $payload['requestId'] ?? null;
-        $serviceName = $payload['serviceName'] ?? null;
+            $inTipe         = $payload['inOut'] ?? null;
+            $inContainer    = $payload['containerNo'] ?? null;
+            $vessel         = $payload['vessel'] ?? null;
+            $voyIn          = $payload['voyIn'] ?? null;
+            $voyOut         = $payload['voyOut'] ?? null;
+            $user           = $payload['user'] ?? null;
+            $truckId        = $payload['truckId'] ?? null;
+            $status         = $payload['containerStatus'] ?? null;
+            $seal           = $payload['seal'] ?? null;
+            $gateDate       = $payload['date'] ?? null;
+            $requestId      = $payload['requestId'] ?? null;
+            $serviceName    = $payload['serviceName'] ?? null;
 
-        if (!$inTipe || !$inContainer || !$status || !$gateDate || !$serviceName) {
-            return response('Request is not complete', 400);
-        }
+            if (!$inTipe || !$inContainer || !$status || !$gateDate || !$serviceName) {
+                Log::channel('uster_gate')->warning('Incomplete request data', [
+                    'request' => $payload
+                ]);
+                return response('Request is not complete', 400);
+            }
 
-        $db = DB::connection('uster');
+            $db = DB::connection('uster');
 
-        $statusContRow = $db->table('HISTORY_CONTAINER')
-            ->select('STATUS_CONT')
-            ->where('NO_REQUEST', $requestId)
-            ->where('NO_CONTAINER', $inContainer)
-            ->orderByDesc('TGL_UPDATE')
-            ->limit(1)
-            ->first();
-
-        if (!$statusContRow) {
-            return response('Container Status Not Found', 404);
-        }
-
-        $latestStatus = $statusContRow->STATUS_CONT;
-        $vUser = 'opus';
-        $yardId = 46;
-        $via = 'TRIG_OPUS';
-
-        if ($inTipe === 'OUT') {
-            $exists = $db->table('BORDER_GATE_IN')
-                ->where('NO_CONTAINER', $inContainer)
+            $statusContRow = $db->table('HISTORY_CONTAINER')
+                ->select('STATUS_CONT')
                 ->where('NO_REQUEST', $requestId)
-                ->whereRaw("TO_CHAR(TGL_IN, 'YYYY-MM-DD HH24:MI:SS') = TO_CHAR(TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", [$gateDate])
-                ->exists();
-
-            if ($exists) return response('Data Exists', 409);
-
-            $db->table('BORDER_GATE_IN')->insert([
-                'NO_REQUEST' => $requestId,
-                'NO_CONTAINER' => $inContainer,
-                'ID_USER' => $vUser,
-                'TGL_IN' => DB::raw("TO_DATE('$gateDate', 'YYYY-MM-DD HH24:MI:SS')"),
-                'NOPOL' => $truckId,
-                'STATUS' => $latestStatus,
-                'NO_SEAL' => $seal,
-                'ID_YARD' => $yardId,
-                'VIA' => $via,
-            ]);
-
-            $this->updateStrippingOrStuffing($db, $serviceName, $requestId, $inContainer, $gateDate);
-
-            $db->table('MASTER_CONTAINER')
                 ->where('NO_CONTAINER', $inContainer)
-                ->update(['LOCATION' => 'GATI']);
-
-            $container = $db->table('MASTER_CONTAINER')
-                ->where('NO_CONTAINER', $inContainer)
-                ->orderByDesc('COUNTER')
+                ->orderByDesc('TGL_UPDATE')
+                ->limit(1)
                 ->first();
 
-            $db->table('HISTORY_CONTAINER')->insert([
-                'NO_CONTAINER' => $inContainer,
-                'NO_REQUEST' => $requestId,
-                'KEGIATAN' => 'BORDER GATE IN',
-                'TGL_UPDATE' => DB::raw('SYSDATE'),
-                'ID_USER' => $vUser,
-                'ID_YARD' => $yardId,
-                'STATUS_CONT' => $latestStatus,
-                'NO_BOOKING' => $container->NO_BOOKING ?? null,
-                'COUNTER' => $container->COUNTER ?? null,
+            if (!$statusContRow) {
+                Log::channel('uster_gate')->warning('Container status not found', [
+                    'NO_CONTAINER' => $inContainer,
+                    'NO_REQUEST' => $requestId
+                ]);
+                return response('Container Status Not Found', 404);
+            }
+
+            $latestStatus = $statusContRow->STATUS_CONT;
+            $vUser = 'opus';
+            $yardId = 46;
+            $via = 'TRIG_OPUS';
+
+            if ($inTipe === 'OUT') {
+                $exists = $db->table('BORDER_GATE_IN')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->where('NO_REQUEST', $requestId)
+                    ->whereRaw("TO_CHAR(TGL_IN, 'YYYY-MM-DD HH24:MI:SS') = TO_CHAR(TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", [$gateDate])
+                    ->exists();
+
+                if ($exists) {
+                    Log::channel('uster_gate')->info('Duplicate OUT entry prevented', [
+                        'NO_CONTAINER' => $inContainer,
+                        'NO_REQUEST' => $requestId,
+                        'TGL_IN' => $gateDate
+                    ]);
+                    return response('Data Exists', 409);
+                }
+
+                $db->table('BORDER_GATE_IN')->insert([
+                    'NO_REQUEST'    => $requestId,
+                    'NO_CONTAINER'  => $inContainer,
+                    'ID_USER'       => $vUser,
+                    'TGL_IN'        => DB::raw("TO_DATE('$gateDate', 'YYYY-MM-DD HH24:MI:SS')"),
+                    'NOPOL'         => $truckId,
+                    'STATUS'        => $latestStatus,
+                    'NO_SEAL'       => $seal,
+                    'ID_YARD'       => $yardId,
+                    'VIA'           => $via,
+                ]);
+
+                $this->updateStrippingOrStuffing($db, $serviceName, $requestId, $inContainer, $gateDate);
+
+                $db->table('MASTER_CONTAINER')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->update(['LOCATION' => 'GATI']);
+
+                $container = $db->table('MASTER_CONTAINER')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->orderByDesc('COUNTER')
+                    ->first();
+
+                $db->table('HISTORY_CONTAINER')->insert([
+                    'NO_CONTAINER' => $inContainer,
+                    'NO_REQUEST' => $requestId,
+                    'KEGIATAN' => 'BORDER GATE IN',
+                    'TGL_UPDATE' => DB::raw('SYSDATE'),
+                    'ID_USER' => $vUser,
+                    'ID_YARD' => $yardId,
+                    'STATUS_CONT' => $latestStatus,
+                    'NO_BOOKING' => $container->NO_BOOKING ?? null,
+                    'COUNTER' => $container->COUNTER ?? null,
+                ]);
+
+                return response('SUCCESS');
+            }
+
+            if ($inTipe === 'IN') {
+                $exists = $db->table('BORDER_GATE_OUT')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->where('NO_REQUEST', $requestId)
+                    ->whereRaw("TO_CHAR(TGL_IN, 'YYYY-MM-DD HH24:MI:SS') = TO_CHAR(TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", [$gateDate])
+                    ->exists();
+
+                if ($exists) {
+                    Log::channel('uster_gate')->info('Duplicate IN entry prevented', [
+                        'NO_CONTAINER' => $inContainer,
+                        'NO_REQUEST' => $requestId,
+                        'TGL_IN' => $gateDate
+                    ]);
+                    return response('Data Exists', 409);
+                }
+
+                $db->table('BORDER_GATE_OUT')->insert([
+                    'NO_REQUEST'    => $requestId,
+                    'NO_CONTAINER'  => $inContainer,
+                    'ID_USER'       => $vUser,
+                    'TGL_IN'        => DB::raw("TO_DATE('$gateDate', 'YYYY-MM-DD HH24:MI:SS')"),
+                    'NOPOL'         => $truckId,
+                    'STATUS'        => $latestStatus,
+                    'NO_SEAL'       => $seal,
+                    'TRUCKING'      => $truckId,
+                    'ID_YARD'       => $yardId,
+                    'VIA'           => $via,
+                ]);
+
+                $db->table('PLACEMENT')->where('NO_CONTAINER', $inContainer)->delete();
+
+                $this->updateStrippingOrStuffing($db, $serviceName, $requestId, $inContainer, $gateDate);
+
+                $db->table('MASTER_CONTAINER')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->update(['LOCATION' => 'GATO']);
+
+                $db->table('CONTAINER_DELIVERY')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->where('NO_REQUEST', $requestId)
+                    ->update(['AKTIF' => 'T']);
+
+                $container = $db->table('MASTER_CONTAINER')
+                    ->where('NO_CONTAINER', $inContainer)
+                    ->orderByDesc('COUNTER')
+                    ->first();
+
+                $db->table('HISTORY_CONTAINER')->insert([
+                    'NO_CONTAINER' => $inContainer,
+                    'NO_REQUEST' => $requestId,
+                    'KEGIATAN' => 'BORDER GATE OUT',
+                    'TGL_UPDATE' => DB::raw('SYSDATE'),
+                    'ID_USER' => $vUser,
+                    'ID_YARD' => $yardId,
+                    'STATUS_CONT' => $latestStatus,
+                    'NO_BOOKING' => $container->NO_BOOKING ?? null,
+                    'COUNTER' => $container->COUNTER ?? null,
+                ]);
+
+                return response('SUCCESS');
+            }
+
+            Log::channel('uster_gate')->warning('Invalid inOut type', [
+                'inOut' => $inTipe,
+                'request' => $payload
             ]);
 
-            return response('SUCCESS');
+            return response('Type Only IN/OUT', 400);
+        } catch (\Exception $e) {
+            Log::channel('uster_gate')->error('Gate Transaction Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request' => $request->all()
+            ]);
+
+            return response('Internal Server Error', 500);
         }
-
-        if ($inTipe === 'IN') {
-            $exists = $db->table('BORDER_GATE_OUT')
-                ->where('NO_CONTAINER', $inContainer)
-                ->where('NO_REQUEST', $requestId)
-                ->whereRaw("TO_CHAR(TGL_IN, 'YYYY-MM-DD HH24:MI:SS') = TO_CHAR(TO_DATE(?, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')", [$gateDate])
-                ->exists();
-
-            if ($exists) return response('Data Exists', 409);
-
-            $db->table('BORDER_GATE_OUT')->insert([
-                'NO_REQUEST' => $requestId,
-                'NO_CONTAINER' => $inContainer,
-                'ID_USER' => $vUser,
-                'TGL_IN' => DB::raw("TO_DATE('$gateDate', 'YYYY-MM-DD HH24:MI:SS')"),
-                'NOPOL' => $truckId,
-                'STATUS' => $latestStatus,
-                'NO_SEAL' => $seal,
-                'TRUCKING' => $truckId,
-                'ID_YARD' => $yardId,
-                'VIA' => $via,
-            ]);
-
-            $db->table('PLACEMENT')->where('NO_CONTAINER', $inContainer)->delete();
-
-            $this->updateStrippingOrStuffing($db, $serviceName, $requestId, $inContainer, $gateDate);
-
-            $db->table('MASTER_CONTAINER')
-                ->where('NO_CONTAINER', $inContainer)
-                ->update(['LOCATION' => 'GATO']);
-
-            $db->table('CONTAINER_DELIVERY')
-                ->where('NO_CONTAINER', $inContainer)
-                ->where('NO_REQUEST', $requestId)
-                ->update(['AKTIF' => 'T']);
-
-            $container = $db->table('MASTER_CONTAINER')
-                ->where('NO_CONTAINER', $inContainer)
-                ->orderByDesc('COUNTER')
-                ->first();
-
-            $db->table('HISTORY_CONTAINER')->insert([
-                'NO_CONTAINER' => $inContainer,
-                'NO_REQUEST' => $requestId,
-                'KEGIATAN' => 'BORDER GATE OUT',
-                'TGL_UPDATE' => DB::raw('SYSDATE'),
-                'ID_USER' => $vUser,
-                'ID_YARD' => $yardId,
-                'STATUS_CONT' => $latestStatus,
-                'NO_BOOKING' => $container->NO_BOOKING ?? null,
-                'COUNTER' => $container->COUNTER ?? null,
-            ]);
-
-            return response('SUCCESS');
-        }
-
-        return response('Type Only IN/OUT', 400);
     }
 
     private function updateStrippingOrStuffing($db, $serviceName, $requestId, $containerNo, $gateDate)

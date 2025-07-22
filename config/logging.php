@@ -146,6 +146,13 @@ return [
             'path' => storage_path('logs/req_stripping.log'),
             'level' => 'info',
             'days' => 7
+        ],
+
+        'uster_gate' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/uster_gate.log'),
+            'level' => 'info',
+            'days' => 7
         ]
     ],
 

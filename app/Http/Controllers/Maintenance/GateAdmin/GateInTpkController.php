@@ -22,7 +22,7 @@ class GateInTpkController extends Controller
             $payload = [
                 "terminalCode" => 'PNK',
                 "containerNo" => $no_cont,
-                "inOut" => 'IN' // Gate Out dari TPK dan Gate In di USTER (Location GATI)
+                "inOut" => 'OUT' // Gate Out dari TPK dan Gate In di USTER (Location GATI)
             ];
 
             $apiUrl = env('PRAYA_API_INTEGRATION') . "/api/getContainerInOut";

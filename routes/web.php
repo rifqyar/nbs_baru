@@ -61,6 +61,7 @@ use App\Http\Controllers\Print\KartuStrippingController;
 use App\Http\Controllers\Print\KartuStuffingController;
 use App\Http\Controllers\HerperController;
 use App\Http\Controllers\Maintenance\GateAdmin\GateInTpkController;
+use App\Http\Controllers\Maintenance\GateAdmin\GateOutTpkController;
 use App\Http\Controllers\Maintenance\Master\MasterContainer;
 use App\Http\Controllers\Maintenance\Master\MasterTarif;
 use App\Http\Controllers\Maintenance\Master\KomponenData;
@@ -107,7 +108,7 @@ Route::group([], function () {
     Route::get('/resend-praya', [ResendPrayaController::class, 'resendPraya'])
         ->name('');
 
-    Route::get('/uster-gate', [UsterGateController::class, 'handleGate'])
+    Route::any('/uster-gate', [UsterGateController::class, 'handleGate'])
         ->name('');
 
     Route::get('/praya-api', [ResendPrayaController::class, 'checkKoneksiPraya'])
@@ -964,6 +965,17 @@ Route::group(['prefix' => 'maintenance', 'as' => 'uster.maintenance.', 'middlewa
                 ->name('');
 
             Route::post('/add-gatein', [GateInTpkController::class, 'addGateIn'])
+                ->name('');
+        });
+
+        Route::group(['prefix' => 'gate-out-tpk', 'as' => ''], function () {
+            Route::get('/', [GateOutTpkController::class, 'index'])
+                ->name('gate_out_tpk');
+
+            Route::post('/data-cont', [GateOutTpkController::class, 'getDataCont'])
+                ->name('');
+
+            Route::post('/add-gatein', [GateOutTpkController::class, 'addGateOut'])
                 ->name('');
         });
     });

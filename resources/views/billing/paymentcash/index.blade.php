@@ -87,7 +87,7 @@
                     </div>
                 </div>
 
-                <div class="card-body">
+                <div class="card-body" id="data-section">
                     <h3><b>Payment Cash</b></h3>
                     <div class="table-responsive">
                         <table class="datatables-service table table-striped" id="service-table">
@@ -358,6 +358,13 @@
                 if ($("#search-data").find("input.form-control").val() == "") {
                     $('input[name="search"]').val("false");
                 }
+
+                $("html, body").animate({
+                        scrollTop: $("#data-section").offset().top,
+                    },
+                    1250
+                );
+
                 table.ajax.reload();
             }
 

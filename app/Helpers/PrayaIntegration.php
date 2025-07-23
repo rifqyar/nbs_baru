@@ -35,15 +35,16 @@ if (!function_exists('getTokenPraya')) {
             // $response = getDataFromUrlGuzzle(env('PRAYA_API_TOS') . "/api/getOperator", $token);
             // $response = sendDataFromUrlNode([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
             // $response = sendDataFromUrlGuzzle([], env('PRAYA_API_TOS') . "/api/getOperator", 'GET', $token);
-            $response = getDatafromUrl(env('PRAYA_API_TOS') . "/api/getOperator", $token);
-            $response = json_decode($response, true);
-            if ($response['msg'] == 'jwt expired') {
-                // Token expired, re-login
-                Session::forget('token_praya');
-                return getTokenPraya();
-            }
+            // $response = getDatafromUrl(env('PRAYA_API_TOS') . "/api/getOperator", $token);
+            // $response = json_decode($response, true);
+            // if ($response['msg'] == 'jwt expired') {
+            //     // Token expired, re-login
+            //     Session::forget('token_praya');
+            //     return getTokenPraya();
+            // }
 
-            return Session::get('token_praya');
+            // return Session::get('token_praya');
+            return $token;
         } else {
             $data_payload = array(
                 "username" => "adminnbs",
@@ -117,6 +118,13 @@ if (!function_exists('sendDataFromUrl')) {
             'response' => $response,
             'error' => curl_error($curl),
         ]);
+
+        if (str_contains(strtolower($response), 'expired')) {
+            // Token expired, re-login
+            Session::forget('token_praya');
+            $token = getTokenPraya();
+            return sendDataFromUrl($payload_request, $url, $method, $token);
+        }
 
         /* get response */
         if ($err) {
@@ -296,6 +304,13 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                 'error' => curl_error($curl),
             ]);
 
+            if (str_contains(strtolower($response), 'expired')) {
+                // Token expired, re-login
+                Session::forget('token_praya');
+                $token = getTokenPraya();
+                return sendDataFromUrlTryCatch($payload_request, $url, $method, $token);
+            }
+
             //Success
             if ($httpCode >= 200 && $httpCode < 300) {
                 $response_curl = array(
@@ -428,6 +443,13 @@ function getDatafromUrl($url, $token = '')
         'error' => curl_error($curl),
     ]);
     curl_close($curl);
+
+    if (str_contains(strtolower($content), 'expired')) {
+        // Token expired, re-login
+        Session::forget('token_praya');
+        $token = getTokenPraya();
+        return getDatafromUrl($url, $token);
+    }
 
     // $header['errno']   = $err;
     // $header['errmsg']  = $errmsg;

@@ -29,7 +29,6 @@ class PaymentCashController extends Controller
 
     function dataTables(Request $request): JsonResponse
     {
-
         $listDelivery = $this->paymentCash->dataNota($request);
 
         return DataTables::of($listDelivery)->make(true);

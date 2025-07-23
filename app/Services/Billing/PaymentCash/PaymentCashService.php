@@ -285,11 +285,19 @@ class PaymentCashService
         $start = intval($request->start ?? 0);
         $length = intval($request->length ?? 0);
         $searchValue = $request->search['value'] ?? '';
+        $nm_emkl = strtoupper($request->nm_emkl) ?? '';
 
         // Persiapkan kondisi pencarian untuk setiap subquery
-        $search = '';
+        $searchAll = '';
         if ($searchValue != '') {
-            $search = "AND (NO_NOTA LIKE '%$searchValue%' OR NO_REQUEST LIKE '%$searchValue%')";
+            $searchAll = "(NO_NOTA LIKE '%$searchValue%' OR NO_REQUEST LIKE '%$searchValue%')";
+        }
+
+        if ($request->cari == 'true') {
+            $search = "AND EMKL LIKE '%$nm_emkl%'";
+            $search .= $searchAll != '' ?  " OR " . $searchAll : '';
+        } else {
+            $search = $searchAll != '' ? "AND $searchAll" : '';
         }
 
         // Optimasi: Terapkan pencarian di setiap subquery UNION dan tambahkan ROWNUM pada setiap subquery

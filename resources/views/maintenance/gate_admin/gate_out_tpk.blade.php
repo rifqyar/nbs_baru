@@ -296,10 +296,10 @@
                             success: function(data) {
                                 console.error(data);
                                 Swal.close();
-                                if (data == "TRUCK") {
+                                if (data.message == "TRUCK") {
                                     Swal.fire("Peringatan", "No Truck Harus Diisi", "warning");
-                                } else if (data == "EXIST" || data == "EXIST_GATO") {
-                                    Swal.fire("Peringatan", "Container Sudah Gate in", "warning");
+                                } else if (data.message == "EXIST" || data.message == "EXIST_GATO") {
+                                    Swal.fire("Peringatan", "Container Sudah Gate Out", "warning");
                                 } else if (data.message == "OK" || data.status == 200) {
                                     Swal.fire("Berhasil", "Gate IN Container Berhasil", "success");
                                     $("#CONT_NO").val("");

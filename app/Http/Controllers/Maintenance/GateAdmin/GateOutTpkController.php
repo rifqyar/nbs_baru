@@ -83,7 +83,7 @@ class GateOutTpkController extends Controller
 
             if ($existing > 0) {
                 return response()->json([
-                    'message' => 'Data Exists',
+                    'message' => 'EXIST_GATO',
                     'status' => 'Failed'
                 ]);
             }
@@ -182,8 +182,8 @@ class GateOutTpkController extends Controller
 
             return response()->json([
                 'message' => 'SUCCESS',
-                'status' => 'OK'
-            ]);
+                'status' => 200
+            ], 200);
         } catch (\Exception $e) {
             DB::connection('uster')->rollBack();
             Log::error('Gate Out Error: ' . $e->getMessage());

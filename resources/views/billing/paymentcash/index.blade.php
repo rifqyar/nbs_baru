@@ -31,21 +31,64 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
+                <div class="card card-secondary">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <h4>Form Pencarian</h4>
+                        </div>
+                        <form action="javascript:void(0)" id="search-data" class="m-t-40">
+                            @csrf
+                            <input type="hidden" name="search" value="false">
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="col-12 col-md-12">
+                                        <div class="form-group m-b-40">
+                                            <label for="nm_emkl">Nama Perusahaan</label>
+                                            <input type="text" class="form-control" name="nm_emkl"
+                                                style="text-transform:uppercase" id="nm_emkl">
+                                            <span class="bar"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-12">
+                                        <div class="form-group">
+                                            <div class="row justify-content-center align-items-center">
+                                                <div class="col-5">
+                                                    <label for="start_date">Periode Tanggal </label>
+                                                    <input type="date" class="form-control" name="tgl_awal"
+                                                        id="start_date">
+                                                    <span class="bar"></span>
+                                                </div>
+                                                <div class="col-2 text-center">
+                                                    <label>&nbsp;</label>
+                                                    <small>-</small>
+                                                </div>
+                                                <div class="col-5">
+                                                    <label for="end_date">&nbsp;</label>
+                                                    <input type="date" class="form-control" name="tgl_akhir"
+                                                        id="end_date">
+                                                    <span class="bar"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-success btn-rounded mr-3" onclick="resetSearch()">
+                                    Reset Pencarian
+                                    <i class="mdi mdi-refresh"></i>
+                                </button>
+                                <button type="submit" class="btn btn-rounded btn-info">
+                                    Cari Data
+                                    <i class="mdi mdi-magnify"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
 
                 <div class="card-body">
                     <h3><b>Payment Cash</b></h3>
-                    <!-- <div class="row justify-content-end">
-
-                                                            <div class="col-md-2">
-                                                                <label for="from" class="text-end">Tanggal Request</label>
-                                                                <input type="date" class="form-control" id="from" name="from">
-                                                            </div>
-
-                                                            <div class="col-md-2">
-                                                                <label for="from" class="text-end">Sampai Dengan</label>
-                                                                <input type="date" class="form-control" id="to" name="to">
-                                                            </div>
-                                                        </div> -->
                     <div class="table-responsive">
                         <table class="datatables-service table table-striped" id="service-table">
                             <thead>
@@ -90,131 +133,9 @@
 
 @push('after-script')
     <script>
+        var table
         $(document).ready(function() {
-            $('#service-table').DataTable({
-                responsive: true,
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: '{!! route('uster.billing.paymentcash.datatable') !!}',
-                    type: 'GET',
-                    data: function(d) {
-                        d.from = $('#from').val();
-                        d.to = $('#to').val();
-                    }
-                },
-                columns: [{
-                        data: 'DT_RowIndex', // Use the special 'DT_RowIndex' property provided by DataTables
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            // Render the sequence number
-                            return meta.row + meta.settings._iDisplayStart + 1;
-                        }
-                    },
-                    {
-                        data: null,
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            const SAP_URL = "http://inco.pelindo.co.id/";
-                            if (data['cek'] == '0') {
-                                // if ( `{{ Session::get('ID_GROUP') }}` == 'L' || `{{ Session::get('ID_GROUP') }}` == 'J' || `{{ Session::get('ID_GROUP') }}` == 'P' || `{{ Session::get('ID_GROUP') }}` == 'K') {
-                                //     act = `<a href="#" onclick='pay("${data['no_nota']}", "${data['no_request']}", "${data['kegiatan']}", "${data['total_tagihan']}", "${data['kd_emkl']}", "${data['status']}", "${data['no_nota_mti']}", "${data['tgl_nota_1']}")'><i class="fas fa-file-alt text-danger"></i></a>`;
-                                // } else {
-                                //     act = "<font color='red'><i>not yet paid</i></font>";
-                                // }
-
-                                if (row['payment_code'] != null) {
-                                    let req = row['no_request'];
-                                    let kegiatan = row['kegiatan'];
-
-                                    // Generate the button for printing the SAP payment code with FontAwesome icon
-                                    act = `<a href='javascript:void(0)' onclick="return printPaymentCode('${data['no_request']}', '${data['kegiatan']}')" return false;" title='Cetak Kode Bayar SAP'>
-                                        <i class="fa-solid fa-print" style="font-size: 20px;"></i>
-                                    </a>`;
-                                } else {
-                                    // Display "not yet paid" message in red
-                                    act = "<font color='red'><i>not yet paid</i></font>";
-                                }
-
-                            } else {
-                                // If 'cek' is not 0, proceed to create the nota print action
-                                let no_nota = row['no_nota'];
-                                let url = SAP_URL + `PrintNota/CetakNota?ze=${no_nota}&ck=6200`;
-
-                                // Create the first print button with FontAwesome icon for Excel export
-                                act = `<a href="#" onclick="return print('${data['no_request']}', '${data['kegiatan']}', '${data['tgl_nota_1']}')" title="Cetak Nota">
-                                    <i class="fas fa-file-excel text-megna" style="font-size: 20px;"></i>
-                                </a>`;
-
-                                // If payment code exists, add another button with FontAwesome icon for printing the SAP nota
-                                if (row['payment_code'] != null) {
-                                    act += `<a href='javascript:void(0)' onclick="window.open('${url}'); return false;" title='Cetak Nota SAP'>
-                                <i class="fa-solid fa-receipt"></i>
-                                </a>`;
-                                }
-                            }
-                            return act;
-                        }
-                    },
-                    {
-                        data: 'no_nota',
-                        name: 'no_nota',
-                    },
-                    {
-                        data: 'no_nota_mti',
-                        name: 'no_nota_mti',
-                    },
-                    {
-                        data: 'no_faktur_mti',
-                        name: 'no_faktur_mti'
-                    },
-                    {
-                        data: 'no_request',
-                        name: 'no_request',
-                    },
-                    {
-                        data: 'emkl',
-                        name: 'emkl',
-                    },
-                    {
-                        data: 'kegiatan',
-                        name: 'kegiatan',
-                    },
-                    {
-                        data: 'tgl_nota_1',
-                        name: 'tgl_nota_1',
-                    },
-                    {
-                        data: 'total_tagihan',
-                        name: 'total_tagihan',
-                        render: function(data, type, row, meta) {
-                            const formatter = new Intl.NumberFormat('id-ID', {
-                                style: 'currency',
-                                currency: 'IDR',
-                            });
-
-                            return formatter.format(data);
-                        }
-                    },
-                ],
-                lengthMenu: [20, 50, 100], // Set the default page lengths
-                pageLength: 20, // Set the initial page length
-                initComplete: function() {
-                    // Initialize date range filter inputs
-                    $('#from, #to').on('change', function() {
-                        // Check if both 'from' and 'to' are filled before triggering the DataTable redraw
-                        if ($('#from').val() !== '' && $('#to').val() !== '') {
-                            console.log('sd');
-                            $('#service-table').DataTable().ajax
-                                .reload();
-                        }
-                    });
-                }
-            });
-
+            loadData()
             setInterval(() => {
                 loadData()
             }, 300000);
@@ -230,7 +151,7 @@
             Swal.showLoading();
             $('#service-table').dataTable().fnDestroy()
 
-            $('#service-table').DataTable({
+            table = $('#service-table').DataTable({
                 responsive: true,
                 processing: true,
                 serverSide: true,
@@ -238,8 +159,10 @@
                     url: '{!! route('uster.billing.paymentcash.datatable') !!}',
                     type: 'GET',
                     data: function(d) {
-                        d.from = $('#from').val();
-                        d.to = $('#to').val();
+                        d.cari = $('input[name="search"]').val();
+                        d.nm_emkl = $('input[name="nm_emkl"]').val();
+                        d.tgl_awal = $('input[name="tgl_awal"]').val();
+                        d.tgl_akhir = $('input[name="tgl_akhir"]').val();
                     }
                 },
                 columns: [{
@@ -419,5 +342,26 @@
                 },
             });
         }
+
+        // Search
+        function resetSearch() {
+            $("#search-data").find("input.form-control").val("").trigger("blur");
+            $("#search-data").find("input.form-control").removeClass("was-validated");
+            $('input[name="search"]').val("false");
+            table.ajax.reload();
+        }
+
+        $("#search-data").on("submit", function(e) {
+            if (this.checkValidity()) {
+                e.preventDefault();
+                $('input[name="search"]').val("true");
+                if ($("#search-data").find("input.form-control").val() == "") {
+                    $('input[name="search"]').val("false");
+                }
+                table.ajax.reload();
+            }
+
+            $(this).addClass("was-validated");
+        });
     </script>
 @endpush

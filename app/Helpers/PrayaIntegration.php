@@ -121,6 +121,11 @@ if (!function_exists('sendDataFromUrl')) {
 
         if (str_contains(strtolower($response), 'expired')) {
             // Token expired, re-login
+            Log::channel('praya')->info('Token Expired Trying re-login', [
+                'curl_info' => $info,
+                'response' => $response,
+            ]);
+
             Session::forget('token_praya');
             $token = getTokenPraya();
             return sendDataFromUrl($payload_request, $url, $method, $token);

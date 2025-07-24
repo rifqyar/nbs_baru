@@ -75,7 +75,7 @@ class UsterGateController extends Controller
                 return response('Invalid Container Status', 400);
             }
 
-            $latestStatus = $statusContRow->STATUS_CONT ?? $statusPayload;
+            $latestStatus = $statusContRow->status_cont ?? $statusPayload;
             $vUser = 'opus';
             $yardId = 46;
             $via = 'TRIG_OPUS';
@@ -127,13 +127,13 @@ class UsterGateController extends Controller
                     'ID_USER' => $vUser,
                     'ID_YARD' => $yardId,
                     'STATUS_CONT' => $latestStatus,
-                    'NO_BOOKING' => $container->NO_BOOKING ?? null,
-                    'COUNTER' => $container->COUNTER ?? null,
+                    'NO_BOOKING' => $container->no_booking ?? null,
+                    'COUNTER' => $container->counter ?? null,
                 ]);
 
                 Log::channel('info')->warning('Success Insert Data Gate In', [
                     'request' => $payload,
-                    'data' => $borderGateIn
+                    'data' => $borderGateIn ?? 'exists bypass insert border gate'
                 ]);
 
                 return response('SUCCESS');
@@ -194,8 +194,8 @@ class UsterGateController extends Controller
                     'ID_USER' => $vUser,
                     'ID_YARD' => $yardId,
                     'STATUS_CONT' => $latestStatus,
-                    'NO_BOOKING' => $container->NO_BOOKING ?? null,
-                    'COUNTER' => $container->COUNTER ?? null,
+                    'NO_BOOKING' => $container->no_booking ?? null,
+                    'COUNTER' => $container->counter ?? null,
                 ]);
 
                 Log::channel('info')->warning('Success Insert Data Gate Out', [

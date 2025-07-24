@@ -119,7 +119,7 @@ if (!function_exists('sendDataFromUrl')) {
             'error' => curl_error($curl),
         ]);
 
-        if (str_contains(strtolower($response), 'expired')) {
+        if (str_contains(strtolower($response), 'Authorization Expired') || str_contains(strtolower($response), 'jwt expired')) {
             // Token expired, re-login
             Log::channel('praya')->info('Token Expired Trying re-login', [
                 'curl_info' => $info,
@@ -309,7 +309,7 @@ if (!function_exists('sendDataFromUrlTryCatch')) {
                 'error' => curl_error($curl),
             ]);
 
-            if (str_contains(strtolower($response), 'expired')) {
+            if (str_contains(strtolower($response), 'Authorization Expired') || str_contains(strtolower($response), 'jwt expired')) {
                 // Token expired, re-login
                 Session::forget('token_praya');
                 $token = getTokenPraya();
@@ -449,7 +449,7 @@ function getDatafromUrl($url, $token = '')
     ]);
     curl_close($curl);
 
-    if (str_contains(strtolower($content), 'expired')) {
+    if (str_contains(strtolower($content), 'Authorization Expired') || str_contains(strtolower($content), 'jwt expired')) {
         // Token expired, re-login
         Session::forget('token_praya');
         $token = getTokenPraya();

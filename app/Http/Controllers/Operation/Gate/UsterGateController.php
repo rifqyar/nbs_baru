@@ -62,7 +62,20 @@ class UsterGateController extends Controller
                 return response('Container Status Not Found', 404);
             }
 
-            $latestStatus = $statusContRow->STATUS_CONT;
+            $statusPayload = '';
+            if($status == 'EMPTY') {
+                $statusPayload = 'MTY';
+            } elseif($status == 'FULL') {
+                $statusPayload = 'FCL';
+            } else {
+                Log::channel('uster_gate')->warning('Invalid container status', [
+                    'status' => $status,
+                    'request' => $payload
+                ]);
+                return response('Invalid Container Status', 400);
+            }
+
+            $latestStatus = $statusContRow->STATUS_CONT ?? $statusPayload;
             $vUser = 'opus';
             $yardId = 46;
             $via = 'TRIG_OPUS';

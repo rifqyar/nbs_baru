@@ -235,7 +235,7 @@ class UsterGateController extends Controller
             if ($req) {
                 $db->table('CONTAINER_STRIPPING')
                     ->where('NO_CONTAINER', $containerNo)
-                    ->where('NO_REQUEST', $req->NO_REQUEST)
+                    ->where('NO_REQUEST', $req->no_request)
                     ->update(['TGL_GATE' => $gateDate]);
             }
         } elseif ($serviceName === 'STUFFING') {
@@ -248,7 +248,7 @@ class UsterGateController extends Controller
             if ($req) {
                 $db->table('CONTAINER_STUFFING')
                     ->where('NO_CONTAINER', $containerNo)
-                    ->where('NO_REQUEST', $req->NO_REQUEST)
+                    ->where('NO_REQUEST', $req->no_request)
                     ->update(['TGL_GATE' => $gateDate]);
             }
         }

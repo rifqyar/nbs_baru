@@ -63,9 +63,9 @@ class UsterGateController extends Controller
             }
 
             $statusPayload = '';
-            if($status == 'EMPTY') {
+            if ($status == 'EMPTY') {
                 $statusPayload = 'MTY';
-            } elseif($status == 'FULL') {
+            } elseif ($status == 'FULL') {
                 $statusPayload = 'FCL';
             } else {
                 Log::channel('uster_gate')->warning('Invalid container status', [
@@ -96,7 +96,7 @@ class UsterGateController extends Controller
                     return response('Data Exists', 409);
                 }
 
-                $db->table('BORDER_GATE_IN')->insert([
+                $borderGateIn = $db->table('BORDER_GATE_IN')->insert([
                     'NO_REQUEST'    => $requestId,
                     'NO_CONTAINER'  => $inContainer,
                     'ID_USER'       => $vUser,
@@ -131,6 +131,11 @@ class UsterGateController extends Controller
                     'COUNTER' => $container->COUNTER ?? null,
                 ]);
 
+                Log::channel('info')->warning('Success Insert Data Gate In', [
+                    'request' => $payload,
+                    'data' => $borderGateIn
+                ]);
+
                 return response('SUCCESS');
             }
 
@@ -150,7 +155,7 @@ class UsterGateController extends Controller
                     return response('Data Exists', 409);
                 }
 
-                $db->table('BORDER_GATE_OUT')->insert([
+                $borderGateOut = $db->table('BORDER_GATE_OUT')->insert([
                     'NO_REQUEST'    => $requestId,
                     'NO_CONTAINER'  => $inContainer,
                     'ID_USER'       => $vUser,
@@ -191,6 +196,11 @@ class UsterGateController extends Controller
                     'STATUS_CONT' => $latestStatus,
                     'NO_BOOKING' => $container->NO_BOOKING ?? null,
                     'COUNTER' => $container->COUNTER ?? null,
+                ]);
+
+                Log::channel('info')->warning('Success Insert Data Gate Out', [
+                    'request' => $payload,
+                    'data' => $borderGateOut
                 ]);
 
                 return response('SUCCESS');

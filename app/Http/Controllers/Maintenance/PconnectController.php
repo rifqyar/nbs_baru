@@ -119,6 +119,7 @@ class PconnectController extends Controller
         try {
             $data = $this->pconect->getNoNpwp($request);
             $data = collect($data)->first();
+            $data->alamat = str_replace("'", " ", $data->alamat);
 
             $check = DB::connection('uster')->table('MST_PELANGGAN')
                 ->select(DB::raw("COUNT(1) as total"))

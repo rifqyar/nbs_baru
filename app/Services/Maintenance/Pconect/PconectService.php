@@ -38,7 +38,7 @@ class PconectService
         //dd($result_query);
         foreach ($result_query as $value) {
             $nompwpmst = preg_replace('/\D/', '', $value->no_npwp_pbm);
-
+            $data->alamat = str_replace("'", "''", $data->alamat);
             if ($nompwpmst == $data->npwp) {
                 //dd('update');
                 $query = "UPDATE mst_pelanggan

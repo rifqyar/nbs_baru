@@ -327,25 +327,19 @@
                                 icon: 'success',
                                 text: 'Save Nota Success',
                                 title: 'Success',
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.open(
-                                        "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}",
-                                        '_blank');
-                                }
                             });
+                            window.open(
+                                "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}",
+                                '_blank');
                         } else if (data == 'OK-INSERT') {
                             Swal.fire({
                                 icon: 'success',
                                 text: 'Save Nota Success',
                                 title: 'Success',
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    window.open(
-                                        "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}&first=1",
-                                        '_blank');
-                                }
                             });
+                            window.open(
+                                "{{ route('uster.billing.nota_ext_pnkn_stuffing.print_proforma') }}?no_req={{ request()->input('no_req') }}&first=1",
+                                '_blank');
                         } else {
                             Swal.fire({
                                 icon: 'error',

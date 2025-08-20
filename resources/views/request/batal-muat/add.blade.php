@@ -89,7 +89,6 @@
                             </div>
                         </div>
 
-
                         <div class="p-3" id="kapal">
                             <h4 class="card-title mb-3 pb-3 border-bottom">Data Kapal Baru</h4>
                             <div class="row">
@@ -193,10 +192,7 @@
 
                         </div>
 
-
-
                         <div class="p-3" id="petikemas">
-
                             <h4 class="card-title mb-3 pb-3 border-bottom">Data Petikemas</h4>
                             <div class="row">
                                 <div class="col-md-2 py-3">
@@ -251,12 +247,9 @@
                                     <input class="form-control" type="date" name="TGL_PNKN_END" id="TGL_PNKN_END" />
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-info"><i class="fas fa-plus"></i>Tambah
-                                Container</button>
-
-
 
                         </div>
+                        <button type="submit" class="btn btn-info"><i class="fas fa-plus"></i>Tambah Container</button>
 
                         <h2>Data Table</h2>
                         <div id="contdiv" class="table-responsive">
@@ -278,9 +271,7 @@
                             </table>
                         </div>
 
-                        <a onclick="save()" class="btn btn-primary"><i class="fas fa-save"></i>
-                            Simpan
-                            Container</a>
+                        <a onclick="save()" class="btn btn-primary"><i class="fas fa-save"></i>Simpan Container</a>
                         <input type="hidden" name="tvalue" id="tvalue" value="0" />
                     </form>
                 </div>
@@ -316,9 +307,6 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Harap Isi Terlebih Dahulu Nomor Container!',
-                    timer: 1000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
                 });
                 return;
             }
@@ -327,9 +315,6 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Nomor Container sudah ada di dalam daftar!',
-                    timer: 1000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
                 });
                 return;
             }
@@ -351,24 +336,24 @@
             tvalue.val(num);
 
             const newRow = `
-                    <tr id="rec${num}div">
-                        <td align="left"><input class="form-control row-number" type="text" value="${num}" style="width:40px" readonly/></td>
-                        <td align="left">
-                            <input class="form-control" type="text" id="BM_CONT[${num}]" name="BM_CONT[]" value="${noCont}" style="width:170px" readonly/>
-                            <input type="hidden" id="BMNO_REQ[${num}]" name="BMNO_REQ[]" value="${bmNoReq}" />
-                        </td>
-                        <td align="left">
-                            <input class="form-control" type="text" name="KDSIZE[]" value="${size}" style="width:50px" readonly/>
-                            <input type="hidden" name="UKKLAMA[]" value="${oldVsb}" />
-                            <input type="hidden" name="ETDLAMA[]" value="${oldEtd}" />
-                        </td>
-                        <td align="left"><input class="form-control" type="text" name="KDSTATUS[]" value="${status}" style="width:100px" readonly/></td>
-                        <td align="left"><input class="form-control" type="text" name="KDTYPE[]" value="${type}" style="width:100px" readonly/></td>
-                        <td align="left"><input class="form-control" type="text" id="AWAL[${num}]" name="AWAL[]" value="${awal}" style="width:100px" readonly/></td>
-                        <td align="left"><input class="form-control" type="text" id="AKHIR[${num}]" name="AKHIR[]" value="${akhir}" style="width:100px" readonly/></td>
-                        <td><button class="btn btn-danger btn-sm delete-row">Delete</button></td>
-                    </tr>
-                `;
+                        <tr id="rec${num}div">
+                            <td align="left"><input class="form-control row-number" type="text" value="${num}" style="width:40px" readonly/></td>
+                            <td align="left">
+                                <input class="form-control" type="text" id="BM_CONT[${num}]" name="BM_CONT[]" value="${noCont}" style="width:170px" readonly/>
+                                <input type="hidden" id="BMNO_REQ[${num}]" name="BMNO_REQ[]" value="${bmNoReq}" />
+                            </td>
+                            <td align="left">
+                                <input class="form-control" type="text" name="KDSIZE[]" value="${size}" style="width:50px" readonly/>
+                                <input type="hidden" name="UKKLAMA[]" value="${oldVsb}" />
+                                <input type="hidden" name="ETDLAMA[]" value="${oldEtd}" />
+                            </td>
+                            <td align="left"><input class="form-control" type="text" name="KDSTATUS[]" value="${status}" style="width:100px" readonly/></td>
+                            <td align="left"><input class="form-control" type="text" name="KDTYPE[]" value="${type}" style="width:100px" readonly/></td>
+                            <td align="left"><input class="form-control" type="text" id="AWAL[${num}]" name="AWAL[]" value="${awal}" style="width:100px" readonly/></td>
+                            <td align="left"><input class="form-control" type="text" id="AKHIR[${num}]" name="AKHIR[]" value="${akhir}" style="width:100px" readonly/></td>
+                            <td><button class="btn btn-danger btn-sm delete-row">Delete</button></td>
+                        </tr>
+                    `;
 
             $('#dataTableBody').append(newRow);
             ctr++;
@@ -397,7 +382,6 @@
         // Submit form handler
         $('#insertForm').submit(function(event) {
             event.preventDefault();
-
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -420,9 +404,6 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'No container belum diisi!',
-                        timer: 1000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
                     });
                 } else {
 
@@ -430,9 +411,6 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Container tidak ditemukan!',
-                            timer: 1000,
-                            timerProgressBar: true,
-                            showConfirmButton: false
                         });
                         $("#NO_CONT").val('');
 
@@ -440,9 +418,6 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Kapal baru sama dengan kapal sebelumnya!',
-                            timer: 1000,
-                            timerProgressBar: true,
-                            showConfirmButton: false
                         });
                         $("#NO_CONT").val('');
                     } else {
@@ -452,11 +427,7 @@
                     }
 
                 }
-
-
-
             });
-
         });
 
         // Submit 2 handler
@@ -527,10 +498,8 @@
                 Swal.fire({
                     icon: 'error',
                     title: 'Nama Pemilik, Biaya, Jenis BM & Ex Kegiatan Harus Dipilih!',
-                    timer: 1000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
                 });
+
                 return false;
             } else {
                 if ($("#status_gate").val() == '2' && $("#jenis_batal").val() == 'alih_kapal' && $("#biaya")
@@ -577,9 +546,6 @@
                                 Swal.fire({
                                     icon: 'error',
                                     title: parseData.message,
-                                    timer: 1000,
-                                    timerProgressBar: true,
-                                    showConfirmButton: false
                                 });
                             } else {
                                 save_bm_praya();
@@ -589,9 +555,6 @@
                                 icon: 'error',
                                 title: 'Failed send to Praya',
                                 text: parseData.message
-                                timer: 1000,
-                                timerProgressBar: true,
-                                showConfirmButton: false
                             });
                         }
                     });
@@ -610,6 +573,7 @@
             const year = parts[2];
             return `${year}-${month}-${day}`; // Output: "2025-05-25"
         }
+
         $(document).ready(function() {
 
             $("#kapal, #petikemas").hide();
@@ -774,9 +738,6 @@
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Container Belum Realisasi!',
-                                timer: 1000,
-                                timerProgressBar: true,
-                                showConfirmButton: false
                             });
 
                             $("#NO_CONT").val('');
@@ -835,9 +796,6 @@
                     Swal.fire({
                         icon: 'error',
                         title: `Container in Service disableContainer : ${json.msg}`,
-                        timer: 1000,
-                        timerProgressBar: true,
-                        showConfirmButton: false
                     });
 
                     $("#NO_CONT").val('');
@@ -852,8 +810,6 @@
             //                 icon: 'error',
             //                 title: 'Container Belum Realisasi!',
             //                 timer: 1000,
-            //                 timerProgressBar: true,
-            //                 showConfirmButton: false
             //             });
             //             $("#NO_CONT").val('');
             //             $("#NO_REQUEST").val('');

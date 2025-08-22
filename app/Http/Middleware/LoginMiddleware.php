@@ -17,6 +17,9 @@ class LoginMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (Session::has('is_logged_in')) {
+            if (Session::get('NAMA_PENGGUNA') == 'USTER_PRINT') {
+                config(['session.lifetime' => 1440]);
+            }
             return $next($request);
         } else {
             Session::invalidate();

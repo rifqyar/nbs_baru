@@ -50,6 +50,10 @@ class AuthController extends Controller
                     Session::put('ID_USER', $data->id);
                     Session::put('LOGGED_STORAGE', $data->id);
 
+                    if ($data->username == 'USTER_PRINT') {
+                        config(['session.lifetime' => 1440]);
+                    }
+
                     return response()->json([
                         'status' => 200,
                         'message' => 'Login Success',

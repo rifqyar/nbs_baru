@@ -107,10 +107,15 @@ trait NpwpCheckPengkinianTrait
                 }
                 return $NPWP16;
             } else {
-                return response()->json([
-                    "status" => "0",
-                    "message" => "Invalid NPWP_CONSIGNEE length"
-                ]);
+                // Bypass Pelanggan SARANABHAKTI TIMUR (NPWP: 014797898609000)
+                if($NPWP16 == '014797898609000'){
+                    return $NPWP16;
+                } else {
+                    return response()->json([
+                        "status" => "0",
+                        "message" => "Invalid NPWP_CONSIGNEE length"
+                    ]);
+                }
             }
         } catch (Exception $e) {
             return response()->json([

@@ -940,8 +940,8 @@ class PerpanjanganService
                                 ->orderByDesc('COUNTER')
                                 ->first();
 
-                            $cur_booking = $counterData->NO_BOOKING ?? '';
-                            $cur_counter = $counterData->COUNTER ?? '';
+                            $cur_booking = $counterData->no_booking ?? '';
+                            $cur_counter = $counterData->counter ?? '';
 
                             // **5. Insert ke HISTORY_CONTAINER**
                             DB::connection('uster')->insert("
@@ -1002,8 +1002,8 @@ class PerpanjanganService
                                 ->orderByDesc('COUNTER')
                                 ->first();
 
-                            $cur_booking = $counterData->NO_BOOKING ?? '';
-                            $cur_counter = $counterData->COUNTER ?? '';
+                            $cur_booking = $counterData->no_booking ?? '';
+                            $cur_counter = $counterData->counter ?? '';
 
                             $ID_USER = Session::get('PENGGUNA_ID');
                             $id_yard = Session::get("IDYARD_STORAGE");

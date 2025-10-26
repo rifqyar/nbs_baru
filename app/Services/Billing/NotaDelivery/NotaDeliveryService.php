@@ -296,6 +296,7 @@ class NotaDeliveryService
                 jenis := 'delivery';
                 pack_get_nota_delivery_tpk.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg);
             END;";
+            dd($sql_xpi);
             DB::connection('uster')->statement($sql_xpi);
             //  echo $sql_xpi;die;
         } else {

@@ -473,7 +473,6 @@ class NotaDeliveryService
             "rnota" => ''
         ];
 
-        dd($dataArr);
         return $dataArr;
     }
 

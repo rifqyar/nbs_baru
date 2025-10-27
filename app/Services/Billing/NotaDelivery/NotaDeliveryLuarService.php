@@ -483,11 +483,20 @@ class NotaDeliveryLuarService
 
         // debug($delivery_ke);die;
 
-        DB::connection('uster_dev')->statement("ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD'");
-        $sql_xpi = "DECLARE	id_nota NUMBER; tgl_req DATE; no_request VARCHAR2(100); jenis VARCHAR2 (100); err_msg VARCHAR2(100); BEGIN id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL'; jenis := 'pnkn_delivery'; pack_get_nota_delivery.create_detail_nota@DBCLOUD_LINK(id_nota,tgl_req,no_request,jenis, err_msg); END;";
+        DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD'");
+        $sql_xpi = "
+            DECLARE
+                id_nota NUMBER;
+                tgl_req DATE;
+                no_request VARCHAR2(100);
+                jenis VARCHAR2 (100);
+                err_msg VARCHAR2(100);
+            BEGIN
+                id_nota := 4; tgl_req := '$tgl_re'; no_request := '$no_req'; err_msg := 'NULL'; jenis := 'pnkn_delivery';
+                pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg);
+            END;";
         // echo $sql_xpi;
-        dd($sql_xpi);
-        DB::connection('uster_dev')->statement($sql_xpi);
+        DB::connection('uster')->statement($sql_xpi);
 
         $detail_nota  = "SELECT a.JML_HARI, TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF, TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA, a.KETERANGAN,
 							a.HZ, a.JML_CONT, TO_CHAR(a.START_STACK,'dd/mm/yyyy') START_STACK, TO_CHAR(a.END_STACK,'dd/mm/yyyy') END_STACK, b.SIZE_, b.TYPE_, b.STATUS

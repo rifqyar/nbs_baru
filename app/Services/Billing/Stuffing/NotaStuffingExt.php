@@ -133,7 +133,7 @@ class NotaStuffingExt
         $data = DB::connection('uster_dev')->table(DB::raw('nota_stuffing@DBCLOUD_LINK a'))
             ->join(DB::raw('request_stuffing@DBCLOUD_LINK c'), 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
             ->leftJoin(DB::raw('BILLING_NBS.TB_USER@DBCLOUD_LINK mu'), 'a.nipp_user', '=', 'mu.id')
-            ->selectRaw("c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT, a.NPWP, c.PERP_DARI, a.LUNAS, a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE")
+            ->selectRaw("c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT, a.NPWP, c.PERP_DARI, a.LUNAS, a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA ELSE A.NO_FAKTUR END NO_FAKTUR_")
             ->where('a.NO_REQUEST', $no_req)
             ->whereRaw("a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stuffing@DBCLOUD_LINK d WHERE d.NO_REQUEST = ?)", [$no_req])
             ->first();
@@ -463,8 +463,8 @@ class NotaStuffingExt
                 c.no_npwp_pbm AS npwp,
                 c.almt_pbm AS alamat,
                 c.no_account_pbm,
-                TO_CHAR(b.tgl_request, 'DD-MM-RRRR') AS tgl_request,
-                F_CORPORATE(b.tgl_request) AS corporate
+                TO_CHAR(b.tgl_request, 'DD-MM-RRRR') AS tgl_request
+                --F_CORPORATE(b.tgl_request) AS corporate
             ")
             ->where('b.no_request', $noReq)
             ->first();

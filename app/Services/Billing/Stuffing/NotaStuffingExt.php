@@ -455,9 +455,9 @@ class NotaStuffingExt
 
     function previewProforma($noReq, $koreksi)
     {
-        $rowNota = DB::connection('uster')
-            ->table('request_stuffing as b')
-            ->join('v_mst_pbm as c', 'b.id_penumpukan', '=', 'c.kd_pbm')
+        $rowNota = DB::connection('uster_dev')
+            ->table(DB::raw('request_stuffing@DBCLOUD_LINK b'))
+            ->join(DB::raw('v_mst_pbm c'), 'b.id_penumpukan', '=', 'c.kd_pbm')
             ->selectRaw("
                 c.nm_pbm AS emkl,
                 c.no_npwp_pbm AS npwp,
@@ -475,7 +475,7 @@ class NotaStuffingExt
             $display = 1;
         }
 
-        $tglReq = DB::connection('uster')->table('request_stuffing')
+        $tglReq = DB::connection('uster_dev')->table(DB::raw('request_stuffing@DBCLOUD_LINK'))
             ->where('NO_REQUEST', $noReq)
             ->selectRaw("TO_CHAR(TGL_REQUEST, 'dd/mon/yyyy') as TGL_REQUEST")
             ->first();
@@ -497,8 +497,8 @@ class NotaStuffingExt
             'tgl_req'    => $tglRe,
         ]);
 
-        $detailNota = DB::connection('uster')->table('temp_detail_nota as a')
-            ->join('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+        $detailNota = DB::connection('uster_dev')->table(DB::raw('temp_detail_nota@DBCLOUD_LINK a'))
+            ->join(DB::raw('iso_code@DBCLOUD_LINK b'), 'a.id_iso', '=', 'b.id_iso')
             ->whereNotIn('a.KETERANGAN', ['ADMIN NOTA', 'MATERAI'])
             ->where('a.no_request', $noReq)
             ->selectRaw("
@@ -513,12 +513,12 @@ class NotaStuffingExt
             ->orderBy('a.URUT')
             ->get();
 
-        $jumlahCont = DB::connection('uster')->table('container_stuffing')
+        $jumlahCont = DB::connection('uster_dev')->table(DB::raw('container_stuffing@DBCLOUD_LINK'))
             ->where('no_request', $noReq)
             ->count();
 
-        $tarifPass = DB::connection('uster')->table('master_tarif as a')
-            ->join('group_tarif as b', 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
+        $tarifPass = DB::connection('uster_dev')->table(DB::raw('master_tarif@DBCLOUD_LINK a'))
+            ->join(DB::raw('group_tarif@DBCLOUD_LINK b'), 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
             ->whereRaw("TO_DATE(?, 'dd/mm/yyyy') BETWEEN b.START_PERIOD AND b.END_PERIOD", [$tglRe])
             ->where('a.ID_ISO', 'PASS')
             ->selectRaw("TO_CHAR((? * a.TARIF), '999,999,999,999') AS PASS, (? * a.TARIF) AS TARIF", [$jumlahCont, $jumlahCont])
@@ -526,7 +526,7 @@ class NotaStuffingExt
 
         $row_pass = $tarifPass->tarif ?? 0;
 
-        $total2 = DB::connection('uster')->table('temp_detail_nota')
+        $total2 = DB::connection('uster_dev')->table(DB::raw('temp_detail_nota@DBCLOUD_LINK'))
             ->where('no_request', $noReq)
             ->whereNotIn('KETERANGAN', ['MATERAI'])
             ->selectRaw("SUM(BIAYA) AS TOTAL, SUM(PPN) AS PPN, SUM(BIAYA) + SUM(PPN) AS TOTAL_TAGIHAN")
@@ -536,7 +536,7 @@ class NotaStuffingExt
         $totalPpn = $total2->ppn ?? 0;
         $totalBayar = $total2->total_tagihan ?? 0;
 
-        $total2 = DB::connection('uster')->table('temp_detail_nota')
+        $total2 = DB::connection('uster_dev')->table(DB::raw('temp_detail_nota@DBCLOUD_LINK'))
             ->where('no_request', $noReq)
             ->whereNotIn('KETERANGAN', ['MATERAI'])
             ->selectRaw("SUM(BIAYA) AS TOTAL, SUM(PPN) AS PPN, SUM(BIAYA) + SUM(PPN) AS TOTAL_TAGIHAN")
@@ -550,8 +550,8 @@ class NotaStuffingExt
         $formattedDiscount = number_format($discount, 0, ',', ',');
 
         //Biaya Administrasi
-        $row_adm = DB::connection('uster')->table('MASTER_TARIF as a')
-            ->join('GROUP_TARIF as b', 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
+        $row_adm = DB::connection('uster_dev')->table(DB::raw('MASTER_TARIF@DBCLOUD_LINK a'))
+            ->join(DB::raw('GROUP_TARIF@DBCLOUD_LINK b'), 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
             ->where('b.KATEGORI_TARIF', 'ADMIN_NOTA')
             ->selectRaw("TO_CHAR(a.TARIF, '999,999,999,999') AS ADM, a.TARIF")
             ->first();
@@ -561,7 +561,7 @@ class NotaStuffingExt
         $row_tot = number_format($total, 0, ',', ',');
         $row_ppn = number_format($totalPpn, 0, ',', ',');
 
-        $row_materai = DB::connection('uster')->table('TEMP_DETAIL_NOTA')
+        $row_materai = DB::connection('uster_dev')->table(DB::raw('TEMP_DETAIL_NOTA@DBCLOUD_LINK'))
             ->where('no_request', $noReq)
             ->where('KETERANGAN', 'MATERAI')
             ->value('BIAYA') ?? 0;
@@ -573,8 +573,8 @@ class NotaStuffingExt
         $totalBayarFormatted = number_format($totalBayar, 0, ',', ',');
 
         // Pegawai Aktif
-        $nama_peg = DB::connection('uster')
-            ->table('master_pegawai')
+        $nama_peg = DB::connection('uster_dev')
+            ->table(DB::raw('master_pegawai@DBCLOUD_LINK'))
             ->where('status', 'AKTIF')
             ->first();
 

@@ -151,8 +151,8 @@ class NotaStuffingExt
         $date = now()->format('d M Y H:i:s');
 
         // Ambil daftar container dari tabel CONTAINER_STUFFING dan MASTER_CONTAINER
-        $rcont = DB::connection('uster_dev')->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK as A'))
-            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK as B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
+        $rcont = DB::connection('uster_dev')->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK A'))
+            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
             ->select('A.NO_CONTAINER', 'B.SIZE_', 'B.TYPE_', DB::connection('uster_dev')->raw("'MTY' as STATUS"))
             ->where('A.NO_REQUEST', $no_req)
             ->get();

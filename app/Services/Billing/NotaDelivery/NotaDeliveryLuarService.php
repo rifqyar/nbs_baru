@@ -93,15 +93,15 @@ class NotaDeliveryLuarService
         $no_req = $req->input('no_req');
 
         $id_user = session()->get('PENGGUNA_ID');
-        $query = "SELECT NO_NOTA FROM nota_delivery WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
-        $hasil_ = DB::connection('uster')->selectOne($query);
+        $query = "SELECT NO_NOTA FROM nota_delivery@DBCLOUD_LINK WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
+        $hasil_ = DB::connection('uster_dev')->selectOne($query);
 
         if (!isset($hasil_->no_nota)) {
             $this->insertProforma($no_req, $koreksi);
         }
 
-        $query = "SELECT NO_NOTA FROM nota_delivery WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
-        $hasil_ = DB::connection('uster')->selectOne($query);
+        $query = "SELECT NO_NOTA FROM nota_delivery@DBCLOUD_LINK WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
+        $hasil_ = DB::connection('uster_dev')->selectOne($query);
         $notanya = $hasil_->no_nota;
 
 
@@ -110,12 +110,12 @@ class NotaDeliveryLuarService
        CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
         THEN a.NO_NOTA
         ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                            FROM nota_delivery a, request_delivery c, BILLING_NBS.tb_user mu where
+                            FROM nota_delivery@DBCLOUD_LINK a, request_delivery@DBCLOUD_LINK c, BILLING_NBS.tb_user@DBCLOUD_LINK mu where
                             a.NO_REQUEST = c.NO_REQUEST
                             AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery d WHERE d.NO_REQUEST = '$no_req' )
                             and c.NO_REQUEST = '$no_req'
                             and a.nipp_user = mu.id(+)";
-        $data = DB::connection('uster')->selectOne($query);
+        $data = DB::connection('uster_dev')->selectOne($query);
         $req_tgl = $data->tgl_request;
         $nama_lengkap  = 'Printed By ' . $data->name;
         $lunas = $data->lunas;
@@ -125,8 +125,8 @@ class NotaDeliveryLuarService
         date_default_timezone_set('Asia/Jakarta');
         $date = date('d M Y H:i:s');
         $corporate_name     = $data->corporate;
-        $query_mtr = "SELECT BIAYA AS BEA_MATERAI, BIAYA FROM NOTA_DELIVERY_D WHERE ID_NOTA='$notanya' AND KETERANGAN='MATERAI'";
-        $data_mtr = DB::connection('uster')->selectOne($query_mtr);
+        $query_mtr = "SELECT BIAYA AS BEA_MATERAI, BIAYA FROM NOTA_DELIVERY_D@DBCLOUD_LINK WHERE ID_NOTA='$notanya' AND KETERANGAN='MATERAI'";
+        $data_mtr = DB::connection('uster_dev')->selectOne($query_mtr);
         $data_mtr_biaya = $data_mtr->biaya ?? 0;
         if ($data_mtr_biaya > 0) {
             $bea_materai = $data_mtr->bea_materai;
@@ -135,39 +135,39 @@ class NotaDeliveryLuarService
         }
 
         if ($lunas == 'YES') {
-            $mat = "SELECT * FROM itpk_nota_header WHERE NO_REQUEST='$no_req'";
+            $mat = "SELECT * FROM itpk_nota_header@DBCLOUD_LINK WHERE NO_REQUEST='$no_req'";
 
-            $mat3   = DB::connection('uster')->selectOne($mat);
+            $mat3   = DB::connection('uster_dev')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
         } else {
-            $mat = "SELECT * FROM MASTER_MATERAI WHERE STATUS='Y'";
+            $mat = "SELECT * FROM MASTER_MATERAI@DBCLOUD_LINK WHERE STATUS='Y'";
 
-            $mat3   = DB::connection('uster')->selectOne($mat);
+            $mat3   = DB::connection('uster_dev')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
         }
 
         $query_dtl  = "SELECT TO_CHAR(ndel_detail.START_STACK,'dd/mm/yyyy') START_STACK,TO_CHAR(ndel_detail.END_STACK,'dd/mm/yyyy') END_STACK,
                 ndel_detail.KETERANGAN, ndel_detail.JML_CONT, ndel_detail.JML_HARI, ISO.SIZE_, ISO.TYPE_, ISO.STATUS,
                 ndel_detail.HZ, TO_CHAR(ndel_detail.TARIF,'999,999,999,999') TARIF , TO_CHAR(ndel_detail.BIAYA,'999,999,999,999') BIAYA
-                FROM nota_delivery_d ndel_detail
-                LEFT JOIN nota_delivery ndel ON NDEL_DETAIL.ID_NOTA = NDEL.NO_NOTA
-                LEFT JOIN iso_code iso ON ISO.ID_ISO=NDEL_DETAIL.ID_ISO
+                FROM nota_delivery_d@DBCLOUD_LINK ndel_detail
+                LEFT JOIN nota_delivery@DBCLOUD_LINK ndel ON NDEL_DETAIL.ID_NOTA = NDEL.NO_NOTA
+                LEFT JOIN iso_code@DBCLOUD_LINK iso ON ISO.ID_ISO=NDEL_DETAIL.ID_ISO
                 WHERE NDEL.NO_REQUEST = '$no_req'
                 AND ndel_detail.KETERANGAN NOT IN ('ADMIN NOTA', 'MATERAI')
                 AND NDEL.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_DELIVERY d WHERE d.NO_REQUEST = '$no_req')";
         $i = 0;
-        $row2 = DB::connection('uster')->select($query_dtl);
+        $row2 = DB::connection('uster_dev')->select($query_dtl);
 
-        $qcont = "SELECT A.NO_CONTAINER,A.STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_DELIVERY A, MASTER_CONTAINER B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
-        $rcont = DB::connection('uster')->select($qcont);
+        $qcont = "SELECT A.NO_CONTAINER,A.STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_DELIVERY@DBCLOUD_LINK A, MASTER_CONTAINER@DBCLOUD_LINK B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
+        $rcont = DB::connection('uster_dev')->select($qcont);
         $listcont = "<br/>Daftar Container<br/><b>";
         foreach ($rcont as $rc) {
             $listcont .= $rc->no_container . "+" . $rc->size_ . "-" . $rc->type_ . "-" . $rc->status . " ";
         }
         $listcont .= "</b>";
         // jumlah detail barangnya
-        $query_jum = "SELECT COUNT(1) JUM_DETAIL FROM NOTA_RECEIVING_D A WHERE A.NO_NOTA='$notanya'";
-        $data_jum = DB::connection('uster')->selectOne($query_jum);
+        $query_jum = "SELECT COUNT(1) JUM_DETAIL FROM NOTA_RECEIVING_D@DBCLOUD_LINK A WHERE A.NO_NOTA='$notanya'";
+        $data_jum = DB::connection('uster_dev')->selectOne($query_jum);
         $jum_data_page = 18; //jumlah data dibatasi per page 18 data
         $jum_page = ceil($data_jum->jum_detail / $jum_data_page);   //hasil bagi pembulatan ke atas
         if (($data_jum->jum_detail % $jum_data_page) > 10 || ($data_jum->jum_detail % $jum_data_page) == 0)  $jum_page++;    //jika pada page terakhir jumlah data melebihi 12, tambah 1 page lagi

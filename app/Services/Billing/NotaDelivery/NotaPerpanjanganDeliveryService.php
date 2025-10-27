@@ -143,7 +143,7 @@ class NotaPerpanjanganDeliveryService
                      -- F_CORPORATE(c.TGL_REQUEST) CORPORATE
               FROM nota_delivery@DBCLOUD_LINK a,
                    request_delivery@DBCLOUD_LINK c,
-                   BILLING_NBS.tb_user mu
+                   BILLING_NBS.tb_user@DBCLOUD_LINK mu
               WHERE a.NO_REQUEST = c.NO_REQUEST
               AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA)
                                 FROM nota_delivery@DBCLOUD_LINK d

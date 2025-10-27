@@ -181,16 +181,16 @@ class NotaPerpStrippingServices
                                 c.NO_ACCOUNT_PBM,
                                 TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST,
                                                         F_CORPORATE(b.TGL_REQUEST) CORPORATE
-                        FROM request_stripping b INNER JOIN
-                                V_MST_PBM c ON b.KD_PENUMPUKAN_OLEH = c.KD_PBM
+                        FROM request_stripping@DBCLOUD_LINK b INNER JOIN
+                                V_MST_PBM@DBCLOUD_LINK c ON b.KD_PENUMPUKAN_OLEH = c.KD_PBM
                         WHERE b.NO_REQUEST = '$no_req'";
-        $row_nota = DB::connection('uster')->selectOne($query_nota);
+        $row_nota = DB::connection('uster_dev')->selectOne($query_nota);
         $kd_pbm     = $row_nota->no_account_pbm;
         $display    = 1;
         $req_tgl     = $row_nota->tgl_request;
 
-        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'YYYY-MM-DD') TGL_REQUEST FROM request_stripping WHERE NO_REQUEST = '$no_req'";
-        $tgl_req = DB::connection('uster')->selectOne($query_tgl);
+        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'YYYY-MM-DD') TGL_REQUEST FROM request_stripping@DBCLOUD_LINK WHERE NO_REQUEST = '$no_req'";
+        $tgl_req = DB::connection('uster_dev')->selectOne($query_tgl);
         $tgl_re = Carbon::parse($tgl_req->tgl_request)->format('Y/m/d');
 
         DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='YYYY/MM/DD'");
@@ -212,12 +212,12 @@ class NotaPerpStrippingServices
         $exec = DB::connection('uster')->statement($sql_xpi);
 
         $detail_nota  = "SELECT a.JML_HARI, TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF, TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA, a.KETERANGAN, a.HZ, a.JML_CONT, TO_DATE(a.START_STACK,'dd/mm/yyyy') START_STACK, TO_DATE(a.END_STACK,'dd/mm/yyyy') END_STACK, b.SIZE_, b.TYPE_, b.STATUS FROM
-	                            temp_detail_nota a, iso_code b WHERE a.id_iso = b.id_iso and a.no_request = '$no_req' and a.keterangan NOT IN ('ADMIN NOTA', 'MATERAI')"; //Fauzan add NOT IN MATERAI 31 Agustus 2020
-        DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='DD/MM/YYYY'");
-        $row_detail   = DB::connection('uster')->select($detail_nota);
+	                            temp_detail_nota@DBCLOUD_LINK a, iso_code@DBCLOUD_LINK b WHERE a.id_iso = b.id_iso and a.no_request = '$no_req' and a.keterangan NOT IN ('ADMIN NOTA', 'MATERAI')"; //Fauzan add NOT IN MATERAI 31 Agustus 2020
+        DB::connection('uster_dev')->statement("ALTER SESSION SET NLS_DATE_FORMAT='DD/MM/YYYY'");
+        $row_detail   = DB::connection('uster_dev')->select($detail_nota);
 
-        $total_          = "SELECT SUM(BIAYA) TOTAL, SUM(PPN) PPN, (SUM(BIAYA) + SUM(PPN)) TOTAL_TAGIHAN FROM temp_detail_nota WHERE no_request = '$no_req' AND KETERANGAN NOT IN ('MATERAI')"; //Fauzan add NOT IN MATERAI 31 Agustus 2020
-        $total2           = DB::connection('uster')->selectOne($total_);
+        $total_          = "SELECT SUM(BIAYA) TOTAL, SUM(PPN) PPN, (SUM(BIAYA) + SUM(PPN)) TOTAL_TAGIHAN FROM temp_detail_nota@DBCLOUD_LINK WHERE no_request = '$no_req' AND KETERANGAN NOT IN ('MATERAI')"; //Fauzan add NOT IN MATERAI 31 Agustus 2020
+        $total2           = DB::connection('uster_dev')->selectOne($total_);
 
         $total = $total2->total;
         $total_ppn = $total2->ppn;
@@ -226,26 +226,26 @@ class NotaPerpStrippingServices
         //Discount
         $discount = 0;
         $query_discount        = "SELECT TO_CHAR($discount , '999,999,999,999') AS DISCOUNT FROM DUAL";
-        $row_discount        = DB::connection('uster')->selectOne($query_discount);
+        $row_discount        = DB::connection('uster_dev')->selectOne($query_discount);
         //Biaya Administrasi
 
-        $query_adm        = "SELECT TO_CHAR(a.TARIF , '999,999,999,999') AS ADM, a.TARIF FROM MASTER_TARIF a, GROUP_TARIF b WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF AND b.KATEGORI_TARIF = 'ADMIN_NOTA'";
-        $row_adm        = DB::connection('uster')->selectOne($query_adm);
+        $query_adm        = "SELECT TO_CHAR(a.TARIF , '999,999,999,999') AS ADM, a.TARIF FROM MASTER_TARIF@DBCLOUD_LINK a, GROUP_TARIF@DBCLOUD_LINK b WHERE a.ID_GROUP_TARIF = b.ID_GROUP_TARIF AND b.KATEGORI_TARIF = 'ADMIN_NOTA'";
+        $row_adm        = DB::connection('uster_dev')->selectOne($query_adm);
         $adm             = $row_adm->tarif;
 
         //Menghitung Total dasar pengenaan pajak
         $total_ = $total;
         $query_tot        = "SELECT TO_CHAR('$total_' , '999,999,999,999') AS TOTAL_ALL FROM DUAL";
-        $row_tot        = DB::connection('uster')->selectOne($query_tot);
+        $row_tot        = DB::connection('uster_dev')->selectOne($query_tot);
 
         //Menghitung Jumlah PPN
         $ppn = $total_ppn;
         $query_ppn        = "SELECT TO_CHAR('$ppn' , '999,999,999,999') AS PPN FROM DUAL";
-        $row_ppn        = DB::connection('uster')->selectOne($query_ppn);
+        $row_ppn        = DB::connection('uster_dev')->selectOne($query_ppn);
 
         //Menghitung Bea Materai fauzan modif 31 Agustus 2020
-        $sql_mtr       = "SELECT BIAYA AS BEA_MATERAI FROM TEMP_DETAIL_NOTA WHERE no_request = '$no_req' AND KETERANGAN='MATERAI'";
-        $row_mtr       = DB::connection('uster')->selectOne($sql_mtr);
+        $sql_mtr       = "SELECT BIAYA AS BEA_MATERAI FROM TEMP_DETAIL_NOTA@DBCLOUD_LINK WHERE no_request = '$no_req' AND KETERANGAN='MATERAI'";
+        $row_mtr       = DB::connection('uster_dev')->selectOne($sql_mtr);
 
         if (!empty($row_mtr->bea_materai) && $row_mtr->bea_materai > 0) {
             $bea_materai = $row_mtr->bea_materai;
@@ -255,15 +255,15 @@ class NotaPerpStrippingServices
 
         /**end modify fauzan 31 aug 2020*/
         $query_materai        = "SELECT TO_CHAR('$bea_materai' , '999,999,999,999') AS MATERAI FROM DUAL";
-        $row_materai        = DB::connection('uster')->selectOne($query_materai);
+        $row_materai        = DB::connection('uster_dev')->selectOne($query_materai);
 
         //Menghitung Jumlah dibayar
         $total_bayar        = $total_tagihan + $bea_materai; //+ $tarif_pass;	/**Fauzan modif 31 AUG 2020 "+ $bea_materai"*/
         $query_bayar        = "SELECT TO_CHAR('$total_bayar' , '999,999,999,999') AS TOTAL_BAYAR FROM DUAL";
-        $row_bayar          = DB::connection('uster')->selectOne($query_bayar);
+        $row_bayar          = DB::connection('uster_dev')->selectOne($query_bayar);
 
-        $pegawai    = "SELECT * FROM MASTER_PEGAWAI WHERE STATUS = 'AKTIF'";
-        $nama_peg    = DB::connection('uster')->selectOne($pegawai);
+        $pegawai    = "SELECT * FROM MASTER_PEGAWAI@DBCLOUD_LINK WHERE STATUS = 'AKTIF'";
+        $nama_peg    = DB::connection('uster_dev')->selectOne($pegawai);
 
         return response()->json([
             'row_nota' => $row_nota,

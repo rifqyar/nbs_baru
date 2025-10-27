@@ -122,7 +122,7 @@ class NotaStuffingExt
         $id_user = session('PENGGUNA_ID');
 
         // Ambil NO_NOTA dari tabel nota_stuffing
-        $notanya = DB::connection('uster_dev')->table('USTER.nota_stuffing@DBCLOUD_LINK')
+        $notanya = DB::connection('uster_dev')->table('nota_stuffing@DBCLOUD_LINK')
             ->whereRaw("TRIM(NO_REQUEST) = TRIM('$no_req')")
             ->where('STATUS', '<>', 'BATAL')
             ->value('NO_NOTA');

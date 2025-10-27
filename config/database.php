@@ -144,7 +144,7 @@ return [
             // 'service_name' => env('DB_SERVICE_NAME_USTER'),
             'service_name' => 'datamti',
             'charset' => 'AL32UTF8',
-            'prefix' => '',
+            'prefix_schema' => false
         ],
     ],
 

@@ -398,7 +398,7 @@ class NotaDeliveryLuarService
         //Menghitung Bea Materai gagat modif 09 februari 2020
         $sql_mtr          = "SELECT BIAYA AS BEA_MATERAI FROM TEMP_DETAIL_NOTA@DBCLOUD_LINK WHERE no_request = '$no_req' AND KETERANGAN='MATERAI'";
 
-        $row_mtr         = DB::connection('uster')->selectOne($sql_mtr);
+        $row_mtr         = DB::connection('uster_dev')->selectOne($sql_mtr);
         $data_mtr_biaya = $row_mtr->biaya ?? 0;
         if ($data_mtr_biaya > 0) {
             $bea_materai = $row_mtr->bea_materai;

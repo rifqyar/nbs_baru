@@ -110,7 +110,7 @@ class NotaPerpStrippingServices
         if (request('first') == null) {
             $nama_lengkap .= '<br/>' . 'Reprinted by ' . Session::get('NAMA_LENGKAP');
         }
-        $corporate_name     = $data->corporate;
+        $corporate_name     = $data->corporate ?? 'PT. Multi Terminal Indonesia <br>Cabang Pelabuhan Pontianak';
 
         /**hitung materai Fauzan 31 Agustus 2020*/
         $query_mtr = "SELECT TO_CHAR (a.BIAYA, '999,999,999,999') BEA_MATERAI, a.BIAYA

@@ -179,8 +179,8 @@ class NotaPerpStrippingServices
                                 c.NO_NPWP_PBM AS NPWP,
                                 c.ALMT_PBM AS ALAMAT,
                                 c.NO_ACCOUNT_PBM,
-                                TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST,
-                                                        F_CORPORATE(b.TGL_REQUEST) CORPORATE
+                                TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST
+                                                        -- F_CORPORATE(b.TGL_REQUEST) CORPORATE
                         FROM request_stripping@DBCLOUD_LINK b INNER JOIN
                                 V_MST_PBM@DBCLOUD_LINK c ON b.KD_PENUMPUKAN_OLEH = c.KD_PBM
                         WHERE b.NO_REQUEST = '$no_req'";

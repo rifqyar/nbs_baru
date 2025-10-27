@@ -412,7 +412,7 @@ class NotaDeliveryLuarService
         //Menghitung Jumlah dibayar
         $total_bayar        = $total_tagihan + $bea_materai; //+ $tarif_pass;	/**Fauzan modif 26 AUG 2020 "+ $bea_materai"*/
         $query_bayar        = "SELECT TO_CHAR('$total_bayar' , '999,999,999,999') AS TOTAL_BAYAR FROM DUAL";
-        $row_bayar          = DB::connection('uuster_devster')->selectOne($query_bayar);
+        $row_bayar          = DB::connection('uster_dev')->selectOne($query_bayar);
 
         $pegawai    = "SELECT * FROM MASTER_PEGAWAI@DBCLOUD_LINK WHERE STATUS = 'AKTIF'";
         $nama_peg    = DB::connection('uster_dev')->selectOne($pegawai);

@@ -89,7 +89,7 @@ class NotaPerpStrippingServices
     public function fetchData($no_req)
     {
         $query = "SELECT NO_NOTA FROM nota_stripping@DBCLOUD_LINK WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
-        $hasil_ = DB::connection('uster')->selectOne($query);
+        $hasil_ = DB::connection('uster_dev')->selectOne($query);
         $notanya = $hasil_->no_nota;
 
         //NOTA MTI -> NO_NOTA_MTI
@@ -102,7 +102,7 @@ class NotaPerpStrippingServices
                                         AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stripping@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req' )
                                         and c.NO_REQUEST = '$no_req'
                                         and a.nipp_user = mu.id(+)";
-        $data = DB::connection('uster')->selectOne($query);
+        $data = DB::connection('uster_dev')->selectOne($query);
         $req_tgl = $data->tgl_request;
         $nama_lengkap  = $data->name;
         $lunas = $data->lunas;
@@ -117,7 +117,7 @@ class NotaPerpStrippingServices
                         FROM nota_stripping_d@DBCLOUD_LINK a
                         WHERE a.NO_NOTA = '$notanya' AND a.KETERANGAN ='MATERAI' ";
         //print_r($query_mtr);
-        $data_mtr = DB::connection('uster')->selectOne($query_mtr);
+        $data_mtr = DB::connection('uster_dev')->selectOne($query_mtr);
         if (!empty($data_mtr) && $data_mtr->biaya > 0) {
             $bea_materai = $data_mtr->bea_materai;
         } else {
@@ -130,12 +130,12 @@ class NotaPerpStrippingServices
         if ($lunas == 'YES') {
             $mat = "SELECT * FROM itpk_nota_header@DBCLOUD_LINK WHERE NO_REQUEST='$no_req'";
 
-            $mat3   = DB::connection('uster')->selectOne($mat);
+            $mat3   = DB::connection('uster_dev')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
         } else {
             $mat = "SELECT * FROM MASTER_MATERAI@DBCLOUD_LINK WHERE STATUS='Y'";
 
-            $mat3   = DB::connection('uster')->selectOne($mat);
+            $mat3   = DB::connection('uster_dev')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
         }
         //end get
@@ -150,11 +150,11 @@ class NotaPerpStrippingServices
             WHERE a.ID_ISO = b.ID_ISO(+) AND a.NO_NOTA = c.NO_NOTA AND a.NO_NOTA = (SELECT MAX(d.NO_NOTA) FROM NOTA_STRIPPING@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req')
          and a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')";
         /**Fauzan modif 31 Agustus 2020 [NOT IN MATERAI]*/
-        DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='DD/MM/YYYY'");
-        $res = DB::connection('uster')->select($query_dtl);
+        DB::connection('uster_dev')->statement("ALTER SESSION SET NLS_DATE_FORMAT='DD/MM/YYYY'");
+        $res = DB::connection('uster_dev')->select($query_dtl);
 
         $qcont = "SELECT A.NO_CONTAINER,'FCL' STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_STRIPPING@DBCLOUD_LINK A, MASTER_CONTAINER@DBCLOUD_LINK B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
-        $rcont = DB::connection('uster')->select($qcont);
+        $rcont = DB::connection('uster_dev')->select($qcont);
         $listcont = "<br/>Daftar Container<br/><b>";
         foreach ($rcont as $rc) {
             $listcont .= $rc->no_container . "+" . $rc->size_ . "-" . $rc->type_ . "-" . $rc->status . " ";

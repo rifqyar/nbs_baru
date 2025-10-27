@@ -133,167 +133,148 @@ class NotaBatalController extends Controller
 
     public function print_proforma(Request $request)
     {
-
         $pdf = new TCPDF();
         $pdf::changeFormat('A7');
         $pdf::reset();
 
-        // set default monospaced font
         $pdf::SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-        //set margins
         $pdf::SetMargins(1, 3, 0);
-        //$pdf::SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
         $pdf::SetFooterMargin(PDF_MARGIN_FOOTER);
-
         $pdf::setPrintHeader(false);
-
-        //set auto page breaks
         $pdf::SetAutoPageBreak(TRUE, 10);
-
-        //set image scale factor
         $pdf::setImageScale(PDF_IMAGE_SCALE_RATIO);
 
-
-
         // ---------------------------------------------------------
-
-
         $no_req = $request->no_req;
         $id_user = session('PENGGUNA_ID');
 
-        $notanya = DB::connection('uster')
-            ->table('nota_batal_muat')
+        // 🔹 Query: ambil nomor nota
+        $notanya = DB::connection('uster_dev')
+            ->table(DB::raw('nota_batal_muat@DBCLOUD_LINK'))
             ->whereRaw('TRIM(NO_REQUEST) = TRIM(?)', [$no_req])
             ->where('STATUS', '<>', 'BATAL')
             ->value('NO_NOTA');
 
-        //NOTA MTI -> NO_NOTA_MTI
-        $data = DB::connection('uster')
-            ->table('nota_batal_muat as a')
-            ->join('request_batal_muat as c', 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
-            ->leftJoin('BILLING_NBS.tb_user as mu', 'a.nipp_user', '=', 'mu.id')
+        // 🔹 Query utama
+        $data = DB::connection('uster_dev')
+            ->table(DB::raw('nota_batal_muat@DBCLOUD_LINK a'))
+            ->join(DB::raw('request_batal_muat@DBCLOUD_LINK c'), 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
+            ->leftJoin(DB::raw('BILLING_NBS.TB_USER@DBCLOUD_LINK mu'), 'a.nipp_user', '=', 'mu.id')
             ->selectRaw("
-            c.NO_REQUEST,
-            a.NOTA_LAMA,
-            a.NO_NOTA,
-            a.NO_NOTA_MTI,
-            TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA,
-            TO_CHAR(a.PASS,'999,999,999,999') PASS,
-            a.EMKL AS NAMA,
-            a.ALAMAT,
-            a.NPWP,
-            a.LUNAS,
-            a.NO_FAKTUR,
-            TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN,
-            TO_CHAR(a.PPN,'999,999,999,999') PPN,
-            TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN,
-            a.STATUS,
-            TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
-            CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG,
-            a.NIPP_USER,
-            mu.NAME,
-            CASE
-                WHEN TRUNC(a.TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA
-                ELSE a.NO_FAKTUR
-            END AS NO_FAKTUR_,
-            F_CORPORATE(c.TGL_REQUEST) CORPORATE
+                c.NO_REQUEST,
+                a.NOTA_LAMA,
+                a.NO_NOTA,
+                a.NO_NOTA_MTI,
+                TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA,
+                TO_CHAR(a.PASS,'999,999,999,999') PASS,
+                a.EMKL NAMA,
+                a.ALAMAT,
+                a.NPWP,
+                a.LUNAS,
+                a.NO_FAKTUR,
+                TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN,
+                TO_CHAR(a.PPN,'999,999,999,999') PPN,
+                TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN,
+                a.STATUS,
+                TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
+                CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG,
+                a.NIPP_USER,
+                mu.NAME,
+                CASE
+                    WHEN TRUNC(a.TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA
+                    ELSE a.NO_FAKTUR
+                END NO_FAKTUR_,
+                F_CORPORATE(c.TGL_REQUEST) CORPORATE
             ")
             ->where('c.NO_REQUEST', $no_req)
-            ->whereRaw('a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_batal_muat d WHERE d.NO_REQUEST = ?)', [$no_req])
+            ->whereRaw('a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_batal_muat@DBCLOUD_LINK d WHERE d.NO_REQUEST = ?)', [$no_req])
             ->first();
 
         $req_tgl = $data->tgl_request ?? null;
-        $nama_lengkap  = $data->name ?? '';
+        $nama_lengkap = $data->name ?? '';
         $lunas = $data->lunas ?? '';
 
         if (!$request->first) {
             $nama_lengkap .= '<br/>' . 'Reprinted by ' . session('NAMA_LENGKAP');
         }
+
         date_default_timezone_set('Asia/Jakarta');
         $date = date('d M Y H:i:s');
 
-        $corporate_name = 'PT. Multi Terminal Indonesia';
-
-        // Optimized materai query: select only needed columns, use Query Builder
-        $data_mtr = DB::connection('uster')
-            ->table('NOTA_BATAL_MUAT_D')
+        // 🔹 Materai
+        $data_mtr = DB::connection('uster_dev')
+            ->table(DB::raw('NOTA_BATAL_MUAT_D@DBCLOUD_LINK'))
             ->selectRaw("TO_CHAR(BIAYA, '999,999,999,999') AS bea_materai, BIAYA")
             ->where('ID_NOTA', $notanya)
             ->where('KETERANGAN', 'MATERAI')
             ->first();
+
         $bea_materai = ($data_mtr && $data_mtr->biaya > 0) ? $data_mtr->bea_materai : 0;
 
-        // Optimized: get no_peraturan directly, avoid unnecessary select *
+        // 🔹 No peraturan
         if ($lunas == 'YES') {
-            $no_mat = DB::connection('uster')
-                ->table('itpk_nota_header')
+            $no_mat = DB::connection('uster_dev')
+                ->table(DB::raw('itpk_nota_header@DBCLOUD_LINK'))
                 ->where('NO_REQUEST', $no_req)
                 ->value('no_peraturan');
         } else {
-            $no_mat = DB::connection('uster')
-                ->table('MASTER_MATERAI')
+            $no_mat = DB::connection('uster_dev')
+                ->table(DB::raw('MASTER_MATERAI@DBCLOUD_LINK'))
                 ->where('STATUS', 'Y')
                 ->value('no_peraturan');
         }
 
-        // Optimized detail query: use Query Builder, join, and select only needed columns
-        $row2 = DB::connection('uster')
-            ->table('NOTA_BATAL_MUAT_D as a')
-            ->join('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+        // 🔹 Detail nota
+        $row2 = DB::connection('uster_dev')
+            ->table(DB::raw('NOTA_BATAL_MUAT_D@DBCLOUD_LINK a'))
+            ->join(DB::raw('iso_code@DBCLOUD_LINK b'), 'a.id_iso', '=', 'b.id_iso')
             ->selectRaw("
             a.JML_HARI,
-            TO_CHAR(a.TARIF, '999,999,999,999') AS tarif,
-            TO_CHAR(a.BIAYA, '999,999,999,999') AS biaya,
+            TO_CHAR(a.TARIF, '999,999,999,999') tarif,
+            TO_CHAR(a.BIAYA, '999,999,999,999') biaya,
             a.KETERANGAN,
             a.HZ,
             a.JML_CONT,
-            TO_CHAR(a.START_STACK,'dd/mm/yyyy') AS tgl_start_stack,
-            TO_CHAR(a.END_STACK,'dd/mm/yyyy') AS tgl_end_stack,
+            TO_CHAR(a.START_STACK,'dd/mm/yyyy') tgl_start_stack,
+            TO_CHAR(a.END_STACK,'dd/mm/yyyy') tgl_end_stack,
             b.SIZE_,
             b.TYPE_,
             b.STATUS
-            ")
+        ")
             ->where('a.ID_NOTA', $notanya)
             ->whereNotIn('a.KETERANGAN', ['ADMIN NOTA', 'MATERAI'])
             ->get();
 
+        // 🔹 Jumlah detail
+        $jum_data_page = 18;
+        $jum_detail = DB::connection('uster_dev')
+            ->table(DB::raw('NOTA_RECEIVING_D@DBCLOUD_LINK'))
+            ->where('NO_NOTA', $notanya)
+            ->count();
+        $jum_page = max(1, ceil($jum_detail / $jum_data_page));
+        if (($jum_detail % $jum_data_page) > 10 || ($jum_detail % $jum_data_page) == 0) {
+            $jum_page++;
+        }
+        $jum_page = 1;
+
         $i = 0;
         $detail = '';
         foreach ($row2 as $rows) {
-            if ($rows->keterangan != 'MONITORING DAN LISTRIK') {
-                $den = '(' . ($rows->tgl_start_stack ?? '') . ' s/d ' . ($rows->tgl_end_stack ?? '') . ')' . ($rows->jml_hari ?? '') . 'hari';
-            } else {
-                $den = ($rows->jml_hari ?? '') . ' Shift';
-            }
+            $den = ($rows->keterangan != 'MONITORING DAN LISTRIK')
+                ? '(' . ($rows->tgl_start_stack ?? '') . ' s/d ' . ($rows->tgl_end_stack ?? '') . ')' . ($rows->jml_hari ?? '') . 'hari'
+                : ($rows->jml_hari ?? '') . ' Shift';
 
             $detail .= '<tr><td colspan="3" width="100"><font size="6"><b>' . $rows->keterangan . '</b></font></td>
-                <td width="10" align="left"><font size="6"><b>' . $rows->jml_cont . '</b></font></td>
-                <td width="50" align="left"><font size="6"><b>' . $rows->size_ . " " . $rows->type_ . " " . $rows->status . '</b></font></td>
-                <td width="10" align="left"><font size="6"><b>' . $rows->hz . '</b></font></td>
-                <td width="43" align="right"><font size="6"><b>' . $rows->tarif . '</b></font></td>
-                <td width="35" align="right"><font size="6"><b>' . $rows->biaya . '</b></font></td>
-                </tr>';
+            <td width="10" align="left"><font size="6"><b>' . $rows->jml_cont . '</b></font></td>
+            <td width="50" align="left"><font size="6"><b>' . $rows->size_ . " " . $rows->type_ . " " . $rows->status . '</b></font></td>
+            <td width="10" align="left"><font size="6"><b>' . $rows->hz . '</b></font></td>
+            <td width="43" align="right"><font size="6"><b>' . $rows->tarif . '</b></font></td>
+            <td width="35" align="right"><font size="6"><b>' . $rows->biaya . '</b></font></td></tr>';
             if ($rows->keterangan != 'MONITORING DAN LISTRIK') {
                 $detail .= '<tr><td colspan="8"><font size="6"><i><b>' . $den . '</b></i></font></td></tr>';
             }
             $i++;
         }
-
-
-        // Jumlah detail barangnya (optimized)
-        $jum_data_page = 18;
-        // Ambil jumlah detail langsung dengan Query Builder
-        $jum_detail = DB::connection('uster')
-            ->table('NOTA_RECEIVING_D')
-            ->where('NO_NOTA', $notanya)
-            ->count();
-        $jum_page = max(1, ceil($jum_detail / $jum_data_page));
-        // Jika pada page terakhir jumlah data melebihi 10 atau habis dibagi, tambah 1 page lagi
-        if (($jum_detail % $jum_data_page) > 10 || ($jum_detail % $jum_data_page) == 0) {
-            $jum_page++;
-        }
-        $jum_page = 1; // hardcoded as in original, but can be removed if paging is needed
 
         for ($pg = 1; $pg <= $jum_page; $pg++) {
             $pdf::AddPage();
@@ -367,14 +348,14 @@ class NotaBatalController extends Controller
             $space = '';
 
             if (($data_mtr->biaya ?? 0) > 0) {
-            $tbl_materai .= '<tr>
+                $tbl_materai .= '<tr>
                 <td colspan="6" align="right"><b>Bea Materai :</b></td>
                 <td colspan="2" align="right"><b>' . $bea_materai . '</b></td>
             </tr>';
-            $row .= '<tr><td colspan="6"></td>
+                $row .= '<tr><td colspan="6"></td>
                 <td width="225" colspan="2" align="right"></td>
             </tr>';
-            $kotak .= '<tr>
+                $kotak .= '<tr>
                 <td colspan="4" align="left"><font size="5px">Bea Materai Lunas Dengan Sistem Nomor Ijin :' . $no_mat . '</font></td><td></td>
                 <td width="80" colspan="2" align="center" border="1">Termasuk Bea Materai<br><font size="7">Rp.' . $bea_materai . '</font></td><td></td>
             </tr>';
@@ -442,19 +423,19 @@ class NotaBatalController extends Controller
             EOD;
 
             $style = [
-            'position' => '',
-            'align' => 'C',
-            'stretch' => false,
-            'fitwidth' => true,
-            'cellfitalign' => '',
-            'hpadding' => 'auto',
-            'vpadding' => 'auto',
-            'fgcolor' => [0, 0, 0],
-            'bgcolor' => false,
-            'text' => true,
-            'font' => 'helvetica',
-            'fontsize' => 4,
-            'stretchtext' => 4
+                'position' => '',
+                'align' => 'C',
+                'stretch' => false,
+                'fitwidth' => true,
+                'cellfitalign' => '',
+                'hpadding' => 'auto',
+                'vpadding' => 'auto',
+                'fgcolor' => [0, 0, 0],
+                'bgcolor' => false,
+                'text' => true,
+                'font' => 'helvetica',
+                'fontsize' => 4,
+                'stretchtext' => 4
             ];
 
             $nota_mti = $data->no_nota_mti;
@@ -466,9 +447,9 @@ class NotaBatalController extends Controller
             $limit2 = $jum_data_page * $pg;
 
             if ($pg < $jum_page) {
-            $styleLine = ['width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => '10,10', 'color' => [0, 0, 0]];
-            $pdf::Line(10, 200, 205, 280, $styleLine);
-            $pdf::Line(10, 280, 205, 200, $styleLine);
+                $styleLine = ['width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => '10,10', 'color' => [0, 0, 0]];
+                $pdf::Line(10, 200, 205, 280, $styleLine);
+                $pdf::Line(10, 280, 205, 200, $styleLine);
             }
         }
 
@@ -490,13 +471,14 @@ class NotaBatalController extends Controller
 
     public function print_nota(Request $request)
     {
-        $corporate_name     = 'PT. Multi Terminal Indonesia';
-        $no_req        = $request->no_req;
-        $koreksi        = $request->koreksi;
-        //--------------------------
-        $row_nota = DB::connection('uster')
-            ->table('REQUEST_BATAL_MUAT as b')
-            ->join('v_mst_pbm as c', function ($join) {
+        $corporate_name = 'PT. Multi Terminal Indonesia';
+        $no_req = $request->no_req;
+        $koreksi = $request->koreksi;
+
+        // --- Ambil data utama dari REQUEST_BATAL_MUAT@DBCLOUD_LINK ---
+        $row_nota = DB::connection('uster_dev')
+            ->table(DB::raw('REQUEST_BATAL_MUAT@DBCLOUD_LINK b'))
+            ->join(DB::raw('v_mst_pbm@DBCLOUD_LINK c'), function ($join) {
                 $join->on('b.KD_EMKL', '=', 'c.KD_PBM')
                     ->where('c.KD_CABANG', '=', '05');
             })
@@ -508,26 +490,24 @@ class NotaBatalController extends Controller
                 'c.NO_ACCOUNT_PBM as no_account_pbm',
                 'b.STATUS_GATE as status_gate',
                 DB::raw("TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') as tgl_request"),
-                DB::raw("F_CORPORATE(b.TGL_REQUEST) as corporate"),
+                // DB::raw("F_CORPORATE(b.TGL_REQUEST) as corporate"),
             ])
             ->where('b.NO_REQUEST', $no_req)
             ->first();
 
         $req_tgl  = $row_nota->tgl_request ?? null;
         $kd_pbm   = $row_nota->no_account_pbm ?? null;
-        $display  = 1;
-        //cek subsidiary
-        $st_gate = $row_nota->status_gate;
+        $st_gate  = $row_nota->status_gate ?? null;
 
-        $tgl_req = DB::connection('uster')
-            ->table('request_batal_muat')
+        // --- Ambil tanggal request ---
+        $tgl_req = DB::connection('uster_dev')
+            ->table(DB::raw('request_batal_muat@DBCLOUD_LINK'))
             ->where('NO_REQUEST', $no_req)
             ->value(DB::raw("TO_CHAR(TGL_REQUEST,'YYYY-MM-DD')"));
-        $tgl_re = Carbon::parse($tgl_req)->format('Y/m/d');
+        $tgl_re = \Carbon\Carbon::parse($tgl_req)->format('Y/m/d');
 
-        // Memanggil prosedur PL/SQL create_detail_nota menggunakan Laravel Query Builder
-        // Use DB::getPdo() to prepare and bind OUT parameter for Oracle procedure
-        $pdo = DB::connection('uster')->getPdo();
+        // --- Panggil prosedur PL/SQL create_detail_nota ---
+        $pdo = DB::connection('uster_dev')->getPdo();
         $stmt = $pdo->prepare("
             BEGIN
                 create_detail_nota(
@@ -540,56 +520,56 @@ class NotaBatalController extends Controller
             END;
         ");
 
-        $errMsg = str_repeat(' ', 4000); // allocate buffer for OUT parameter
-
+        $errMsg = str_repeat(' ', 4000);
         $stmt->bindValue(':id_nota', 9);
         $stmt->bindValue(':tgl_req', $tgl_re);
         $stmt->bindValue(':no_request', $no_req);
         $stmt->bindValue(':jenis', 'batal_muat');
         $stmt->bindParam(':err_msg', $errMsg, \PDO::PARAM_INPUT_OUTPUT, 4000);
-
         $stmt->execute();
 
-
-        $row_detail = DB::connection('uster')
-            ->table('temp_detail_nota as a')
-            ->join('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+        // --- Ambil detail nota ---
+        $row_detail = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota@DBCLOUD_LINK a'))
+            ->join(DB::raw('iso_code@DBCLOUD_LINK b'), 'a.id_iso', '=', 'b.id_iso')
             ->selectRaw("
-                a.JML_HARI,
-                TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF,
-                TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA,
-                a.KETERANGAN,
-                a.HZ,
-                a.JML_CONT,
-                TO_DATE(a.START_STACK,'dd/mm/yyyy') AS START_STACK,
-                TO_DATE(a.END_STACK,'dd/mm/yyyy') AS END_STACK,
-                b.SIZE_,
-                b.TYPE_,
-                b.STATUS
-            ")
+            a.JML_HARI,
+            TO_CHAR(a.TARIF, '999,999,999,999') AS TARIF,
+            TO_CHAR(a.BIAYA, '999,999,999,999') AS BIAYA,
+            a.KETERANGAN,
+            a.HZ,
+            a.JML_CONT,
+            TO_DATE(a.START_STACK,'dd/mm/yyyy') AS START_STACK,
+            TO_DATE(a.END_STACK,'dd/mm/yyyy') AS END_STACK,
+            b.SIZE_,
+            b.TYPE_,
+            b.STATUS
+        ")
             ->where('a.no_request', $no_req)
             ->whereNotIn('a.KETERANGAN', ['ADMIN NOTA', 'MATERAI'])
             ->get();
 
-
-
-        $jum = "SELECT COUNT(*) AS jumlah FROM container_batal_muat WHERE no_request = '$no_req'";
-        $jum_ = DB::connection('uster')->selectOne($jum);
+        // --- Hitung jumlah kontainer ---
+        $jum_ = DB::connection('uster_dev')
+            ->table(DB::raw('container_batal_muat@DBCLOUD_LINK'))
+            ->where('no_request', $no_req)
+            ->selectRaw('COUNT(*) as jumlah')
+            ->first();
         $jumlah_cont = $jum_->jumlah ?? 0;
 
-
-        $row_pass = DB::connection('uster')
-            ->table('master_tarif as a')
-            ->join('group_tarif as b', 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
+        // --- Ambil tarif pass ---
+        $row_pass = DB::connection('uster_dev')
+            ->table(DB::raw('master_tarif@DBCLOUD_LINK a'))
+            ->join(DB::raw('group_tarif@DBCLOUD_LINK b'), 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
             ->selectRaw('TO_CHAR((? * a.TARIF), \'999,999,999,999\') AS PASS, (? * a.TARIF) AS TARIF', [$jumlah_cont, $jumlah_cont])
             ->whereRaw("TO_DATE(?, 'yyyy/mm/dd') BETWEEN b.START_PERIOD AND b.END_PERIOD", [$tgl_re])
             ->where('a.ID_ISO', 'BAMU')
             ->first();
         $tarif_pass = $row_pass->tarif ?? null;
 
-        // Optimized: Use Query Builder for better readability and security
-        $total2 = DB::connection('uster')
-            ->table('temp_detail_nota')
+        // --- Hitung total, PPN, dan total tagihan ---
+        $total2 = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota@DBCLOUD_LINK'))
             ->selectRaw('SUM(BIAYA) AS total, SUM(PPN) AS ppn, (SUM(BIAYA) + SUM(PPN)) AS total_tagihan')
             ->where('no_request', $no_req)
             ->whereNotIn('KETERANGAN', ['MATERAI'])
@@ -599,38 +579,34 @@ class NotaBatalController extends Controller
         $ppn_1 = $total2->ppn ?? 0;
         $total_tagihan_1 = $total2->total_tagihan ?? 0;
 
-        // Discount (hardcoded 0)
+        // --- Discount ---
         $discount = 0;
         $row_discount = (object)[
             'discount' => number_format($discount, 0, ',', ',')
         ];
 
-        // Admin fee (get latest active admin fee)
-        $row_adm = DB::connection('uster')
-            ->table('master_tarif as a')
-            ->join('group_tarif as b', 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
+        // --- Admin Fee ---
+        $row_adm = DB::connection('uster_dev')
+            ->table(DB::raw('master_tarif@DBCLOUD_LINK a'))
+            ->join(DB::raw('group_tarif@DBCLOUD_LINK b'), 'a.ID_GROUP_TARIF', '=', 'b.ID_GROUP_TARIF')
             ->where('b.KATEGORI_TARIF', 'ADMIN_NOTA')
             ->selectRaw("TO_CHAR(a.TARIF, '999,999,999,999') AS adm, a.TARIF")
             ->first();
         $adm = $row_adm->tarif ?? 0;
 
-        // Total
+        // --- Total ---
         $row_tot = (object)[
             'total_all' => number_format($total_1, 0, ',', ',')
         ];
 
-        //Menghitung Jumlah PPN
-        //$ppn = $total_/10;
-        // Optimized: Format PPN using PHP instead of querying the database
+        // --- PPN ---
         $row_ppn = (object)[
             'ppn' => number_format($ppn_1, 0, ',', ',')
         ];
 
-
-        //Menghitung Bea Materai
-        //Fauzan add materai 24 Agustus 2020
-        $materai = DB::connection('uster')
-            ->table('temp_detail_nota')
+        // --- Bea Materai ---
+        $materai = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota@DBCLOUD_LINK'))
             ->where('no_request', $no_req)
             ->where('KETERANGAN', 'MATERAI')
             ->sum('BIAYA');
@@ -639,25 +615,20 @@ class NotaBatalController extends Controller
             'bea_materai' => number_format($bea_materai, 0, ',', ',')
         ];
 
-        /*end Fauzan add materai 24 Agustus 2020*/
-
-        //Menghitung Jumlah dibayar
-        // Hitung total bayar (Jumlah dibayar)
+        // --- Jumlah dibayar ---
         $total_bayar = $total_tagihan_1 + $bea_materai;
-
-        // Format total bayar menggunakan PHP, tidak perlu query ke DUAL
         $row_bayar = (object)[
             'total_bayar' => number_format($total_bayar, 0, ',', ',')
         ];
 
-        // Ambil satu pegawai aktif (gunakan limit 1)
-        $nama_peg = DB::connection('uster')
-            ->table('MASTER_PEGAWAI')
+        // --- Pegawai aktif ---
+        $nama_peg = DB::connection('uster_dev')
+            ->table(DB::raw('MASTER_PEGAWAI@DBCLOUD_LINK'))
             ->where('STATUS', 'AKTIF')
             ->first();
 
         $tgl_nota = $tgl_re;
-        $no_req_baru = $row_nota->no_req_baru;
+        $no_req_baru = $row_nota->no_req_baru ?? null;
 
         return view('billing.nota-batal-muat.print-nota', compact(
             'corporate_name',

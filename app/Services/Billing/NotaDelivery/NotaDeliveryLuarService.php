@@ -154,7 +154,7 @@ class NotaDeliveryLuarService
                 LEFT JOIN iso_code@DBCLOUD_LINK iso ON ISO.ID_ISO=NDEL_DETAIL.ID_ISO
                 WHERE NDEL.NO_REQUEST = '$no_req'
                 AND ndel_detail.KETERANGAN NOT IN ('ADMIN NOTA', 'MATERAI')
-                AND NDEL.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_DELIVERY d WHERE d.NO_REQUEST = '$no_req')";
+                AND NDEL.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM NOTA_DELIVERY@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req')";
         $i = 0;
         $row2 = DB::connection('uster_dev')->select($query_dtl);
 

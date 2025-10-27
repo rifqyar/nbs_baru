@@ -125,7 +125,7 @@ class NotaDeliveryService
         $query = "SELECT c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT  , a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
          THEN a.NO_NOTA
-         ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
+         ELSE A.NO_FAKTUR END NO_FAKTUR_ --, F_CORPORATE(c.TGL_REQUEST) CORPORATE
                              FROM nota_delivery@DBCLOUD_LINK a, request_delivery@DBCLOUD_LINK c, BILLING_NBS.tb_user@DBCLOUD_LINK mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req' )
@@ -140,7 +140,7 @@ class NotaDeliveryService
         // }
         date_default_timezone_set('Asia/Jakarta');
         $date = date('d M Y H:i:s');
-        $corporate_name     = $data->corporate;
+        $corporate_name     = $data->corporate ?? 'PT. Multi Terminal Indonesia <br>Cabang Pelabuhan Pontianak';
         $query_mtr = "SELECT TO_CHAR (a.BIAYA, '999,999,999,999') BEA_MATERAI, a.BIAYA
         FROM nota_delivery_d@DBCLOUD_LINK a
        WHERE a.ID_NOTA = '$notanya' AND a.KETERANGAN ='MATERAI' ";
@@ -253,7 +253,7 @@ class NotaDeliveryService
                           c.ALMT_PBM AS ALAMAT,
 						  b.DELIVERY_KE,
 						  TO_CHAR(b.TGL_REQUEST,'DD-MM-RRRR') TGL_REQUEST,
-							F_CORPORATE(b.TGL_REQUEST) CORPORATE,
+						    -- F_CORPORATE(b.TGL_REQUEST) CORPORATE,
 						  c.NO_ACCOUNT_PBM
                    FROM REQUEST_DELIVERY@DBCLOUD_LINK b INNER JOIN
                             V_MST_PBM@DBCLOUD_LINK c ON b.KD_EMKL = c.KD_PBM AND c.KD_CABANG = '05'
@@ -451,7 +451,7 @@ class NotaDeliveryService
         $nama_peg    = DB::connection('uster_dev')->selectOne($pegawai);
 
         $dataArr = [
-            'corporate_name' => $row_nota->corporate,
+            'corporate_name' => $row_nota->corporate ?? 'PT. Multi Terminal Indonesia <br>Cabang Pelabuhan Pontianak',
             "url_ins" => "insert_proforma",
             "row_discount" => $row_discount,
             "nama_peg" => $nama_peg,

@@ -88,7 +88,7 @@ class NotaPerpStrippingServices
 
     public function fetchData($no_req)
     {
-        $query = "SELECT NO_NOTA FROM nota_stripping WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
+        $query = "SELECT NO_NOTA FROM nota_stripping@DBCLOUD_LINK WHERE TRIM(NO_REQUEST) = TRIM('$no_req') AND STATUS <> 'BATAL'";
         $hasil_ = DB::connection('uster')->selectOne($query);
         $notanya = $hasil_->no_nota;
 
@@ -96,10 +96,10 @@ class NotaPerpStrippingServices
         $query = "SELECT c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT  , a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
                     CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
                     THEN a.NO_NOTA
-                    ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                                        FROM nota_stripping a, request_stripping c, BILLING_NBS.tb_user mu where
+                    ELSE A.NO_FAKTUR END NO_FAKTUR_--, F_CORPORATE(c.TGL_REQUEST) CORPORATE
+                                        FROM nota_stripping@DBCLOUD_LINK a, request_stripping@DBCLOUD_LINK c, BILLING_NBS.tb_user@DBCLOUD_LINK mu where
                                         a.NO_REQUEST = c.NO_REQUEST
-                                        AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stripping d WHERE d.NO_REQUEST = '$no_req' )
+                                        AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stripping@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req' )
                                         and c.NO_REQUEST = '$no_req'
                                         and a.nipp_user = mu.id(+)";
         $data = DB::connection('uster')->selectOne($query);
@@ -114,7 +114,7 @@ class NotaPerpStrippingServices
 
         /**hitung materai Fauzan 31 Agustus 2020*/
         $query_mtr = "SELECT TO_CHAR (a.BIAYA, '999,999,999,999') BEA_MATERAI, a.BIAYA
-                        FROM nota_stripping_d a
+                        FROM nota_stripping_d@DBCLOUD_LINK a
                         WHERE a.NO_NOTA = '$notanya' AND a.KETERANGAN ='MATERAI' ";
         //print_r($query_mtr);
         $data_mtr = DB::connection('uster')->selectOne($query_mtr);
@@ -128,12 +128,12 @@ class NotaPerpStrippingServices
 
         //get no peraturan 25 nov 2020
         if ($lunas == 'YES') {
-            $mat = "SELECT * FROM itpk_nota_header WHERE NO_REQUEST='$no_req'";
+            $mat = "SELECT * FROM itpk_nota_header@DBCLOUD_LINK WHERE NO_REQUEST='$no_req'";
 
             $mat3   = DB::connection('uster')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
         } else {
-            $mat = "SELECT * FROM MASTER_MATERAI WHERE STATUS='Y'";
+            $mat = "SELECT * FROM MASTER_MATERAI@DBCLOUD_LINK WHERE STATUS='Y'";
 
             $mat3   = DB::connection('uster')->selectOne($mat);
             $no_mat    = $mat3->no_peraturan;
@@ -146,14 +146,14 @@ class NotaPerpStrippingServices
             a.JML_HARI,
             b.SIZE_, b.TYPE_, b.STATUS, a.HZ, TO_CHAR(a.TARIF,'999,999,999,999') TARIF ,
             TO_CHAR(a.BIAYA,'999,999,999,999') BIAYA
-            FROM nota_stripping_d a, iso_code b, nota_stripping c
-            WHERE a.ID_ISO = b.ID_ISO(+) AND a.NO_NOTA = c.NO_NOTA AND a.NO_NOTA = (SELECT MAX(d.NO_NOTA) FROM NOTA_STRIPPING d WHERE d.NO_REQUEST = '$no_req')
+            FROM nota_stripping_d@DBCLOUD_LINK a, iso_code@DBCLOUD_LINK b, nota_stripping@DBCLOUD_LINK c
+            WHERE a.ID_ISO = b.ID_ISO(+) AND a.NO_NOTA = c.NO_NOTA AND a.NO_NOTA = (SELECT MAX(d.NO_NOTA) FROM NOTA_STRIPPING@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req')
          and a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')";
         /**Fauzan modif 31 Agustus 2020 [NOT IN MATERAI]*/
         DB::connection('uster')->statement("ALTER SESSION SET NLS_DATE_FORMAT='DD/MM/YYYY'");
         $res = DB::connection('uster')->select($query_dtl);
 
-        $qcont = "SELECT A.NO_CONTAINER,'FCL' STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_STRIPPING A, MASTER_CONTAINER B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
+        $qcont = "SELECT A.NO_CONTAINER,'FCL' STATUS,B.SIZE_,B.TYPE_ FROM CONTAINER_STRIPPING@DBCLOUD_LINK A, MASTER_CONTAINER@DBCLOUD_LINK B WHERE A.NO_CONTAINER = B.NO_CONTAINER AND A.NO_REQUEST = '$no_req'";
         $rcont = DB::connection('uster')->select($qcont);
         $listcont = "<br/>Daftar Container<br/><b>";
         foreach ($rcont as $rc) {

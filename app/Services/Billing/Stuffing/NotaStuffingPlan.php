@@ -438,17 +438,18 @@ class NotaStuffingPlan
 
     function previewProformaPNKN($no_req, $koreksi)
     {
-        $rowNota = DB::connection('uster')
-            ->table('request_stuffing as b')
-            ->join('v_mst_pbm as c', 'b.id_penumpukan', '=', 'c.kd_pbm')
+        // --- Header Nota ---
+        $rowNota = DB::connection('uster_dev')
+            ->table(DB::raw('request_stuffing@DBCLOUD_LINK b'))
+            ->join(DB::raw('v_mst_pbm@DBCLOUD_LINK c'), 'b.id_penumpukan', '=', 'c.kd_pbm')
             ->selectRaw("
-                c.nm_pbm AS emkl,
-                c.no_npwp_pbm AS npwp,
-                c.almt_pbm AS alamat,
-                c.no_account_pbm,
-                TO_CHAR(b.tgl_request, 'DD-MM-RRRR') AS tgl_request,
-                F_CORPORATE(b.tgl_request) AS corporate
-            ")
+            c.nm_pbm AS emkl,
+            c.no_npwp_pbm AS npwp,
+            c.almt_pbm AS alamat,
+            c.no_account_pbm,
+            TO_CHAR(b.tgl_request, 'DD-MM-RRRR') AS tgl_request
+            -- F_CORPORATE(b.tgl_request) AS corporate
+        ")
             ->where('b.no_request', $no_req)
             ->first();
 
@@ -458,10 +459,11 @@ class NotaStuffingPlan
             $display = 1;
         }
 
-        if ($rowNota->emkl == NULL) {
-            $data_nota = DB::connection('uster')
-                ->table('request_stuffing as b')
-                ->join('v_mst_pbm as c', 'b.kd_consignee', '=', 'c.kd_pbm')
+        // --- Fallback jika EMKL kosong ---
+        if ($rowNota && $rowNota->emkl == NULL) {
+            $data_nota = DB::connection('uster_dev')
+                ->table(DB::raw('request_stuffing@DBCLOUD_LINK b'))
+                ->join(DB::raw('v_mst_pbm@DBCLOUD_LINK c'), 'b.kd_consignee', '=', 'c.kd_pbm')
                 ->select([
                     'c.nm_pbm as emkl',
                     'c.no_npwp_pbm as npwp',
@@ -471,64 +473,70 @@ class NotaStuffingPlan
                 ->first();
         }
 
-        $query_tgl    = "SELECT TO_CHAR(TGL_REQUEST,'dd/mon/yyyy') TGL_REQUEST FROM request_stuffing WHERE NO_REQUEST = '$no_req'";
-        $tgl_req    = DB::connection('uster')->selectOne($query_tgl);
-        $tgl_re         = $tgl_req->tgl_request;
+        // --- Ambil tanggal request ---
+        $tgl_req = DB::connection('uster_dev')
+            ->selectOne("SELECT TO_CHAR(TGL_REQUEST,'dd/mon/yyyy') AS tgl_request FROM request_stuffing@DBCLOUD_LINK WHERE NO_REQUEST = ?", [$no_req]);
+        $tgl_re = $tgl_req->tgl_request ?? null;
 
-        $sql_xpi = "DECLARE
-                        id_nota NUMBER;
-                        tgl_req DATE;
-                        no_request VARCHAR2(100);
-                        jenis VARCHAR2(100);
-                        err_msg VARCHAR2(100);
-                    BEGIN
-                        id_nota := 3;
-                        tgl_req := TO_DATE('$tgl_re', 'DD/mon/YYYY');
-                        no_request := '$no_req';
-                        err_msg := 'NULL';
-                        jenis := 'pnkn_stuffing';
+        // --- Eksekusi prosedur PL/SQL untuk generate detail nota ---
+        $sql_xpi = "
+            DECLARE
+                id_nota NUMBER;
+                tgl_req DATE;
+                no_request VARCHAR2(100);
+                jenis VARCHAR2(100);
+                err_msg VARCHAR2(100);
+            BEGIN
+                id_nota := 3;
+                tgl_req := TO_DATE(:tgl_re, 'DD/mon/YYYY');
+                no_request := :no_req;
+                err_msg := 'NULL';
+                jenis := 'pnkn_stuffing';
+                pack_get_nota_stuffing_new.create_detail_nota(id_nota, tgl_req, no_request, jenis, err_msg);
+            END;
+        ";
 
-                        pack_get_nota_stuffing_new.create_detail_nota(id_nota, tgl_req, no_request, jenis, err_msg);
-                    END;";
+        DB::connection('uster')->statement($sql_xpi, [
+            'tgl_re' => $tgl_re,
+            'no_req' => $no_req
+        ]);
 
-        $execDetailNota = DB::connection('uster')->statement($sql_xpi);
-
-        // Detail Nota
-        $row_detail = DB::connection('uster')
-            ->table('temp_detail_nota_i as a')
-            ->join('iso_code as b', 'a.id_iso', '=', 'b.id_iso')
+        // --- Detail Nota ---
+        $row_detail = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota_i@DBCLOUD_LINK a'))
+            ->join(DB::raw('iso_code@DBCLOUD_LINK b'), 'a.id_iso', '=', 'b.id_iso')
             ->select(
                 'a.jml_hari',
-                DB::raw("TO_CHAR(a.tarif, '999,999,999,999') as tarif"),
-                DB::raw("TO_CHAR(a.biaya, '999,999,999,999') as biaya"),
+                DB::raw("TO_CHAR(a.tarif, '999,999,999,999') AS tarif"),
+                DB::raw("TO_CHAR(a.biaya, '999,999,999,999') AS biaya"),
                 'a.keterangan',
                 'a.hz',
                 'a.jml_cont',
-                DB::raw("TO_CHAR(a.start_stack, 'DD/MM/YYYY') as start_stack"),
-                DB::raw("TO_CHAR(a.end_stack, 'DD/MM/YYYY') as end_stack"),
+                DB::raw("TO_CHAR(a.start_stack, 'DD/MM/YYYY') AS start_stack"),
+                DB::raw("TO_CHAR(a.end_stack, 'DD/MM/YYYY') AS end_stack"),
                 'b.size_',
                 'b.type_',
                 'b.status',
                 'a.urut'
             )
             ->where('a.no_request', $no_req)
-            ->whereNotIn('a.keterangan', ['ADMIN NOTA', 'MATERAI']) // Sesuai dengan filter
+            ->whereNotIn('a.keterangan', ['ADMIN NOTA', 'MATERAI'])
             ->orderBy('a.urut', 'ASC')
             ->get();
 
-        // Jumlah Container
-        $jumlah_cont = DB::connection('uster')
-            ->table('container_stuffing')
+        // --- Jumlah Container ---
+        $jumlah_cont = DB::connection('uster_dev')
+            ->table(DB::raw('container_stuffing@DBCLOUD_LINK'))
             ->where('no_request', $no_req)
             ->count();
 
-        // Tarif Pass
-        $row_pass = DB::connection('uster')
-            ->table('master_tarif as a')
-            ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
+        // --- Tarif Pass ---
+        $row_pass = DB::connection('uster_dev')
+            ->table(DB::raw('master_tarif@DBCLOUD_LINK a'))
+            ->join(DB::raw('group_tarif@DBCLOUD_LINK b'), 'a.id_group_tarif', '=', 'b.id_group_tarif')
             ->select(
-                DB::raw("TO_CHAR(($jumlah_cont * a.tarif), '999,999,999,999') as pass"),
-                DB::raw("($jumlah_cont * a.tarif) as tarif")
+                DB::raw("TO_CHAR(($jumlah_cont * a.tarif), '999,999,999,999') AS pass"),
+                DB::raw("($jumlah_cont * a.tarif) AS tarif")
             )
             ->whereRaw("TO_DATE(?, 'dd/mm/yyyy') BETWEEN b.start_period AND b.end_period", [$tgl_re])
             ->where('a.id_iso', 'PASS')
@@ -536,13 +544,13 @@ class NotaStuffingPlan
 
         $tarif_pass = $row_pass ? $row_pass->tarif : 0;
 
-        // Total Biaya
-        $total2 = DB::connection('uster')
-            ->table('temp_detail_nota_i')
+        // --- Total Biaya ---
+        $total2 = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota_i@DBCLOUD_LINK'))
             ->select(
-                DB::raw('SUM(biaya) as total'),
-                DB::raw('SUM(ppn) as ppn'),
-                DB::raw('SUM(biaya) + SUM(ppn) as total_tagihan')
+                DB::raw('SUM(biaya) AS total'),
+                DB::raw('SUM(ppn) AS ppn'),
+                DB::raw('SUM(biaya) + SUM(ppn) AS total_tagihan')
             )
             ->where('no_request', $no_req)
             ->whereNotIn('id_iso', ['MATERAI'])
@@ -552,60 +560,56 @@ class NotaStuffingPlan
         $ppn = $total2->ppn ?? 0;
         $total_bayar = $total2->total_tagihan ?? 0;
 
-        //Discount
+        // --- Discount ---
         $discount = 0;
-        $query_discount        = "SELECT TO_CHAR($discount , '999,999,999,999') AS DISCOUNT FROM DUAL";
-        $row_discount        = DB::connection('uster')->selectOne($query_discount);
+        $row_discount = DB::connection('uster_dev')
+            ->selectOne("SELECT TO_CHAR(:discount, '999,999,999,999') AS DISCOUNT FROM DUAL", ['discount' => $discount]);
 
-        // Biaya Administrasi
-        $row_adm = DB::connection('uster')
-            ->table('master_tarif as a')
-            ->join('group_tarif as b', 'a.id_group_tarif', '=', 'b.id_group_tarif')
-            ->select('a.tarif as adm')
+        // --- Biaya Administrasi ---
+        $row_adm = DB::connection('uster_dev')
+            ->table(DB::raw('master_tarif@DBCLOUD_LINK a'))
+            ->join(DB::raw('group_tarif@DBCLOUD_LINK b'), 'a.id_group_tarif', '=', 'b.id_group_tarif')
+            ->select('a.tarif AS adm')
             ->where('b.kategori_tarif', 'ADMIN_NOTA')
             ->first();
 
         $adm = $row_adm ? $row_adm->adm : 0;
 
-        // Menghitung Total Dasar Pengenaan Pajak
+        // --- Hitungan Total, PPN, Materai, Pass Truck ---
         $total_ = $total + $adm;
         $row_tot = number_format($total_, 0, ',', '.');
-
-        // Menghitung Jumlah PPN (10%)
         $row_ppn = number_format($ppn, 0, ',', '.');
 
-        // Menghitung Bea Materai
-        $row_mtr = DB::connection('uster')
-            ->table('temp_detail_nota_i')
-            ->select('biaya as bea_materai')
+        $row_mtr = DB::connection('uster_dev')
+            ->table(DB::raw('temp_detail_nota_i@DBCLOUD_LINK'))
+            ->select('biaya AS bea_materai')
             ->where('no_request', $no_req)
             ->where('keterangan', 'MATERAI')
             ->first();
 
         $bea_materai = $row_mtr && $row_mtr->bea_materai > 0 ? $row_mtr->bea_materai : 0;
         $row_materai = number_format($bea_materai, 0, ',', '.');
+        $row_pass_fmt = number_format($tarif_pass, 0, ',', '.');
 
-        // Menghitung Pass Truck
-        $row_pass = number_format($tarif_pass, 0, ',', '.');
-
-        // Menghitung Jumlah Dibayar (Total + Bea Materai)
-        $total_bayar = $total_bayar + $bea_materai;
+        // --- Total Bayar ---
+        $total_bayar += $bea_materai;
         $row_bayar = number_format($total_bayar, 0, ',', '.');
 
-        // Pegawai Aktif
-        $nama_peg = DB::connection('uster')
-            ->table('master_pegawai')
+        // --- Pegawai Aktif ---
+        $nama_peg = DB::connection('uster_dev')
+            ->table(DB::raw('master_pegawai@DBCLOUD_LINK'))
             ->where('status', 'AKTIF')
             ->first();
 
-        $returnData = [
+        // --- Return hasil ---
+        return [
             "row_discount" => $row_discount,
             "nama_peg" => $nama_peg,
             "tgl_nota" => $tgl_re,
             "row_adm" => $row_adm,
             "row_tot" => $row_tot,
             "row_ppn" => $row_ppn,
-            "row_pass" => $row_pass,
+            "row_pass" => $row_pass_fmt,
             "row_materai" => $row_materai,
             "bea_materai" => $bea_materai,
             "row_bayar" => $row_bayar,
@@ -615,9 +619,8 @@ class NotaStuffingPlan
             "koreksi" => $koreksi,
             "pnkn" => "yes",
         ];
-
-        return $returnData;
     }
+
 
     function PrintProforma($no_req)
     {
@@ -670,10 +673,10 @@ class NotaStuffingPlan
             ->where('a.NO_REQUEST', $no_req)
             ->whereRaw(
                 'a.TGL_NOTA = (
-            SELECT MAX(d.TGL_NOTA)
-            FROM nota_stuffing@DBCLOUD_LINK d
-            WHERE d.NO_REQUEST = ?
-        )',
+                    SELECT MAX(d.TGL_NOTA)
+                    FROM nota_stuffing@DBCLOUD_LINK d
+                    WHERE d.NO_REQUEST = ?
+                )',
                 [$no_req]
             )
             ->first();
@@ -851,8 +854,9 @@ class NotaStuffingPlan
 
     function PrintProformaPNKN($no_req)
     {
-        // Ambil NO_NOTA dari tabel nota_stuffing
-        $notanya = DB::connection('uster')->table('nota_pnkn_stuf')
+        // --- Ambil NO_NOTA dari nota_pnkn_stuf@DBCLOUD_LINK ---
+        $notanya = DB::connection('uster_dev')
+            ->table(DB::raw('nota_pnkn_stuf@DBCLOUD_LINK'))
             ->whereRaw("TRIM(NO_REQUEST) = TRIM('$no_req')")
             ->where('STATUS', '<>', 'BATAL')
             ->value('NO_NOTA');
@@ -861,79 +865,129 @@ class NotaStuffingPlan
             return 'NOT_FOUND';
         }
 
-        // Ambil data nota_stuffing dan request_stuffing dengan menggunakan Eloquent ORM
-        $query = "SELECT c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT  , a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
-        CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
-         THEN a.NO_NOTA
-         ELSE A.NO_FAKTUR END NO_FAKTUR_ --, F_CORPORATE(c.TGL_REQUEST) CORPORATE
-                             FROM nota_pnkn_stuf a, request_stuffing c, BILLING_NBS.TB_USER mu where
-                             a.NO_REQUEST = c.NO_REQUEST
-                             AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_pnkn_stuf d WHERE d.NO_REQUEST = '$no_req' )
-                             and c.NO_REQUEST = '$no_req'
-                             and a.nipp_user = mu.id(+)";
-        $data = DB::connection('uster')->selectOne($query);
+        // --- Ambil data header nota ---
+        $query = "
+            SELECT
+                c.NO_REQUEST,
+                a.NOTA_LAMA,
+                a.NO_NOTA,
+                a.NO_NOTA_MTI,
+                TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA,
+                TO_CHAR(a.PASS,'999,999,999,999') PASS,
+                a.EMKL NAMA,
+                a.ALAMAT,
+                a.NPWP,
+                c.PERP_DARI,
+                a.LUNAS,
+                a.NO_FAKTUR,
+                TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN,
+                TO_CHAR(a.PPN,'999,999,999,999') PPN,
+                TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN,
+                a.STATUS,
+                TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
+                CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG,
+                a.NIPP_USER,
+                mu.NAME,
+                CASE
+                    WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
+                    THEN a.NO_NOTA
+                    ELSE A.NO_FAKTUR
+                END NO_FAKTUR_
+            FROM
+                nota_pnkn_stuf@DBCLOUD_LINK a,
+                request_stuffing@DBCLOUD_LINK c,
+                BILLING_NBS.TB_USER mu
+            WHERE
+                a.NO_REQUEST = c.NO_REQUEST
+                AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA)
+                                FROM nota_pnkn_stuf@DBCLOUD_LINK d
+                                WHERE d.NO_REQUEST = '$no_req')
+                AND c.NO_REQUEST = '$no_req'
+                AND a.nipp_user = mu.id(+)
+        ";
+
+        $data = DB::connection('uster_dev')->selectOne($query);
         $req_tgl = $data->tgl_request;
         $nama_lengkap = '<p>' . 'Printed by ' . $data->name . '</p>';
         $lunas = $data->lunas;
 
-        // Cek apakah parameter 'first' tidak disetel, jika ya tambahkan informasi 'Reprinted by'
+        // --- Jika bukan cetakan pertama ---
         if (!request()->has('first')) {
             $nama_lengkap .= '<p>' . 'Reprinted by ' . session('NAMA_LENGKAP') . '</p>';
         }
 
         $date = now()->format('d M Y H:i:s');
 
-        // Ambil daftar container dari tabel CONTAINER_STUFFING dan MASTER_CONTAINER
-        $rcont = DB::connection('uster')->table('CONTAINER_STUFFING as A')
-            ->join('MASTER_CONTAINER as B', 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
+        // --- Daftar container dari CONTAINER_STUFFING@DBCLOUD_LINK dan MASTER_CONTAINER@DBCLOUD_LINK ---
+        $rcont = DB::connection('uster_dev')
+            ->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK as A'))
+            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK as B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
             ->select('A.NO_CONTAINER', DB::raw("'MTY' as STATUS"), 'B.SIZE_', 'B.TYPE_')
             ->where('A.NO_REQUEST', '=', $no_req)
             ->get();
 
-        // Hitung biaya materai
-        $bea_materai = DB::connection('uster')->table('nota_pnkn_stuf_d')
+        // --- Hitung biaya materai ---
+        $bea_materai = DB::connection('uster_dev')
+            ->table(DB::raw('nota_pnkn_stuf_d@DBCLOUD_LINK'))
             ->select(DB::raw("TO_CHAR(BIAYA, '999,999,999,999') as BEA_MATERAI"), 'BIAYA')
             ->where('NO_NOTA', '=', $notanya)
             ->where('KETERANGAN', '=', 'MATERAI')
             ->value('BEA_MATERAI') ?? 0;
 
+        // --- Ambil nomor peraturan materai ---
         if ($lunas == 'YES') {
-            $mat = DB::connection('uster')->table('itpk_nota_header')
+            $mat = DB::connection('uster_dev')
+                ->table(DB::raw('itpk_nota_header@DBCLOUD_LINK'))
                 ->where('NO_REQUEST', $no_req)
                 ->first();
 
             $no_mat = $mat ? $mat->no_peraturan : null;
         } else {
-            $mat = DB::connection('uster')->table('MASTER_MATERAI')
+            $mat = DB::connection('uster_dev')
+                ->table(DB::raw('MASTER_MATERAI@DBCLOUD_LINK'))
                 ->where('STATUS', 'Y')
                 ->first();
 
             $no_mat = $mat ? $mat->no_peraturan : null;
         }
 
-        $cek_jenis = DB::connection('uster')->table('container_stuffing')
+        // --- Cek jenis container (asal_cont distinct) ---
+        $cek_jenis = DB::connection('uster_dev')
+            ->table(DB::raw('container_stuffing@DBCLOUD_LINK'))
             ->where('no_request', $no_req)
             ->distinct()
             ->count('asal_cont');
 
         $r_jns = $cek_jenis > 1;
 
-        $query_dtl = "SELECT a.JML_HARI,
+        // --- Detail nota ---
+        $query_dtl = "
+            SELECT
+                a.JML_HARI,
                 TO_CHAR(a.TARIF,'999,999,999,999') TARIF,
                 TO_CHAR(a.BIAYA,'999,999,999,999') BIAYA,
                 a.KETERANGAN,
-                a.HZ,a.JUMLAH_CONT JML_CONT,
-                START_STACK,
-                END_STACK,
+                a.HZ,
+                a.JUMLAH_CONT JML_CONT,
+                a.START_STACK,
+                a.END_STACK,
                 b.SIZE_,
-                b.TYPE_,b.STATUS,urut
-        FROM nota_pnkn_stuf_d a, iso_code b
-        WHERE a.id_iso = b.id_iso
+                b.TYPE_,
+                b.STATUS,
+                a.urut
+            FROM
+                nota_pnkn_stuf_d@DBCLOUD_LINK a,
+                iso_code@DBCLOUD_LINK b
+            WHERE
+                a.id_iso = b.id_iso
                 AND a.no_nota = '$notanya'
-                AND  a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')
-        ORDER BY urut ASC";
-        $res = DB::connection('uster')->select($query_dtl);
+                AND a.KETERANGAN NOT IN ('ADMIN NOTA','MATERAI')
+            ORDER BY a.urut ASC
+        ";
 
+        $res = DB::connection('uster_dev')->select($query_dtl);
+
+        // --- Return hasil akhir ---
         return [
             'data' => $data,
             'date' => $date,

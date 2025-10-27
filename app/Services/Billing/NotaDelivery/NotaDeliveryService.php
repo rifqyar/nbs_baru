@@ -313,7 +313,7 @@ class NotaDeliveryService
                 no_request := '$no_req';
                 err_msg := 'NULL';
                 jenis := 'delivery';
-                pack_get_nota_delivery.create_detail_nota(id_nota,tgl_req,no_request,jenis, err_msg);
+                pack_get_nota_delivery.create_detail_nota@DBDEV_LINK(id_nota,tgl_req,no_request,jenis, err_msg);
             END;";
             DB::connection('uster')->statement($sql_xpi);
         }

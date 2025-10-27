@@ -183,8 +183,8 @@ class NotaBatalController extends Controller
                 CASE
                     WHEN TRUNC(a.TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA
                     ELSE a.NO_FAKTUR
-                END NO_FAKTUR_,
-                F_CORPORATE(c.TGL_REQUEST) CORPORATE
+                END NO_FAKTUR_
+                --F_CORPORATE(c.TGL_REQUEST) CORPORATE
             ")
             ->where('c.NO_REQUEST', $no_req)
             ->whereRaw('a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_batal_muat@DBCLOUD_LINK d WHERE d.NO_REQUEST = ?)', [$no_req])

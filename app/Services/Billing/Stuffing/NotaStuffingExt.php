@@ -190,8 +190,8 @@ class NotaStuffingExt
             ->max('no_nota');
 
         $queryDtl = DB::connection('uster_dev')
-            ->table(DB::raw('nota_stuffing_d@DBCLOUD_LINK as a'))
-            ->leftJoin(DB::raw('iso_code@DBCLOUD_LINK as b'), 'a.id_iso', '=', 'b.id_iso')
+            ->table(DB::raw('nota_stuffing_d@DBCLOUD_LINK a'))
+            ->leftJoin(DB::raw('iso_code@DBCLOUD_LINK b'), 'a.id_iso', '=', 'b.id_iso')
             ->select([
                 DB::raw("TO_CHAR(a.start_stack, 'dd/mm/yyyy') AS start_stack"),
                 DB::raw("TO_CHAR(a.end_stack, 'dd/mm/yyyy') AS end_stack"),

@@ -439,7 +439,6 @@ class NotaDeliveryLuarService
             "jenis" => "gerak",
         ];
 
-        dd($dataArr);
         return $dataArr;
     }
 

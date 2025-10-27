@@ -624,178 +624,220 @@ class NotaStuffingPlan
         $no_req = request()->input('no_req');
         $id_user = session('PENGGUNA_ID');
 
-        // Ambil NO_NOTA dari tabel nota_stuffing
-        $notanya = DB::connection('uster')->table('nota_stuffing')
-            ->whereRaw("TRIM(NO_REQUEST) = TRIM('$no_req')")
+        // Ambil NO_NOTA dari DBLink
+        $notanya = DB::connection('uster_dev')
+            ->table(DB::raw('nota_stuffing@DBCLOUD_LINK'))
+            ->whereRaw('TRIM(NO_REQUEST) = TRIM(?)', [$no_req])
             ->where('STATUS', '<>', 'BATAL')
             ->value('NO_NOTA');
 
-        if ($notanya == null) {
+        if ($notanya === null) {
             return 'NOT_FOUND';
         }
 
-        // Ambil data nota_stuffing dan request_stuffing dengan menggunakan Eloquent ORM
-        $data = DB::connection('uster')->table('nota_stuffing as a')
-            ->join('request_stuffing as c', 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
-            ->leftJoin('BILLING_NBS.TB_USER as mu', 'a.nipp_user', '=', 'mu.id')
-            ->selectRaw("c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT, a.NPWP, c.PERP_DARI, a.LUNAS, a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST, CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE")
+        // Ambil data nota_stuffing dan request_stuffing
+        $data = DB::connection('uster_dev')
+            ->table(DB::raw('nota_stuffing@DBCLOUD_LINK a'))
+            ->join(DB::raw('request_stuffing@DBCLOUD_LINK c'), 'a.NO_REQUEST', '=', 'c.NO_REQUEST')
+            ->leftJoin(DB::raw('BILLING_NBS.TB_USER@DBCLOUD_LINK mu'), 'a.nipp_user', '=', 'mu.id')
+            ->selectRaw("
+                c.NO_REQUEST,
+                a.NOTA_LAMA,
+                a.NO_NOTA,
+                a.NO_NOTA_MTI,
+                TO_CHAR(a.ADM_NOTA,'999,999,999,999') AS ADM_NOTA,
+                TO_CHAR(a.PASS,'999,999,999,999') AS PASS,
+                a.EMKL AS NAMA,
+                a.ALAMAT,
+                a.NPWP,
+                c.PERP_DARI,
+                a.LUNAS,
+                a.NO_FAKTUR,
+                TO_CHAR(a.TAGIHAN,'999,999,999,999') AS TAGIHAN,
+                TO_CHAR(a.PPN,'999,999,999,999') AS PPN,
+                TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') AS TOTAL_TAGIHAN,
+                a.STATUS,
+                TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') AS TGL_REQUEST,
+                CONCAT(TERBILANG(a.TOTAL_TAGIHAN),' rupiah') AS TERBILANG,
+                a.NIPP_USER,
+                mu.NAME,
+                CASE
+                    WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR') THEN a.NO_NOTA
+                    ELSE a.NO_FAKTUR
+                END AS NO_FAKTUR_
+                -- F_CORPORATE(c.TGL_REQUEST) AS CORPORATE
+            ")
             ->where('a.NO_REQUEST', $no_req)
-            ->whereRaw("a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_stuffing d WHERE d.NO_REQUEST = '$no_req')")
+            ->whereRaw(
+                'a.TGL_NOTA = (
+            SELECT MAX(d.TGL_NOTA)
+            FROM nota_stuffing@DBCLOUD_LINK d
+            WHERE d.NO_REQUEST = ?
+        )',
+                [$no_req]
+            )
             ->first();
 
+        if (!$data) {
+            return 'NOT_FOUND';
+        }
+
         $req_tgl = $data->tgl_request;
-        $nama_lengkap = '<p>' . 'Printed by ' . $data->name . '</p>';
+        $nama_lengkap = '<p>Printed by ' . $data->name . '</p>';
         $lunas = $data->lunas;
 
-        // Cek apakah parameter 'first' tidak disetel, jika ya tambahkan informasi 'Reprinted by'
+        // Jika bukan cetakan pertama
         if (!request()->has('first')) {
-            $nama_lengkap .= '<p>' . 'Reprinted by ' . session('NAMA_LENGKAP') . '</p>';
+            $nama_lengkap .= '<p>Reprinted by ' . session('NAMA_LENGKAP') . '</p>';
         }
 
         $date = now()->format('d M Y H:i:s');
 
-        // Ambil daftar container dari tabel CONTAINER_STUFFING dan MASTER_CONTAINER
-        $rcont = DB::connection('uster')->table('CONTAINER_STUFFING as A')
-            ->join('MASTER_CONTAINER as B', 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
-            ->select('A.NO_CONTAINER', 'B.SIZE_', 'B.TYPE_', DB::connection('uster')->raw("'MTY' as STATUS"))
+        // Ambil daftar container
+        $rcont = DB::connection('uster_dev')
+            ->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK A'))
+            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
+            ->select('A.NO_CONTAINER', 'B.SIZE_', 'B.TYPE_', DB::raw("'MTY' AS STATUS"))
             ->where('A.NO_REQUEST', $no_req)
             ->get();
 
-
-
-        // Hitung biaya materai
-        $data_mtr = DB::connection('uster')->table('nota_stuffing_d')
-            ->select(DB::connection('uster')->raw("TO_CHAR (BIAYA, '999,999,999,999') AS BEA_MATERAI, BIAYA"))
+        // Ambil biaya materai
+        $data_mtr = DB::connection('uster_dev')
+            ->table(DB::raw('nota_stuffing_d@DBCLOUD_LINK'))
+            ->select(DB::raw("TO_CHAR(BIAYA, '999,999,999,999') AS BEA_MATERAI, BIAYA"))
             ->where('NO_NOTA', $notanya)
             ->where('KETERANGAN', 'MATERAI')
             ->first();
+
         $bea_materai = $data_mtr->bea_materai ?? 0;
 
-
-        if ($lunas == 'YES') {
-            $mat =  DB::connection('uster')->table('itpk_nota_header')
+        // Ambil nomor peraturan materai
+        if ($lunas === 'YES') {
+            $mat = DB::connection('uster_dev')
+                ->table(DB::raw('itpk_nota_header@DBCLOUD_LINK'))
                 ->where('NO_REQUEST', $no_req)
                 ->first();
-
-            $no_mat = $mat ? $mat->no_peraturan : null;
         } else {
-            $mat =  DB::connection('uster')->table('MASTER_MATERAI')
+            $mat = DB::connection('uster_dev')
+                ->table(DB::raw('MASTER_MATERAI@DBCLOUD_LINK'))
                 ->where('STATUS', 'Y')
                 ->first();
-
-            $no_mat = $mat ? $mat->no_peraturan : null;
         }
 
-        $cek_jenis = DB::connection('uster')->table('container_stuffing')
+        $no_mat = $mat->no_peraturan ?? null;
+
+        // Cek jenis container
+        $cek_jenis = DB::connection('uster_dev')
+            ->table(DB::raw('container_stuffing@DBCLOUD_LINK'))
             ->where('no_request', $no_req)
             ->distinct()
             ->count('asal_cont');
 
-        $r_jns = $cek_jenis > 1 ? true : false;
+        $r_jns = $cek_jenis > 1;
 
+        // Query detail biaya
         if ($r_jns) {
-            $query_dtl = "SELECT partone.*, partwo.*, TO_CHAR(partone.biaya_/partwo.jml_cont,'999,999,999,999')  tarif FROM (SELECT a.JML_HARI,
+            $query_dtl = "
+                SELECT partone.*, partwo.*,
+                    TO_CHAR(partone.biaya_/partwo.jml_cont,'999,999,999,999') tarif
+                FROM (
+                    SELECT a.JML_HARI,
                         SUM(a.BIAYA) biaya_,
                         TO_CHAR(SUM(a.BIAYA),'999,999,999,999') BIAYA,
                         a.tekstual KETERANGAN,
                         a.HZ,
-                        TO_DATE (a.START_STACK, 'dd/mm/rrrr') START_STACK,
-                        TO_DATE (a.END_STACK, 'dd/mm/rrrr') END_STACK,
+                        TO_DATE(a.START_STACK, 'dd/mm/rrrr') START_STACK,
+                        TO_DATE(a.END_STACK, 'dd/mm/rrrr') END_STACK,
                         b.SIZE_,
                         b.TYPE_,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
+                        CASE a.tekstual
+                            WHEN 'PAKET STUFF LAPANGAN' THEN '-'
+                            WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
+                            WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
+                            ELSE b.STATUS
                         END AS STATUS,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
+                        CASE a.tekstual
+                            WHEN 'PAKET STUFF LAPANGAN' THEN 10
+                            WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
+                            WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
+                            ELSE a.urut
                         END AS urut
-                FROM nota_stuffing_d a, iso_code b
-                WHERE     a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.id_iso = b.id_iso
-                        AND a.no_nota = '$notanya'
-            GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_,  a.tekstual,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END) partone,
-            (SELECT case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_LAP')
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_GUD_TONGKANG')
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN (select count(*) from container_stuffing where no_request = '$no_req' and type_stuffing = 'STUFFING_GUD_TRUCK')
-                        ELSE 0
-                        END AS jml_cont FROM nota_stuffing_d a WHERE no_nota = '$notanya'
-                        and a.tekstual in ('PAKET STUFF LAPANGAN','PAKET STUFF GUDANG EKS TONGKANG','PAKET STUFF GUDANG EKS TRUCK')
-            group by a.tekstual) partwo";
+                    FROM nota_stuffing_d@DBCLOUD_LINK a
+                    JOIN iso_code@DBCLOUD_LINK b ON a.id_iso = b.id_iso
+                    WHERE a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI')
+                    AND a.no_nota = ?
+                    GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_, a.tekstual,
+                            CASE a.tekstual
+                                WHEN 'PAKET STUFF LAPANGAN' THEN '-'
+                                WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
+                                WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
+                                ELSE b.STATUS END,
+                            CASE a.tekstual
+                                WHEN 'PAKET STUFF LAPANGAN' THEN 10
+                                WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
+                                WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
+                                ELSE a.urut END
+                ) partone,
+                (
+                    SELECT CASE a.tekstual
+                            WHEN 'PAKET STUFF LAPANGAN' THEN (SELECT COUNT(*) FROM container_stuffing@DBCLOUD_LINK WHERE no_request = ? AND type_stuffing = 'STUFFING_LAP')
+                            WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN (SELECT COUNT(*) FROM container_stuffing@DBCLOUD_LINK WHERE no_request = ? AND type_stuffing = 'STUFFING_GUD_TONGKANG')
+                            WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN (SELECT COUNT(*) FROM container_stuffing@DBCLOUD_LINK WHERE no_request = ? AND type_stuffing = 'STUFFING_GUD_TRUCK')
+                            ELSE 0
+                        END AS jml_cont
+                    FROM nota_stuffing_d@DBCLOUD_LINK a
+                    WHERE a.no_nota = ?
+                    AND a.tekstual IN ('PAKET STUFF LAPANGAN','PAKET STUFF GUDANG EKS TONGKANG','PAKET STUFF GUDANG EKS TRUCK')
+                    GROUP BY a.tekstual
+                ) partwo
+            ";
+            $res = DB::connection('uster_dev')->select($query_dtl, [$notanya, $no_req, $no_req, $no_req, $notanya]);
         } else {
-            $query_dtl = "SELECT a.JML_HARI,
-                        SUM(a.BIAYA) biaya_,
-                        TO_CHAR(SUM(a.BIAYA),'999,999,999,999') BIAYA,
-                        TO_CHAR(SUM(a.TARIF),'999,999,999,999') TARIF,
-                        a.tekstual KETERANGAN,
-                        a.jumlah_cont,
-                        a.HZ,
-                        TO_DATE (a.START_STACK, 'dd/mm/rrrr') START_STACK,
-                        TO_DATE (a.END_STACK, 'dd/mm/rrrr') END_STACK,
-                        b.SIZE_,
-                        b.TYPE_,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END AS STATUS,
-                        case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END AS urut
-                FROM nota_stuffing_d a, iso_code b
-                WHERE     a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI') /**Fauzan modif 24 Agustus 2020 [NOT IN MATERAI]*/
-                        AND a.id_iso = b.id_iso
-                        AND a.no_nota = '$notanya'
-            GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_,  a.tekstual, jumlah_cont,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
-                        ELSE
-                        b.STATUS
-                        END,
-            case a.tekstual
-                            when 'PAKET STUFF LAPANGAN' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
-                            when 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
-                        ELSE
-                        a.urut
-                        END";
+            $query_dtl = "
+                SELECT a.JML_HARI,
+                    SUM(a.BIAYA) biaya_,
+                    TO_CHAR(SUM(a.BIAYA),'999,999,999,999') BIAYA,
+                    TO_CHAR(SUM(a.TARIF),'999,999,999,999') TARIF,
+                    a.tekstual KETERANGAN,
+                    a.jumlah_cont,
+                    a.HZ,
+                    TO_DATE(a.START_STACK, 'dd/mm/rrrr') START_STACK,
+                    TO_DATE(a.END_STACK, 'dd/mm/rrrr') END_STACK,
+                    b.SIZE_,
+                    b.TYPE_,
+                    CASE a.tekstual
+                        WHEN 'PAKET STUFF LAPANGAN' THEN '-'
+                        WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
+                        WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
+                        ELSE b.STATUS
+                    END AS STATUS,
+                    CASE a.tekstual
+                        WHEN 'PAKET STUFF LAPANGAN' THEN 10
+                        WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
+                        WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
+                        ELSE a.urut
+                    END AS urut
+                FROM nota_stuffing_d@DBCLOUD_LINK a
+                JOIN iso_code@DBCLOUD_LINK b ON a.id_iso = b.id_iso
+                WHERE a.TEKSTUAL NOT IN ('ADMIN NOTA','MATERAI')
+                AND a.no_nota = ?
+                GROUP BY a.jml_hari, a.hz, a.start_stack, a.end_stack, b.size_, b.type_, a.tekstual, jumlah_cont,
+                        CASE a.tekstual
+                            WHEN 'PAKET STUFF LAPANGAN' THEN '-'
+                            WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN '-'
+                            WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN '-'
+                            ELSE b.STATUS END,
+                        CASE a.tekstual
+                            WHEN 'PAKET STUFF LAPANGAN' THEN 10
+                            WHEN 'PAKET STUFF GUDANG EKS TONGKANG' THEN 10
+                            WHEN 'PAKET STUFF GUDANG EKS TRUCK' THEN 10
+                            ELSE a.urut END
+            ";
+            $res = DB::connection('uster_dev')->select($query_dtl, [$notanya]);
         }
 
-        $res = DB::connection('uster')->select($query_dtl);
-
-
-
-        return array(
+        // Return hasil akhir
+        return [
             'data' => $data,
             'date' => $date,
             'detail' => $res,
@@ -804,7 +846,7 @@ class NotaStuffingPlan
             'bea_materai' => $bea_materai,
             'no_mat' => $no_mat,
             'rcont' => $rcont,
-        );
+        ];
     }
 
     function PrintProformaPNKN($no_req)
@@ -823,7 +865,7 @@ class NotaStuffingPlan
         $query = "SELECT c.NO_REQUEST, a.NOTA_LAMA, a.NO_NOTA, a.NO_NOTA_MTI, TO_CHAR(a.ADM_NOTA,'999,999,999,999') ADM_NOTA, TO_CHAR(a.PASS,'999,999,999,999') PASS, a.EMKL NAMA, a.ALAMAT  , a.NPWP, c.PERP_DARI, a.LUNAS,a.NO_FAKTUR, TO_CHAR(a.TAGIHAN,'999,999,999,999') TAGIHAN, TO_CHAR(a.PPN,'999,999,999,999') PPN, TO_CHAR(a.TOTAL_TAGIHAN,'999,999,999,999') TOTAL_TAGIHAN, a.STATUS, TO_CHAR(c.TGL_REQUEST,'dd/mm/yyyy') TGL_REQUEST,
         CONCAT(TERBILANG(a.TOTAL_TAGIHAN),'rupiah') TERBILANG, a.NIPP_USER, mu.NAME, CASE WHEN TRUNC(TGL_NOTA) < TO_DATE('1/6/2013','DD/MM/RRRR')
          THEN a.NO_NOTA
-         ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
+         ELSE A.NO_FAKTUR END NO_FAKTUR_ --, F_CORPORATE(c.TGL_REQUEST) CORPORATE
                              FROM nota_pnkn_stuf a, request_stuffing c, BILLING_NBS.TB_USER mu where
                              a.NO_REQUEST = c.NO_REQUEST
                              AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_pnkn_stuf d WHERE d.NO_REQUEST = '$no_req' )

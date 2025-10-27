@@ -128,7 +128,7 @@ class NotaDeliveryService
          ELSE A.NO_FAKTUR END NO_FAKTUR_, F_CORPORATE(c.TGL_REQUEST) CORPORATE
                              FROM nota_delivery@DBCLOUD_LINK a, request_delivery@DBCLOUD_LINK c, BILLING_NBS.tb_user@DBCLOUD_LINK mu where
                              a.NO_REQUEST = c.NO_REQUEST
-                             AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery d WHERE d.NO_REQUEST = '$no_req' )
+                             AND a.TGL_NOTA = (SELECT MAX(d.TGL_NOTA) FROM nota_delivery@DBCLOUD_LINK d WHERE d.NO_REQUEST = '$no_req' )
                              and c.NO_REQUEST = '$no_req'
                              and a.nipp_user = mu.id(+)";
         $data = DB::connection('uster_dev')->selectOne($query);

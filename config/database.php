@@ -132,7 +132,20 @@ return [
             'service_name' => 'datamtidr',
             'charset' => 'AL32UTF8',
             'prefix' => '',
-        ]
+        ],
+
+        'uster_dev' => [
+            'driver' => 'oracle',
+            'host' => '10.15.42.42',
+            'port' => env('DB_PORT_USTER', '1521'),
+            'database' => env('DB_DATABASE_USTER'),
+            'username' => env('DB_USERNAME_USTER'),
+            'password' => env('DB_PASSWORD_USTER'),
+            // 'service_name' => env('DB_SERVICE_NAME_USTER'),
+            'service_name' => 'datamti',
+            'charset' => 'AL32UTF8',
+            'prefix' => '',
+        ],
     ],
 
     /*

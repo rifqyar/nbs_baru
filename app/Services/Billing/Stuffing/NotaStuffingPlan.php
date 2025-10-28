@@ -201,7 +201,7 @@ class NotaStuffingPlan
 
         $tgl_req = DB::connection('uster_dev')
             ->table(DB::raw('REQUEST_STUFFING@DBCLOUD_LINK'))
-            ->selectRaw("TO_CHAR(TGL_REQUEST, 'YYYY-MM-DD') AS TGL_REQUEST")
+            ->selectRaw("TO_CHAR(TGL_REQUEST, 'dd/mon/yyyy') AS TGL_REQUEST")
             ->where('NO_REQUEST', $no_req)
             ->first();
 

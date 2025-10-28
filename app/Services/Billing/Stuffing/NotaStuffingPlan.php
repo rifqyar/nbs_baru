@@ -209,17 +209,23 @@ class NotaStuffingPlan
 
         // === 2. Jalankan procedure di uster (lokal, tanpa DBLINK) ===
         $sql_xpi = "
+            DECLARE
+                id_nota NUMBER;
+                tgl_req DATE;
+                no_request VARCHAR2(100);
+                jenis VARCHAR2(100);
+                err_msg VARCHAR2(100);
             BEGIN
-                pack_get_nota_stuffing_new.create_detail_nota(
-                    3,
-                    TO_DATE('{$tgl_re}', 'YYYY-MM-DD'),
-                    '{$no_req}',
-                    'stuffing',
-                    NULL
-                );
-            END;
-        ";
-        DB::connection('uster')->statement($sql_xpi);
+                id_nota := 3;
+                tgl_req := TO_DATE('$tgl_re', 'DD/mon/YYYY');
+                no_request := '$no_req';
+                err_msg := 'NULL';
+                jenis := 'stuffing';
+
+                pack_get_nota_stuffing_new.create_detail_nota(id_nota, tgl_req, no_request, jenis, err_msg);
+            END;";
+
+        $execDetailNota = DB::connection('uster')->statement($sql_xpi);
 
         // === 3. Hitung jenis kontainer via DBLINK ===
         $jenis = DB::connection('uster_dev')

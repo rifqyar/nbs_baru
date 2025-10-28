@@ -341,7 +341,8 @@ class PerencaanService
         $komo    = strtoupper($request->term);
 
 
-        $query    = "select * from PETIKEMAS_CABANG.MST_COMMODITY@DBINT_KAPALPROD WHERE NM_COMMODITY LIKE '%$komo%' ORDER BY NM_COMMODITY ASC";
+        // $query    = "select * from PETIKEMAS_CABANG.MST_COMMODITY@DBINT_KAPALPROD WHERE NM_COMMODITY LIKE '%$komo%' ORDER BY NM_COMMODITY ASC";
+        $query = "SELECT KD_COMMODITY, NM_COMMODITY from BILLING_NBS.MASTER_COMMODITY WHERE UPPER(NM_COMMODITY) LIKE '%$komo%'";
 
         return DB::connection('uster')->select($query);
     }

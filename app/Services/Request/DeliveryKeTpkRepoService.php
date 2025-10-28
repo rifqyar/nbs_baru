@@ -573,7 +573,7 @@ class DeliveryKeTpkRepoService
             $query_cek        = "SELECT b.NO_CONTAINER, b.LOCATION --, NVL((), '') as STATUS
                                 FROM MASTER_CONTAINER b
                                 WHERE b.NO_CONTAINER = '$no_cont'";
-            $query_cek2 = "SELECT NO_CONTAINER FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND AKTIF = 'Y'";
+            $query_cek2 = "SELECT NO_CONTAINER, NO_REQUEST FROM CONTAINER_DELIVERY WHERE NO_CONTAINER = '$no_cont' AND AKTIF = 'Y'";
 
             $row_cek        = DB::connection('uster')->selectOne($query_cek);
 
@@ -588,8 +588,10 @@ class DeliveryKeTpkRepoService
             //ECHO $query_cek;
             if (($no_cont <> NULL) && ($location == 'IN_YARD') && ($req_dev <> NULL)) {
                 $returnMsg = "SDH_REQUEST";
+                throw new Exception('Container Masih aktif di Request Delivery (' . $row_cek2->NO_REQUEST . ')', 400);
             } else if (($no_cont <> NULL) && ($location == 'GATI') && ($req_dev == NULL)) {
                 $returnMsg = "BLM_PLACEMENT";
+                throw new Exception('Container Belum Placement', 400);
             } else if (($no_cont <> NULL) && ($location == 'IN_YARD') && ($req_dev == NULL)) {
 
 
@@ -797,6 +799,7 @@ class DeliveryKeTpkRepoService
                 }
             } else if (($no_cont <> null) && ($location == 'GATO') && ($req_dev <> NULL)) {
                 $returnMsg = "NOT_EXIST";
+                throw new Exception('Container Tidak ada / Status Lokasi GATO', 400);
             }
 
             DB::rollBack();

@@ -364,7 +364,7 @@ class NotaStuffingPlan
             TO_CHAR((? * A.TARIF), '999,999,999,999') AS PASS,
             (? * A.TARIF) AS TARIF
         ", [$jumlah_cont, $jumlah_cont])
-            ->whereRaw("TO_DATE(?, 'YYYY-MM-DD') BETWEEN B.START_PERIOD AND B.END_PERIOD", [$tgl_re])
+            ->whereRaw("TO_DATE(?, 'dd/mm/yyyy') BETWEEN B.START_PERIOD AND B.END_PERIOD", [$tgl_re])
             ->where('A.ID_ISO', 'PASS')
             ->first();
 

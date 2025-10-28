@@ -914,8 +914,8 @@ class NotaStuffingPlan
 
         // --- Daftar container dari CONTAINER_STUFFING@DBCLOUD_LINK dan MASTER_CONTAINER@DBCLOUD_LINK ---
         $rcont = DB::connection('uster_dev')
-            ->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK as A'))
-            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK as B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
+            ->table(DB::raw('CONTAINER_STUFFING@DBCLOUD_LINK A'))
+            ->join(DB::raw('MASTER_CONTAINER@DBCLOUD_LINK B'), 'A.NO_CONTAINER', '=', 'B.NO_CONTAINER')
             ->select('A.NO_CONTAINER', DB::raw("'MTY' as STATUS"), 'B.SIZE_', 'B.TYPE_')
             ->where('A.NO_REQUEST', '=', $no_req)
             ->get();

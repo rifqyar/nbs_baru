@@ -507,7 +507,7 @@ class NotaBatalController extends Controller
         $tgl_re = \Carbon\Carbon::parse($tgl_req)->format('Y/m/d');
 
         // --- Panggil prosedur PL/SQL create_detail_nota ---
-        $pdo = DB::connection('uster_dev')->getPdo();
+        $pdo = DB::connection('USTER')->getPdo();
         $stmt = $pdo->prepare("
             BEGIN
                 create_detail_nota(

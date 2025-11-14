@@ -1062,6 +1062,7 @@ class DeliveryService
             }
         }
 
+        $tgl_stack = Carbon::parse($tgl_stack)->format('d/m/Y');
         $hasil = "SELECT
                     -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss'),'dd-mm-rrrr') TGL_BONGKAR,
                     -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss')+4,'dd-mm-rrrr') EMPTY_SD

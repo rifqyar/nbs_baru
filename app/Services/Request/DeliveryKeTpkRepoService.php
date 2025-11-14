@@ -404,6 +404,9 @@ class DeliveryKeTpkRepoService
                     'BORDER GATE IN'
                 ])
                 ->get();
+            if($no_cont == 'TEMU0221054'){
+                dd($result);
+            }
         } else {
             $result = DB::connection('uster')->table('MASTER_CONTAINER as m')
                 ->distinct()

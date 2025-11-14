@@ -396,11 +396,11 @@ class DeliveryKeTpkRepoService
                 ->where('b.status_cont', 'FCL')
                 ->whereRaw("b.TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE ? AND AKTIF IS NULL)", [$no_cont . '%'])
                 ->whereIn('b.kegiatan', [
-                    'REALISASI STRIPPING',
+                    'REALISASI STUFFING',
                     'GATE IN',
                     'REQUEST DELIVERY',
                     'PERP DELIVERY',
-                    'BATAL STUFFING',
+                    'BATAL STRIPPING',
                     'BORDER GATE IN'
                 ])
                 ->toRawSql();

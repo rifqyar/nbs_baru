@@ -403,10 +403,7 @@ class DeliveryKeTpkRepoService
                     'BATAL STRIPPING',
                     'BORDER GATE IN'
                 ])
-                ->toRawSql();
-            if($no_cont == 'TEMU0221054'){
-                dd($result);
-            }
+                ->get();
         } else {
             $result = DB::connection('uster')->table('MASTER_CONTAINER as m')
                 ->distinct()

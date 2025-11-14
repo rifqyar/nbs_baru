@@ -403,7 +403,7 @@ class DeliveryKeTpkRepoService
                     'BATAL STUFFING',
                     'BORDER GATE IN'
                 ])
-                ->get();
+                ->toRawSql();
             if($no_cont == 'TEMU0221054'){
                 dd($result);
             }

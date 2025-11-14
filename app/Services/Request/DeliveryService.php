@@ -1065,8 +1065,8 @@ class DeliveryService
         $hasil = "SELECT
                     -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss'),'dd-mm-rrrr') TGL_BONGKAR,
                     -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss')+4,'dd-mm-rrrr') EMPTY_SD
-                    TO_CHAR(TO_DATE('$tgl_stack','dd/mm/yyyy'), 'dd-mm-yyyy') AS TGL_BONGKAR,
-                    TO_CHAR(TO_DATE('$tgl_stack','dd/mm/yyyy') + 4, 'dd-mm-yyyy') AS EMPTY_SD
+                    TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss'), 'dd-mm-yyyy') AS TGL_BONGKAR,
+                    TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss') + 4, 'dd-mm-yyyy') AS EMPTY_SD
                 FROM DUAL";
         $rhasil = DB::connection('uster')->selectOne($hasil);
         return $rhasil;

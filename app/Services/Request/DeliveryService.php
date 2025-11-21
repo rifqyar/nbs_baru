@@ -91,7 +91,7 @@ class DeliveryService
             //                     GROUP BY a.NO_REQUEST, a.TGL_REQUEST,a.NOTA, a.KOREKSI,
             //                           b.NM_PBM, a.TGL_REQUEST_DELIVERY
             //                     ORDER BY a.TGL_REQUEST DESC)
-			// 					WHERE ROWNUM <= 100";
+            // 					WHERE ROWNUM <= 100";
 
             $query_list = "SELECT *
                                 FROM (
@@ -866,8 +866,8 @@ class DeliveryService
             $no_cont = $request->NO_CONT;
             $tgl_delivery = $request->TGL_DELIVERY;
 
-             $q_save = "UPDATE CONTAINER_DELIVERY SET TGL_DELIVERY = TO_DATE('$tgl_delivery','yyyy-mm-dd') WHERE NO_REQUEST = '$no_req' AND NO_CONTAINER = '$no_cont'";
-             DB::connection('uster')->statement($q_save);
+            $q_save = "UPDATE CONTAINER_DELIVERY SET TGL_DELIVERY = TO_DATE('$tgl_delivery','yyyy-mm-dd') WHERE NO_REQUEST = '$no_req' AND NO_CONTAINER = '$no_cont'";
+            DB::connection('uster')->statement($q_save);
             // //  echo $q_save;die();
             // DB::connection('uster')->table('CONTAINER_DELIVERY')
             //     ->where('NO_REQUEST', $no_req)
@@ -970,106 +970,185 @@ class DeliveryService
         return $result_query;
     }
 
+    function normalizeDate($date)
+    {
+        if (!$date) return null;
+        return Carbon::parse($date)->format('d/m/Y');
+    }
+
     function getTglStack2($request)
     {
         $no_cont = $request->no_cont;
         $jn_repo = $request->JN_REPO;
 
         if ($jn_repo != 'EMPTY') {
-            $query_cek1        = "SELECT tes.NO_REQUEST,
-                                    CASE SUBSTR(KEGIATAN,9)
-                                        WHEN 'RECEIVING' THEN (SELECT CONCAT('RECEIVING_',a.RECEIVING_DARI) FROM request_receiving a WHERE a.NO_REQUEST = tes.NO_REQUEST)
-										WHEN 'NGAN STUFFING' THEN
-										SUBSTR(KEGIATAN,14)
-										WHEN 'NGAN STRIPPING' THEN
-										SUBSTR(KEGIATAN,14)
-										WHEN 'I STRIPPING' THEN
-                                        SUBSTR(KEGIATAN,11)
-										WHEN 'I STUFFING' THEN
-                                        SUBSTR(KEGIATAN,11)
-                                        WHEN 'IVERY' THEN
-							            SUBSTR (KEGIATAN, 6)
-                                        ELSE SUBSTR(KEGIATAN,9)
-                                    END KEGIATAN FROM (SELECT TGL_UPDATE, NO_REQUEST,KEGIATAN FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI','PERPANJANGAN STUFFING','PERPANJANGAN STRIPPING','REALISASI STRIPPING', 'REALISASI STUFFING', 'REQUEST DELIVERY','PERP DELIVERY') AND AKTIF IS NULL) tes
-                                    WHERE tes.TGL_UPDATE=(SELECT MAX(TGL_UPDATE) FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI','PERPANJANGAN STUFFING','PERPANJANGAN STRIPPING','REALISASI STRIPPING', 'REALISASI STUFFING', 'REQUEST DELIVERY','PERP DELIVERY') AND AKTIF IS NULL)
-									ORDER BY KEGIATAN DESC";
-            // $result_cek1        = $db->query($query_cek1);
-            $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-            $no_request        = $row_cek1->no_request;
-            $kegiatan        = $row_cek1->kegiatan;
 
+            $query_cek1 = "
+                SELECT tes.NO_REQUEST,
+                    CASE SUBSTR(KEGIATAN,9)
+                            WHEN 'RECEIVING' THEN (
+                                SELECT 'RECEIVING_' || a.RECEIVING_DARI
+                                FROM request_receiving a
+                                WHERE a.NO_REQUEST = tes.NO_REQUEST
+                            )
+                            WHEN 'NGAN STUFFING' THEN SUBSTR(KEGIATAN,14)
+                            WHEN 'NGAN STRIPPING' THEN SUBSTR(KEGIATAN,14)
+                            WHEN 'I STRIPPING' THEN SUBSTR(KEGIATAN,11)
+                            WHEN 'I STUFFING' THEN SUBSTR(KEGIATAN,11)
+                            WHEN 'IVERY' THEN SUBSTR(KEGIATAN,6)
+                            ELSE SUBSTR(KEGIATAN,9)
+                    END KEGIATAN
+                FROM (
+                    SELECT TGL_UPDATE, NO_REQUEST, KEGIATAN
+                    FROM history_container
+                    WHERE no_container = :no_cont
+                    AND kegiatan IN (
+                        'REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI',
+                        'PERPANJANGAN STUFFING','PERPANJANGAN STRIPPING','REALISASI STRIPPING',
+                        'REALISASI STUFFING','REQUEST DELIVERY','PERP DELIVERY'
+                    )
+                    AND AKTIF IS NULL
+                ) tes
+                WHERE tes.TGL_UPDATE = (
+                    SELECT MAX(TGL_UPDATE)
+                    FROM history_container
+                    WHERE no_container = :no_cont
+                    AND kegiatan IN (
+                        'REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI',
+                        'PERPANJANGAN STUFFING','PERPANJANGAN STRIPPING','REALISASI STRIPPING',
+                        'REALISASI STUFFING','REQUEST DELIVERY','PERP DELIVERY'
+                    )
+                    AND AKTIF IS NULL
+                )
+                ORDER BY KEGIATAN DESC
+            ";
+
+            $row_cek1 = DB::connection('uster')->selectOne($query_cek1, [
+                'no_cont' => $no_cont
+            ]);
+
+            $no_request = $row_cek1->no_request;
+            $kegiatan   = $row_cek1->kegiatan;
+
+            // --- Ambil tgl_stack sesuai kegiatan ---
             if ($kegiatan == 'RECEIVING_LUAR') {
-                // $query_cek1        = " SELECT SUBSTR(TO_CHAR(b.TGL_IN,'dd/mm/rrrr'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
-                $query_cek1        = " SELECT TGL_IN as START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
-                // $result_cek1    = $db->query($query_cek1);
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $tgl_stack    = $row_cek1->start_stack;
-                $asal_cont         = 'DEPO';
-            } else if ($kegiatan == 'RECEIVING_TPK') {
-                $query_cek1        = "SELECT TO_CHAR(TGL_BONGKAR,'dd/mm/rrrr') START_STACK FROM container_receiving WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                // $result_cek1    = $db->query($query_cek1);
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $tgl_stack    = $row_cek1->start_stack;
-                $asal_cont         = 'TPK';
-            } else if ($kegiatan == 'STUFFING') {
-                $query_cek1        = "SELECT SUBSTR(TO_CHAR(TGL_REALISASI,'dd/mm/rrrr'),1,10) START_STACK FROM container_stuffing WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                // $result_cek1    = $db->query($query_cek1);
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $tgl_stack    = $row_cek1->start_stack;
-                $asal_cont         = 'DEPO';
-            } else if ($kegiatan == 'STRIPPING') {
-                $query_cek1        = "SELECT SUBSTR(TO_CHAR(TGL_REALISASI,'dd/mm/rrrr'),1,10) START_STACK FROM container_stripping WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                // $result_cek1    = $db->query($query_cek1);
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $tgl_stack    = $row_cek1->start_stack;
-                $asal_cont         = 'DEPO';
-            } else if ($kegiatan == 'DELIVERY') {
-                $query_cek1        = "SELECT SUBSTR(TO_CHAR(TGL_DELIVERY,'dd/mm/rrrr'),1,10) START_STACK FROM container_delivery WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                // $result_cek1    = $db->query($query_cek1);
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $tgl_stack    = $row_cek1->start_stack;
-                $asal_cont         = 'DEPO';
-                //echo $no_request;  exit();
+
+                $row = DB::connection('uster')->selectOne("
+                    SELECT TGL_IN AS START_STACK
+                    FROM GATE_IN
+                    WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+                ", ['c' => $no_cont, 'r' => $no_request]);
+
+                $tgl_stack = $this->normalizeDate($row->start_stack);
+                $asal_cont = 'DEPO';
+            } elseif ($kegiatan == 'RECEIVING_TPK') {
+
+                $row = DB::connection('uster')->selectOne("
+                    SELECT TO_CHAR(TGL_BONGKAR,'dd/mm/yyyy') AS START_STACK
+                    FROM container_receiving
+                    WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+                ", ['c' => $no_cont, 'r' => $no_request]);
+
+                $tgl_stack = $row->start_stack;
+                $asal_cont = 'TPK';
+            } elseif ($kegiatan == 'STUFFING') {
+
+                $row = DB::connection('uster')->selectOne("
+                    SELECT TO_CHAR(TGL_REALISASI,'dd/mm/yyyy') AS START_STACK
+                    FROM container_stuffing
+                    WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+                ", ['c' => $no_cont, 'r' => $no_request]);
+
+                $tgl_stack = $row->start_stack;
+                $asal_cont = 'DEPO';
+            } elseif ($kegiatan == 'STRIPPING') {
+
+                $row = DB::connection('uster')->selectOne("
+                    SELECT TO_CHAR(TGL_REALISASI,'dd/mm/yyyy') AS START_STACK
+                    FROM container_stripping
+                    WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+                ", ['c' => $no_cont, 'r' => $no_request]);
+
+                $tgl_stack = $row->start_stack;
+                $asal_cont = 'DEPO';
+            } elseif ($kegiatan == 'DELIVERY') {
+
+                $row = DB::connection('uster')->selectOne("
+                    SELECT TO_CHAR(TGL_DELIVERY,'dd/mm/yyyy') AS START_STACK
+                    FROM container_delivery
+                    WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+                ", ['c' => $no_cont, 'r' => $no_request]);
+
+                $tgl_stack = $row->start_stack;
+                $asal_cont = 'DEPO';
             }
         } else {
-            $query_tgl_stack_depo = "SELECT TGL_UPDATE , NO_REQUEST, KEGIATAN
-                                            FROM HISTORY_CONTAINER
-                                            WHERE no_container = '$no_cont'
-                                            AND kegiatan IN ('GATE IN','REALISASI STRIPPING','PERPANJANGAN STUFFING','REQUEST STUFFING')
-                                            ORDER BY TGL_UPDATE DESC";
 
-            $row_tgl_stack_depo        = DB::connection('uster')->selectOne($query_tgl_stack_depo);
-            $ex_keg    = $row_tgl_stack_depo->kegiatan;
-            $no_re_st    = $row_tgl_stack_depo->no_request;
+            // --- JIKA REPO EMPTY ---
+            $row = DB::connection('uster')->selectOne("
+                SELECT TGL_UPDATE, NO_REQUEST, KEGIATAN
+                FROM HISTORY_CONTAINER
+                WHERE no_container = :c
+                AND KEGIATAN IN (
+                    'GATE IN','REALISASI STRIPPING','PERPANJANGAN STUFFING','REQUEST STUFFING'
+                )
+                ORDER BY TGL_UPDATE DESC
+            ", ['c' => $no_cont]);
+
+            $ex_keg  = $row->kegiatan;
+            $no_re_st = $row->no_request;
+
             if ($ex_keg == "REALISASI STRIPPING") {
-                $qtgl_r = "SELECT TGL_REALISASI FROM CONTAINER_STRIPPING WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_re_st'";
-                $rtgl_r = DB::connection('uster')->selectOne($qtgl_r);
-                $tgl_stack = $rtgl_r->tgl_realisasi;
-            } else if ($ex_keg == "GATE IN") {
-                $qtgl_r = "SELECT TGL_IN FROM GATE_IN WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_re_st'";
-                $rtgl_r = DB::connection('uster')->selectOne($qtgl_r);
-                $tgl_stack = $rtgl_r->tgl_in;
-            } else if ($ex_keg == "PERPANJANGAN STUFFING") {
-                $qtgl_r = "SELECT END_STACK_PNKN FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_re_st' AND NO_CONTAINER = '$no_cont'";
-                $rtgl_r = DB::connection('uster')->selectOne($qtgl_r);
-                $tgl_stack = $rtgl_r->end_stack_pnkn;
-                $asal_cont         = 'DEPO';
-            } else if ($ex_keg == "REQUEST STUFFING") {
-                $qtgl_r = "SELECT START_PERP_PNKN FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_re_st' AND NO_CONTAINER = '$no_cont'";
-                $rtgl_r = DB::connection('uster')->selectOne($qtgl_r);
-                $tgl_stack = $rtgl_r->start_perp_pnkn;
-                $asal_cont         = 'DEPO';
+
+                $r = DB::connection('uster')->selectOne("
+            SELECT TGL_REALISASI AS TGL
+            FROM CONTAINER_STRIPPING
+            WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+        ", ['c' => $no_cont, 'r' => $no_re_st]);
+
+                $tgl_stack = $this->normalizeDate($r->tgl);
+            } elseif ($ex_keg == "GATE IN") {
+
+                $r = DB::connection('uster')->selectOne("
+            SELECT TGL_IN AS TGL
+            FROM GATE_IN
+            WHERE NO_CONTAINER = :c AND NO_REQUEST = :r
+        ", ['c' => $no_cont, 'r' => $no_re_st]);
+
+                $tgl_stack = $this->normalizeDate($r->tgl);
+            } elseif ($ex_keg == "PERPANJANGAN STUFFING") {
+
+                $r = DB::connection('uster')->selectOne("
+            SELECT END_STACK_PNKN AS TGL
+            FROM CONTAINER_STUFFING
+            WHERE NO_REQUEST = :r AND NO_CONTAINER = :c
+        ", ['c' => $no_cont, 'r' => $no_re_st]);
+
+                $tgl_stack = $this->normalizeDate($r->tgl);
+            } elseif ($ex_keg == "REQUEST STUFFING") {
+
+                $r = DB::connection('uster')->selectOne("
+            SELECT START_PERP_PNKN AS TGL
+            FROM CONTAINER_STUFFING
+            WHERE NO_REQUEST = :r AND NO_CONTAINER = :c
+        ", ['c' => $no_cont, 'r' => $no_re_st]);
+
+                $tgl_stack = $this->normalizeDate($r->tgl);
             }
         }
 
-        $tgl_stack = Carbon::parse($tgl_stack)->format('d/m/Y');
-        $hasil = "SELECT
-                    -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss'),'dd-mm-rrrr') TGL_BONGKAR,
-                    -- TO_CHAR(TO_DATE('$tgl_stack','yyyy-mm-dd hh24:mi:ss')+4,'dd-mm-rrrr') EMPTY_SD
-                    TO_CHAR(TO_DATE('$tgl_stack','dd/mm/yyyy'), 'dd-mm-yyyy') AS TGL_BONGKAR,
-                    TO_CHAR(TO_DATE('$tgl_stack','dd/mm/yyyy') + 4, 'dd-mm-yyyy') AS EMPTY_SD
-                FROM DUAL";
-        $rhasil = DB::connection('uster')->selectOne($hasil);
-        return $rhasil;
+        // Pastikan format dd/mm/yyyy
+        // Jika hasil normalizeDate sudah dd/mm/yyyy, skip
+        $tgl_stack = Carbon::createFromFormat('d/m/Y', $tgl_stack)->format('d/m/Y');
+
+        // HITUNG TGL_BONGKAR + EMPTY_SD
+        $hasil = DB::connection('uster')->selectOne("
+            SELECT
+                TO_CHAR(TO_DATE(:tgl, 'dd/mm/yyyy'), 'dd-mm-yyyy') AS TGL_BONGKAR,
+                TO_CHAR(TO_DATE(:tgl, 'dd/mm/yyyy') + 4, 'dd-mm-yyyy') AS EMPTY_SD
+            FROM DUAL
+        ", ['tgl' => $tgl_stack]);
+
+        return $hasil;
     }
 }

@@ -1,6 +1,5 @@
 <div class="table-responsive px-3">
-    <table class="display no-wrap table data-table" width="100%"
-        @if (!empty($data)) <div id="data-list"></div> @endif
+    <table class="display no-wrap table data-table" width="100%" id="data-list">
         <thead>
             <tr>
                 <th class="text-center">#</th>

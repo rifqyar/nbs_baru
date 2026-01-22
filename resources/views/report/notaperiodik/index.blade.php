@@ -149,6 +149,12 @@
                                         Generate Nota
                                         <i class="mdi mdi-settings"></i>
                                     </button>
+                                    {{-- <div class="flex-row-reverse"> --}}
+                                        <button class="btn btn-primary btn-rounded" onclick="exportToExcel()">
+                                            <i class="mdi mdi-file-export"></i>
+                                            Export to Excel
+                                        </button>
+                                    {{-- </div> --}}
                                 </div>
                             </form>
                         </div>
@@ -183,5 +189,7 @@
     <script src="{{ asset('assets/plugins/moment/moment.js') }}"></script>
     <script src="{{ asset('assets/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}">
     </script>
-    <script src="{{ asset('pages/report/notaperiodik.js') }}?v={{ filemtime(public_path('pages/report/notaperiodik.js')) }}"></script>
+    <script
+        src="{{ asset('pages/report/notaperiodik.js') }}?v={{ filemtime(public_path('pages/report/notaperiodik.js')) }}">
+    </script>
 @endpush

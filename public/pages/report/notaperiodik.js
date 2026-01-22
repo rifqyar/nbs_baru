@@ -43,14 +43,12 @@ function generateNota(formId) {
 }
 
 function renderNotaData(res) {
-    console.log(res)
     $("#data-body").html(res.blade);
     $("#data-section").slideDown();
 
     const data = res.data;
     let html = '';
 
-    console.log(data)
     if (!data || data.length === 0) {
         html = `
             <tr>
@@ -98,7 +96,6 @@ function renderNotaData(res) {
         });
     }
 
-    console.log(html);
     $('#nota-body').html(html);
 
     // tooltip
@@ -110,7 +107,7 @@ function renderNotaData(res) {
     }
 
     $('.data-table').DataTable({
-        pageLength: 25
+        pageLength: 10
     });
 }
 

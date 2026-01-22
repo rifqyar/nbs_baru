@@ -183,5 +183,5 @@
     <script src="{{ asset('assets/plugins/moment/moment.js') }}"></script>
     <script src="{{ asset('assets/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}">
     </script>
-    <script src="{{ asset('pages/report/notaperiodik.js') }}"></script>
+    <script src="{{ asset('pages/report/notaperiodik.js') }}?v={{ filemtime(public_path('pages/report/notaperiodik.js')) }}"></script>
 @endpush

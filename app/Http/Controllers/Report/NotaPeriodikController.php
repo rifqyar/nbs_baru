@@ -7,6 +7,7 @@ use App\Services\Report\NotaPeriodikService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -33,7 +34,7 @@ class NotaPeriodikController extends Controller
     {
         $this->validate($request, [
             'tgl_akhir' => 'after_or_equal:tgl_awal'
-        ],[
+        ], [
             'tgl_akhir' => 'Periode tanggal akhir harus lebih besar dari periode tanggal awal'
         ]);
 
@@ -43,13 +44,33 @@ class NotaPeriodikController extends Controller
                 throw new Exception('Terjadi Kesalahan saat mengambil data nota, harap coba lagi nanti', 500);
             } else {
                 $data = $data->getData()->data;
-                $blade = view('report.notaperiodik.dataList', compact('data'))->render();
+                $blade = view('report.notaperiodik.dataList')->render();
+
+                $data = collect($data)->map(function ($dt) {
+                    return [
+                        'no_nota_mti'      => $dt->no_nota_mti,
+                        'no_faktur_mti'    => $dt->no_faktur_mti,
+                        'no_request'       => $dt->no_request,
+                        'kegiatan'         => $dt->kegiatan,
+                        'tgl_nota'         => \Carbon\Carbon::parse($dt->tgl_nota)->format('Y-m-d'),
+                        'emkl_full'        => $dt->emkl,
+                        'emkl_short'       => Str::limit($dt->emkl, 25),
+                        'bayar'            => $dt->bayar,
+                        'total_tagihan'    => str_replace(',', '.', $dt->total_tagihan),
+                        'lunas'            => $dt->lunas,
+                        'status'           => $dt->status,
+                        'transfer'         => $dt->transfer,
+                        'receipt_account'  => $dt->receipt_account,
+                    ];
+                });
 
                 return response()->json([
                     'status' => [
                         'msg' => 'OK',
                         'code' => 200
-                    ], 'blade' => $blade
+                    ],
+                    'blade' => $blade,
+                    'data' => $data,
                 ], 200);
             }
         } catch (Exception $th) {

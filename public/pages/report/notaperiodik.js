@@ -41,14 +41,73 @@ function generateNota(formId) {
     );
 }
 
-function renderNotaData(data) {
-    $("#data-body").html(data.blade);
+function renderNotaData(res) {
+    $("#data-body").html(res.blade);
     $("#data-section").slideDown();
 
-    if ($.fn.DataTable.isDataTable('#data-list')) {
-        $('#data-list').DataTable().destroy()
+    const data = res.data;
+    let html = '';
+
+    if (!data || data.length === 0) {
+        html = `
+            <tr>
+                <td colspan="15">
+                    <h6 class="text-center text-danger">Tidak Ada Data</h6>
+                </td>
+            </tr>
+        `;
+    } else {
+        $.each(data, function (i, dt) {
+            const badgeTransfer = dt.transfer === 'Y'
+                ? `<span class="badge bg-info rounded-pill p-2 text-white">Sudah Transfer</span>`
+                : `<span class="badge bg-danger rounded-pill p-2 text-white">Belum Transfer</span>`;
+
+            html += `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${dt.no_nota_mti}</td>
+                    <td>${dt.no_faktur_mti}</td>
+                    <td>${dt.no_request}</td>
+                    <td>${dt.kegiatan}</td>
+                    <td>
+                        <span class="badge bg-info rounded-pill p-2 text-white">
+                            <i class="mdi mdi-calendar"></i> ${dt.tgl_nota}
+                        </span>
+                    </td>
+                    <td data-toggle="tooltip" title="${dt.emkl_full}">
+                        ${dt.emkl_short}
+                    </td>
+                    <td>${dt.bayar}</td>
+                    <td>Rp. ${dt.total_tagihan}</td>
+                    <td>${dt.lunas}</td>
+                    <td>${dt.status}</td>
+                    <td>
+                        <span class="badge bg-success rounded-pill p-2 text-white">
+                            Ready to Transfer
+                        </span>
+                    </td>
+                    <td>${badgeTransfer}</td>
+                    <td class="text-center" style="white-space: pre-wrap">
+                        ${dt.receipt_account ?? ''}
+                    </td>
+                </tr>
+            `;
+        });
     }
-    $('#data-body').find('#data-list').DataTable()
+
+    $('#nota-body').html(html);
+
+    // tooltip
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // DataTable init ulang
+    if ($.fn.DataTable.isDataTable('.data-table')) {
+        $('.data-table').DataTable().destroy();
+    }
+
+    $('.data-table').DataTable({
+        pageLength: 25
+    });
 }
 
 function exportToExcel() {

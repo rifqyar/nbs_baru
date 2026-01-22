@@ -1,6 +1,6 @@
 <div class="table-responsive px-3">
     <table class="display no-wrap table data-table" width="100%"
-        @if (!empty($data)) <div id="data-list"></div> @endif>
+        @if (!empty($data)) <div id="data-list"></div> @endif
         <thead>
             <tr>
                 <th class="text-center">#</th>
@@ -19,8 +19,8 @@
                 <th class="text-center">Bank</th>
             </tr>
         </thead>
-        <tbody>
-            @forelse ($data as $key => $dt)
+        <tbody id="nota-body">
+            {{-- @forelse ($data as $key => $dt)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $dt->no_nota_mti }}</td>
@@ -57,15 +57,15 @@
                         <h6 class="text-center text-danger">Tidak Ada Data</h6>
                     </td>
                 </tr>
-            @endforelse
+            @endforelse --}}
         </tbody>
     </table>
 </div>
 
-<script>
+{{-- <script>
     $(function() {
         const tooltipTriggerList = document.querySelectorAll('[data-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(
             tooltipTriggerEl))
     })
-</script>
+</script> --}}

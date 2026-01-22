@@ -54,7 +54,7 @@ function renderNotaData(res) {
         html = `
             <tr>
                 <td colspan="15">
-                    <h6 class="text-center text-danger">Tidak Ada Data</h6>
+                    <h6 class="text-center text-danger">Data Tidak ditemukan</h6>
                 </td>
             </tr>
         `;

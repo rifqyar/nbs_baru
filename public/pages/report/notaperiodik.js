@@ -34,6 +34,7 @@ $(function () {
 
 function generateNota(formId) {
     const data = $(formId).serialize();
+    console.log(data);
     ajaxGetJson(
         `/report/nota-periodik/generate-nota?${data}`,
         "renderNotaData",

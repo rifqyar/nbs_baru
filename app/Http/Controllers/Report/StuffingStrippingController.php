@@ -46,7 +46,7 @@ class StuffingStrippingController extends Controller
                 $data = collect($data)->map(function ($dt) {
                     return [
                         'no_request'     => $dt->no_request,
-                        'tgl_request'    => optional($dt->tgl_request)->format('Y-m-d'),
+                        'tgl_request'    => \Carbon\Carbon::parse($dt->tgl_request)->translatedFormat('Y-m-d'),
                         'no_container'   => $dt->no_container,
                         'pin_number'     => $dt->pin_number,
                         'size_'          => $dt->size_,

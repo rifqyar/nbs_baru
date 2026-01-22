@@ -41,14 +41,36 @@ class StuffingStrippingController extends Controller
                 throw new Exception('Terjadi Kesalahan saat mengambil data, harap coba lagi nanti', 500);
             } else {
                 $data = $data->getData()->data;
-                $blade = view('report.stuffingstripping.dataList', compact('data'))->render();
+
+                // OPTIONAL: Format tanggal di backend (recommended)
+                $data = collect($data)->map(function ($dt) {
+                    return [
+                        'no_request'     => $dt->no_request,
+                        'tgl_request'    => optional($dt->tgl_request)->format('Y-m-d'),
+                        'no_container'   => $dt->no_container,
+                        'pin_number'     => $dt->pin_number,
+                        'size_'          => $dt->size_,
+                        'type_'          => $dt->type_,
+                        'kegiatan'        => $dt->kegiatan,
+                        'lokasi_tpk'       => $dt->lokasi_tpk,
+                        'loc_uster'        => $dt->loc_uster,
+                        'tgl_approve'      => $dt->tgl_approve ? \Carbon\Carbon::parse($dt->tgl_approve)->format('Y-m-d') : '-',
+                        'active_to'        => \Carbon\Carbon::parse($dt->active_to)->format('Y-m-d'),
+                        'tgl_realisasi'    => $dt->tgl_realisasi ? \Carbon\Carbon::parse($dt->tgl_realisasi)->format('Y-m-d') : '-',
+                        'nm_pbm'            => $dt->nm_pbm,
+                        'commodity'         => $dt->commodity,
+                        'nm_kapal'           => $dt->nm_kapal,
+                        'voyage'             => $dt->voyage,
+                    ];
+                });
+
+                $blade = view('report.stuffingstripping.dataList')->render();
 
                 return response()->json([
-                    'status' => [
-                        'msg' => 'OK',
-                        'code' => 200
-                    ], 'blade' => $blade
-                ], 200);
+                    'status' => ['msg' => 'OK', 'code' => 200],
+                    'blade'  => $blade,
+                    'data'   => $data
+                ]);
             }
         } catch (Exception $th) {
             return response()->json([
@@ -147,7 +169,7 @@ class StuffingStrippingController extends Controller
                         Carbon::parse($value->tgl_request)->translatedFormat('d-M-Y'),
                         $value->no_container,
                         $value->pin_number,
-                        $value->size_ .' / '.$value->type_,
+                        $value->size_ . ' / ' . $value->type_,
                         $value->kegiatan,
                         $value->lokasi_tpk,
                         $value->loc_uster,

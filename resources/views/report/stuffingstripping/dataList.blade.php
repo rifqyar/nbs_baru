@@ -19,8 +19,8 @@
                 <th class="text-center">Kapal / VOY</th>
             </tr>
         </thead>
-        <tbody>
-            @forelse ($data as $key => $dt)
+        <tbody id="nota-body">
+            {{-- @forelse ($data as $key => $dt)
                 <tr>
                     <td>{{ $key + 1 }}</td>
                     <td>{{ $dt->no_request }}</td>
@@ -64,7 +64,7 @@
                         <h6 class="text-center text-danger">Tidak Ada Data</h6>
                     </td>
                 </tr>
-            @endforelse
+            @endforelse --}}
         </tbody>
     </table>
 </div>

@@ -129,5 +129,5 @@
     <script src="{{ asset('assets/plugins/moment/moment.js') }}"></script>
     <script src="{{ asset('assets/plugins/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js') }}">
     </script>
-    <script src="{{ asset('pages/report/stuffingstripping.js') }}"></script>
+    <script src="{{ asset('pages/report/stuffingstripping.js') }}?v={{ filemtime(public_path('pages/report/stuffingstripping.js')) }}"></script>
 @endpush

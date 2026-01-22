@@ -19,7 +19,7 @@ $(function () {
                     event.stopPropagation();
                 }
             },
-            false
+            false,
         );
     });
 
@@ -38,7 +38,7 @@ function generateNota(formId) {
     ajaxGetJson(
         `/report/nota-periodik/generate-nota?${data}`,
         "renderNotaData",
-        "get_error"
+        "get_error",
     );
 }
 
@@ -47,7 +47,7 @@ function renderNotaData(res) {
     $("#data-section").slideDown();
 
     const data = res.data;
-    let html = '';
+    let html = "";
 
     if (!data || data.length === 0) {
         html = `
@@ -59,9 +59,10 @@ function renderNotaData(res) {
         `;
     } else {
         $.each(data, function (i, dt) {
-            const badgeTransfer = dt.transfer === 'Y'
-                ? `<span class="badge bg-info rounded-pill p-2 text-white">Sudah Transfer</span>`
-                : `<span class="badge bg-danger rounded-pill p-2 text-white">Belum Transfer</span>`;
+            const badgeTransfer =
+                dt.transfer === "Y"
+                    ? `<span class="badge bg-info rounded-pill p-2 text-white">Sudah Transfer</span>`
+                    : `<span class="badge bg-danger rounded-pill p-2 text-white">Belum Transfer</span>`;
 
             html += `
                 <tr>
@@ -89,49 +90,54 @@ function renderNotaData(res) {
                     </td>
                     <td>${badgeTransfer}</td>
                     <td class="text-center" style="white-space: pre-wrap">
-                        ${dt.receipt_account ?? ''}
+                        ${dt.receipt_account ?? ""}
                     </td>
                 </tr>
             `;
         });
     }
 
-    $('#nota-body').html(html);
+    $("#nota-body").html(html);
 
     // tooltip
     $('[data-toggle="tooltip"]').tooltip();
 
     // DataTable init ulang
-    if ($.fn.DataTable.isDataTable('.data-table')) {
-        $('.data-table').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable(".data-table")) {
+        $(".data-table").DataTable().destroy();
     }
 
-    $('.data-table').DataTable({
-        pageLength: 10
+    $(".data-table").DataTable({
+        pageLength: 15,
+        deferRender: true,
+        scrollY: 500,
+        scrollCollapse: true,
+        scroller: true,
+        responsive: true,
     });
 }
 
 function exportToExcel() {
-    const data = $('#generate_nota').serialize();
+    const data = $("#generate_nota").serialize();
     ajaxGetJson(
         `/report/nota-periodik/export-nota?${data}`,
         "success_export",
-        "get_error"
+        "get_error",
     );
 }
 
-function success_export(data){
-    window.open(data.filePath, '_blank');
+function success_export(data) {
+    window.open(data.filePath, "_blank");
 }
 
 function resetSearch() {
     $("#search-data").find("input.form-control").val("").trigger("blur");
     $("#search-data").find("input.form-control").removeClass("was-validated");
     $('input[name="search"]').val("false");
-    if ($.fn.DataTable.isDataTable('#data-list')) {
-        $('#data-list').DataTable().destroy()
+    if ($.fn.DataTable.isDataTable("#data-list")) {
+        $("#data-list").DataTable().destroy();
     }
-    $('#data-body').html('')
+    $("#data-body").html("");
 }
 
 function get_error(err) {

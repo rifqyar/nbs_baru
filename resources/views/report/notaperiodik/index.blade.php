@@ -145,7 +145,7 @@
                                         Reset Pencarian
                                         <i class="mdi mdi-refresh"></i>
                                     </button>
-                                    <button type="submit" class="btn btn-rounded btn-info">
+                                    <button type="submit" class="btn btn-rounded btn-info mr-3">
                                         Generate Nota
                                         <i class="mdi mdi-settings"></i>
                                     </button>

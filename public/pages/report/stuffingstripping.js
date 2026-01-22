@@ -19,7 +19,7 @@ $(function () {
                     event.stopPropagation();
                 }
             },
-            false
+            false,
         );
     });
 
@@ -28,33 +28,102 @@ $(function () {
         actionForm = $(btn).data("action");
         if (this.checkValidity()) {
             e.preventDefault();
-            if(actionForm == 'generate'){
+            if (actionForm == "generate") {
                 generateNota("#generate_nota");
             } else {
-                exportToExcel()
+                exportToExcel();
             }
         }
         $(this).addClass("was-validated");
     });
 });
 
-function generateNota(formId){
+function generateNota(formId) {
     const data = $(formId).serialize();
     ajaxGetJson(
         `/report/approval-stuffing-stripping/generate-nota?${data}`,
         "renderNotaData",
-        "get_error"
+        "get_error",
     );
 }
 
-function renderNotaData(data){
-    $("#data-body").html(data.blade);
+function renderNotaData(res) {
+    // load template table
+    $("#data-body").html(res.blade);
     $("#data-section").slideDown();
 
-    if ($.fn.DataTable.isDataTable('#data-list')) {
-        $('#data-list').DataTable().destroy()
+    const data = res.data;
+    let html = "";
+
+    if (!data || data.length === 0) {
+        html = `
+            <tr>
+                <td colspan="15">
+                    <h6 class="text-center text-danger">Tidak Ada Data</h6>
+                </td>
+            </tr>
+        `;
+    } else {
+        $.each(data, function (i, dt) {
+            html += `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${dt.no_request}</td>
+
+                <td>
+                    <span class="badge bg-info rounded-pill p-2 text-white">
+                        <i class="mdi mdi-calendar"></i> ${dt.tgl_request}
+                    </span>
+                </td>
+
+                <td>${dt.no_container}</td>
+                <td>${dt.pin_number}</td>
+                <td>${dt.size_} / ${dt.type_}</td>
+                <td>${dt.kegiatan}</td>
+                <td>${dt.lokasi_tpk}</td>
+                <td>${dt.loc_uster}</td>
+
+                <td>
+                    <span class="badge bg-info rounded-pill p-2 text-white">
+                        <i class="mdi mdi-calendar"></i> ${dt.tgl_approve}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-warning rounded-pill p-2 text-white">
+                        <i class="mdi mdi-calendar"></i> ${dt.active_to}
+                    </span>
+                </td>
+
+                <td>
+                    <span class="badge bg-primary rounded-pill p-2 text-white">
+                        <i class="mdi mdi-calendar"></i> ${dt.tgl_realisasi}
+                    </span>
+                </td>
+
+                <td>${dt.nm_pbm}</td>
+                <td>${dt.commodity}</td>
+                <td>${dt.nm_kapal} / ${dt.voyage}</td>
+            </tr>
+            `;
+        });
     }
-    $('#data-body').find('#data-list').DataTable()
+
+    $("#nota-body").html(html);
+
+    // destroy & reinit datatable
+    if ($.fn.DataTable.isDataTable("#data-list")) {
+        $("#data-list").DataTable().destroy();
+    }
+
+    $("#data-list").DataTable({
+        pageLength: 15,
+        deferRender: true,
+        scrollY: 500,
+        scrollCollapse: true,
+        scroller: true,
+        responsive: true,
+    });
 }
 
 function exportToExcel() {
@@ -62,7 +131,7 @@ function exportToExcel() {
     ajaxGetJson(
         `/report/approval-stuffing-stripping/export-nota?${data}`,
         "success_export",
-        "get_error"
+        "get_error",
     );
 }
 
@@ -74,10 +143,10 @@ function resetSearch() {
     $("#search-data").find("input.form-control").val("").trigger("blur");
     $("#search-data").find("input.form-control").removeClass("was-validated");
     $('input[name="search"]').val("false");
-    if ($.fn.DataTable.isDataTable('#data-list')) {
-        $('#data-list').DataTable().destroy()
+    if ($.fn.DataTable.isDataTable("#data-list")) {
+        $("#data-list").DataTable().destroy();
     }
-    $('#data-body').html('')
+    $("#data-body").html("");
 }
 
 function get_error(err) {
@@ -90,4 +159,3 @@ function get_error(err) {
         hideAfter: 5000,
     });
 }
-

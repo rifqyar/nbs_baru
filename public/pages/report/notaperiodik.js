@@ -43,6 +43,7 @@ function generateNota(formId) {
 }
 
 function renderNotaData(res) {
+    console.log(res)
     $("#data-body").html(res.blade);
     $("#data-section").slideDown();
 

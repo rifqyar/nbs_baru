@@ -110,7 +110,7 @@ class NotaPeriodikController extends Controller
 
     public function exportNota(Request $request)
     {
-        // try {
+        try {
             $data = $this->service->getDataNota($request->all());
             if ($data->getStatusCode() != 200) {
                 throw new Exception('Terjadi Kesalahan saat mengambil data nota, harap coba lagi nanti', 500);
@@ -180,6 +180,7 @@ class NotaPeriodikController extends Controller
                     $activeWorksheet->getRowDimension('3')->setRowHeight(20);
                     $startColumn++;
                 }
+                /** END SET HEADER */
 
                 $startValueRow = 4;
                 while ($start < $totalRow) {
@@ -188,17 +189,18 @@ class NotaPeriodikController extends Controller
                             SELECT a.*, ROWNUM rn FROM ($baseQuery) a
                         ) WHERE rn BETWEEN " . ($start + 1) . " AND " . ($start + $chunkSize) . "
                     ";
-
                     $rows = DB::connection('uster')->select($query);
-
+                    $chunkData = [];
                     foreach ($rows as $key => $value) {
                         $valArr = (array) $value;
-                        $startValueCol = 'A';
+                        $rowData = [];
                         for ($i = 0; $i < count($columnSameTable); $i++) {
                             if ($columnSameTable[$i] == 'No.') {
                                 $colValue = $startValueRow - 3;
                             } elseif ($columnSameTable[$i] == 'tgl_nota') {
-                                $colValue = Carbon::parse($valArr['tgl_nota'])->translatedFormat('d M Y');
+                                $colValue = $valArr['tgl_nota']
+                                    ? Carbon::parse($valArr['tgl_nota'])->translatedFormat('d M Y')
+                                    : '';
                             } elseif ($columnSameTable[$i] == 'status_nota') {
                                 $colValue = 'Ready To Transfer';
                             } elseif ($columnSameTable[$i] == 'transfer') {
@@ -206,51 +208,51 @@ class NotaPeriodikController extends Controller
                             } else {
                                 $colValue = $valArr[$columnSameTable[$i]] ?? '';
                             }
-                            $activeWorksheet->setCellValueExplicit(
-                                $startValueCol . $startValueRow,
-                                $colValue,
-                                DataType::TYPE_STRING
-                            );
-                            $startValueCol++;
+                            $rowData[] = (string) $colValue;
                         }
+                        $chunkData[] = $rowData;
                         $startValueRow++;
                     }
+                    $activeWorksheet->fromArray($chunkData, null, 'A' . ($startValueRow - count($chunkData)));
+
                     $start += $chunkSize;
                 }
-                // foreach ($data as $key => $value) {
-                //     $startValueCol = 'A';
-                //     $valArr = json_decode(json_encode($value), true);
 
-                //     for ($i = 0; $i < count($columnSameTable); $i++) {
-                //         if ($columnSameTable[$i] == 'No.') {
-                //             $colValue = $key + 1;
-                //         } else if ($columnSameTable[$i] == 'tgl_nota') {
-                //             $colValue = Carbon::parse($valArr[$columnSameTable[$i]])->translatedFormat('d M Y');
-                //         } else if ($columnSameTable[$i] == 'status_nota') {
-                //             $colValue = 'Ready To Transfer';
-                //         } else if ($columnSameTable[$i] == 'transfer') {
-                //             if ($valArr[$columnSameTable[$i]] == 'Y') {
-                //                 $colValue = 'Sudah Transfer';
+                // $startValueRow = 4;
+                // while ($start < $totalRow) {
+                //     $query = "
+                //         SELECT * FROM (
+                //             SELECT a.*, ROWNUM rn FROM ($baseQuery) a
+                //         ) WHERE rn BETWEEN " . ($start + 1) . " AND " . ($start + $chunkSize) . "
+                //     ";
+
+                //     $rows = DB::connection('uster')->select($query);
+
+                //     foreach ($rows as $key => $value) {
+                //         $valArr = (array) $value;
+                //         $startValueCol = 'A';
+                //         for ($i = 0; $i < count($columnSameTable); $i++) {
+                //             if ($columnSameTable[$i] == 'No.') {
+                //                 $colValue = $startValueRow - 3;
+                //             } elseif ($columnSameTable[$i] == 'tgl_nota') {
+                //                 $colValue = Carbon::parse($valArr['tgl_nota'])->translatedFormat('d M Y');
+                //             } elseif ($columnSameTable[$i] == 'status_nota') {
+                //                 $colValue = 'Ready To Transfer';
+                //             } elseif ($columnSameTable[$i] == 'transfer') {
+                //                 $colValue = ($valArr['transfer'] == 'Y') ? 'Sudah Transfer' : 'Belum Transfer';
                 //             } else {
-                //                 $colValue = 'Belum Transfer';
+                //                 $colValue = $valArr[$columnSameTable[$i]] ?? '';
                 //             }
-                //         } else {
-                //             $colValue = $valArr[$columnSameTable[$i]];
+                //             $activeWorksheet->setCellValueExplicit(
+                //                 $startValueCol . $startValueRow,
+                //                 $colValue,
+                //                 DataType::TYPE_STRING
+                //             );
+                //             $startValueCol++;
                 //         }
-
-                //         $activeWorksheet->setCellValue($startValueCol . $startValueRow, $colValue);
-                //         $activeWorksheet->getStyle($startValueCol . $startValueRow)
-                //             ->getNumberFormat()
-                //             ->setFormatCode(NumberFormat::FORMAT_TEXT);
-
-                //         $activeWorksheet->getStyle($startValueCol . $startValueRow)
-                //             ->getAlignment()
-                //             ->setVertical(Alignment::HORIZONTAL_LEFT);
-
-                //         $startValueCol++;
+                //         $startValueRow++;
                 //     }
-
-                //     $startValueRow++;
+                //     $start += $chunkSize;
                 // }
 
                 $writer = new Xlsx($spreadsheet);
@@ -268,16 +270,16 @@ class NotaPeriodikController extends Controller
                     'filePath' => asset('storage/report/nota_periodik/' . $file)
                 ], 200);
             }
-        // } catch (Exception $th) {
-        //     return response()->json([
-        //         'status' => [
-        //             'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
-        //             'code' => $th->getCode() != '' ? $th->getCode() : 500,
-        //         ],
-        //         'data' => null,
-        //         'err_detail' => $th,
-        //         'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Mengambil Data, Harap Coba lagi!'
-        //     ], 500);
-        // }
+        } catch (Exception $th) {
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Mengambil Data, Harap Coba lagi!'
+            ], 500);
+        }
     }
 }

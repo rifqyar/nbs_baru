@@ -109,7 +109,7 @@ class NotaPeriodikController extends Controller
 
     public function exportNota(Request $request)
     {
-        try {
+        // try {
             $data = $this->service->getDataNota($request->all());
             if ($data->getStatusCode() != 200) {
                 throw new Exception('Terjadi Kesalahan saat mengambil data nota, harap coba lagi nanti', 500);
@@ -267,16 +267,16 @@ class NotaPeriodikController extends Controller
                     'filePath' => asset('storage/report/nota_periodik/' . $file)
                 ], 200);
             }
-        } catch (Exception $th) {
-            return response()->json([
-                'status' => [
-                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
-                    'code' => $th->getCode() != '' ? $th->getCode() : 500,
-                ],
-                'data' => null,
-                'err_detail' => $th,
-                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Mengambil Data, Harap Coba lagi!'
-            ], 500);
-        }
+        // } catch (Exception $th) {
+        //     return response()->json([
+        //         'status' => [
+        //             'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+        //             'code' => $th->getCode() != '' ? $th->getCode() : 500,
+        //         ],
+        //         'data' => null,
+        //         'err_detail' => $th,
+        //         'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Mengambil Data, Harap Coba lagi!'
+        //     ], 500);
+        // }
     }
 }

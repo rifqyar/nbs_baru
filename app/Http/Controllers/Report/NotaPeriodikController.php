@@ -7,6 +7,7 @@ use App\Services\Report\NotaPeriodikService;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -39,14 +40,31 @@ class NotaPeriodikController extends Controller
         ]);
 
         try {
+            $draw   = $request->draw;
+            $start  = $request->start;
+            $length = $request->length;
+
             $data = $this->service->getDataNota($request->all());
             if ($data->getStatusCode() != 200) {
                 throw new Exception('Terjadi Kesalahan saat mengambil data nota, harap coba lagi nanti', 500);
             } else {
-                $data = $data->getData()->data;
-                $blade = view('report.notaperiodik.dataList')->render();
+                $baseQuery = $data->getData()->query;
 
-                $data = collect($data)->map(function ($dt) {
+                // total
+                $total = DB::connection('uster')
+                    ->selectOne("SELECT COUNT(*) TOTAL FROM ($baseQuery)")->TOTAL;
+
+                // paging
+                $query = "
+                    SELECT * FROM (
+                        SELECT a.*, ROWNUM rn FROM ($baseQuery) a
+                    ) WHERE rn BETWEEN " . ($start + 1) . " AND " . ($start + $length) . "
+                ";
+
+                $rows = DB::connection('uster')->select($query);
+
+                $blade = view('report.notaperiodik.dataList')->render();
+                $data = collect($rows)->map(function ($dt) {
                     return [
                         'no_nota_mti'      => $dt->no_nota_mti,
                         'no_faktur_mti'    => $dt->no_faktur_mti,
@@ -71,6 +89,9 @@ class NotaPeriodikController extends Controller
                     ],
                     'blade' => $blade,
                     'data' => $data,
+                    "draw" => intval($draw),
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $total,
                 ], 200);
             }
         } catch (Exception $th) {

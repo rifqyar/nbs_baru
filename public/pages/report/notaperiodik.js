@@ -34,7 +34,6 @@ $(function () {
 
 function generateNota(formId) {
     const data = $(formId).serialize();
-    console.log(data);
     ajaxGetJson(
         `/report/nota-periodik/generate-nota?${data}`,
         "renderNotaData",
@@ -46,74 +45,75 @@ function renderNotaData(res) {
     $("#data-body").html(res.blade);
     $("#data-section").slideDown();
 
-    const data = res.data;
-    let html = "";
-
-    if (!data || data.length === 0) {
-        html = `
-            <tr>
-                <td colspan="15">
-                    <h6 class="text-center text-danger">Data Tidak ditemukan</h6>
-                </td>
-            </tr>
-        `;
-    } else {
-        $.each(data, function (i, dt) {
-            const badgeTransfer =
-                dt.transfer === "Y"
-                    ? `<span class="badge bg-info rounded-pill p-2 text-white">Sudah Transfer</span>`
-                    : `<span class="badge bg-danger rounded-pill p-2 text-white">Belum Transfer</span>`;
-
-            html += `
-                <tr>
-                    <td>${i + 1}</td>
-                    <td>${dt.no_nota_mti}</td>
-                    <td>${dt.no_faktur_mti}</td>
-                    <td>${dt.no_request}</td>
-                    <td>${dt.kegiatan}</td>
-                    <td>
-                        <span class="badge bg-info rounded-pill p-2 text-white">
-                            <i class="mdi mdi-calendar"></i> ${dt.tgl_nota}
-                        </span>
-                    </td>
-                    <td data-toggle="tooltip" title="${dt.emkl_full}">
-                        ${dt.emkl_short}
-                    </td>
-                    <td>${dt.bayar}</td>
-                    <td>Rp. ${dt.total_tagihan}</td>
-                    <td>${dt.lunas}</td>
-                    <td>${dt.status}</td>
-                    <td>
-                        <span class="badge bg-success rounded-pill p-2 text-white">
-                            Ready to Transfer
-                        </span>
-                    </td>
-                    <td>${badgeTransfer}</td>
-                    <td class="text-center" style="white-space: pre-wrap">
-                        ${dt.receipt_account ?? ""}
-                    </td>
-                </tr>
-            `;
-        });
-    }
-
-    $("#nota-body").html(html);
-
-    // tooltip
-    $('[data-toggle="tooltip"]').tooltip();
-
-    // DataTable init ulang
+    // destroy jika sudah ada
     if ($.fn.DataTable.isDataTable(".data-table")) {
         $(".data-table").DataTable().destroy();
     }
 
     $(".data-table").DataTable({
+        processing: true,
+        serverSide: true,
         pageLength: 15,
-        deferRender: true,
-        scrollY: 500,
-        scrollCollapse: true,
-        scroller: true,
         responsive: true,
+        ajax: {
+            url: "/report/nota-periodik/generate-nota",
+            type: "GET",
+            data: function (d) {
+                // kirim filter form
+                const formData = $("#generate_nota").serializeArray();
+                formData.forEach((x) => (d[x.name] = x.value));
+            },
+            dataSrc: function (json) {
+                return json.data; // penting!
+            },
+        },
+
+        columns: [
+            {
+                data: null,
+                render: (d, t, r, m) => m.row + 1,
+            },
+            { data: "no_nota_mti" },
+            { data: "no_faktur_mti" },
+            { data: "no_request" },
+            { data: "kegiatan" },
+            {
+                data: "tgl_nota",
+                render: (d) => `<span class="badge bg-info p-2">${d}</span>`,
+            },
+            {
+                data: "emkl_short",
+                render: (d, t, r) =>
+                    `<span data-toggle="tooltip" title="${r.emkl_full}">${d}</span>`,
+            },
+            { data: "bayar" },
+            {
+                data: "total_tagihan",
+                render: (d) => `Rp. ${d}`,
+            },
+            { data: "lunas" },
+            { data: "status" },
+            {
+                data: null,
+                render: () =>
+                    `<span class="badge bg-success p-2">Ready to Transfer</span>`,
+            },
+            {
+                data: "transfer",
+                render: (d) =>
+                    d === "Y"
+                        ? `<span class="badge bg-info p-2">Sudah Transfer</span>`
+                        : `<span class="badge bg-danger p-2">Belum Transfer</span>`,
+            },
+            {
+                data: "receipt_account",
+                defaultContent: "",
+            },
+        ],
+
+        drawCallback: function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        },
     });
 }
 

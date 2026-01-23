@@ -96,12 +96,14 @@ class NotaPeriodikService
                         AND TO_DATE ('$tgl_akhir', 'yyyy-mm-dd'))";
             }
 
-            $result = DB::connection('uster')->select($query_list_);
+            // $result = DB::connection('uster')->select($query_list_);
             return response()->json([
                 'status' => [
                     'msg' => 'OK',
                     'code' => 200
-                ], 'data' => $result
+                ],
+                // 'data' => $result,
+                'query' => $query_list_
             ], 200);
         } catch (Exception $th) {
             return response()->json([

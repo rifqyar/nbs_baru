@@ -182,9 +182,9 @@ class NotaPeriodikController extends Controller
                 }
                 /** END SET HEADER */
 
-                $buffer = [];
-                $rowIndex = 4;
+                $startValueRow = 4;
                 while ($start < $totalRow) {
+                    $buffer = []; // reset PER CHUNK (INI BENAR)
                     $query = "
                         SELECT * FROM (
                             SELECT a.*, ROWNUM rn FROM ($baseQuery) a
@@ -194,14 +194,13 @@ class NotaPeriodikController extends Controller
                     $rows = DB::connection('uster')->select($query);
                     foreach ($rows as $value) {
                         $v = (array)$value;
-
                         $buffer[] = [
-                            $rowIndex - 3,
+                            $startValueRow - 3,
                             $v['no_nota_mti'],
                             $v['no_faktur_mti'],
                             $v['no_request'],
                             $v['kegiatan'],
-                            $v['tgl_nota'] ? Carbon::parse($v['tgl_nota'])->format('Y-m-d') : '',
+                            $v['tgl_nota'], // preformat SQL lebih bagus
                             $v['emkl'],
                             $v['bayar'],
                             $v['total_tagihan'],
@@ -211,14 +210,11 @@ class NotaPeriodikController extends Controller
                             $v['transfer'] == 'Y' ? 'Sudah Transfer' : 'Belum Transfer',
                             $v['receipt_account'],
                         ];
-
-                        $rowIndex++;
+                        $startValueRow++;
                     }
-                    $activeWorksheet->fromArray($buffer, null, 'A4');
-                    $buffer = [];
+                    $activeWorksheet->fromArray($buffer, null, "A" . ($startValueRow - count($buffer)));
                     $start += $chunkSize;
                 }
-
                 // $startValueRow = 4;
                 // while ($start < $totalRow) {
                 //     $query = "

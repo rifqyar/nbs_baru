@@ -52,7 +52,7 @@ class NotaPeriodikController extends Controller
 
                 // total
                 $total = DB::connection('uster')
-                    ->selectOne("SELECT COUNT(*) TOTAL FROM ($baseQuery)")->TOTAL;
+                    ->selectOne("SELECT COUNT(*) TOTAL FROM ($baseQuery)")->total;
 
                 // paging
                 $query = "

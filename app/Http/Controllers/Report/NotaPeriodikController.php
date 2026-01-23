@@ -182,39 +182,40 @@ class NotaPeriodikController extends Controller
                 }
                 /** END SET HEADER */
 
-                $startValueRow = 4;
+                $buffer = [];
+                $rowIndex = 4;
                 while ($start < $totalRow) {
                     $query = "
                         SELECT * FROM (
                             SELECT a.*, ROWNUM rn FROM ($baseQuery) a
                         ) WHERE rn BETWEEN " . ($start + 1) . " AND " . ($start + $chunkSize) . "
                     ";
-                    $rows = DB::connection('uster')->select($query);
-                    $chunkData = [];
-                    foreach ($rows as $key => $value) {
-                        $valArr = (array) $value;
-                        $rowData = [];
-                        for ($i = 0; $i < count($columnSameTable); $i++) {
-                            if ($columnSameTable[$i] == 'No.') {
-                                $colValue = $startValueRow - 3;
-                            } elseif ($columnSameTable[$i] == 'tgl_nota') {
-                                $colValue = $valArr['tgl_nota']
-                                    ? Carbon::parse($valArr['tgl_nota'])->translatedFormat('d M Y')
-                                    : '';
-                            } elseif ($columnSameTable[$i] == 'status_nota') {
-                                $colValue = 'Ready To Transfer';
-                            } elseif ($columnSameTable[$i] == 'transfer') {
-                                $colValue = ($valArr['transfer'] == 'Y') ? 'Sudah Transfer' : 'Belum Transfer';
-                            } else {
-                                $colValue = $valArr[$columnSameTable[$i]] ?? '';
-                            }
-                            $rowData[] = (string) $colValue;
-                        }
-                        $chunkData[] = $rowData;
-                        $startValueRow++;
-                    }
-                    $activeWorksheet->fromArray($chunkData, null, 'A' . ($startValueRow - count($chunkData)));
 
+                    $rows = DB::connection('uster')->select($query);
+                    foreach ($rows as $value) {
+                        $v = (array)$value;
+
+                        $buffer[] = [
+                            $rowIndex - 3,
+                            $v['no_nota_mti'],
+                            $v['no_faktur_mti'],
+                            $v['no_request'],
+                            $v['kegiatan'],
+                            $v['tgl_nota'] ? Carbon::parse($v['tgl_nota'])->format('Y-m-d') : '',
+                            $v['emkl'],
+                            $v['bayar'],
+                            $v['total_tagihan'],
+                            $v['lunas'],
+                            $v['status'],
+                            'Ready To Transfer',
+                            $v['transfer'] == 'Y' ? 'Sudah Transfer' : 'Belum Transfer',
+                            $v['receipt_account'],
+                        ];
+
+                        $rowIndex++;
+                    }
+                    $activeWorksheet->fromArray($buffer, null, 'A4');
+                    $buffer = [];
                     $start += $chunkSize;
                 }
 
@@ -256,10 +257,14 @@ class NotaPeriodikController extends Controller
                 // }
 
                 $writer = new Xlsx($spreadsheet);
+                $writer->setPreCalculateFormulas(false);
+                $writer->setUseDiskCaching(true, storage_path('app/cache'));
                 $fileName = "LAPORAN NOTA PER PERIODIK " . $request->tgl_awal . ' - ' . $request->tgl_akhir;
                 $file = $fileName . '.xlsx';
                 $path = public_path() . "/storage/report/nota_periodik/" . $file;
                 $writer->save($path);
+                $spreadsheet->disconnectWorksheets();
+                unset($spreadsheet);
 
                 return response()->json([
                     'status' => [

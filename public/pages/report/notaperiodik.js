@@ -79,12 +79,12 @@ function renderNotaData(res) {
             { data: "kegiatan" },
             {
                 data: "tgl_nota",
-                render: (d) => `<span class="badge bg-info p-2">${d}</span>`,
+                render: (d) => `<span class="badge bg-info rounded-pill p-2 text-white"><i class="mdi mdi-calendar"></i>${d}</span>`,
             },
             {
                 data: "emkl_short",
                 render: (d, t, r) =>
-                    `<span data-toggle="tooltip" title="${r.emkl_full}">${d}</span>`,
+                    `<span data-toggle="tooltip" data-placement="top" title="${r.emkl_full}">${d}</span>`,
             },
             { data: "bayar" },
             {
@@ -96,14 +96,14 @@ function renderNotaData(res) {
             {
                 data: null,
                 render: () =>
-                    `<span class="badge bg-success p-2">Ready to Transfer</span>`,
+                    `<span class="badge bg-success rounded-pill p-2 text-white">Ready to Transfer</span>`,
             },
             {
                 data: "transfer",
                 render: (d) =>
                     d === "Y"
-                        ? `<span class="badge bg-info p-2">Sudah Transfer</span>`
-                        : `<span class="badge bg-danger p-2">Belum Transfer</span>`,
+                        ? `<span class="badge bg-info rounded-pill p-2 text-white">Sudah Transfer</span>`
+                        : `<span class="badge bg-danger rounded-pill p-2 text-white">Belum Transfer</span>`,
             },
             {
                 data: "receipt_account",

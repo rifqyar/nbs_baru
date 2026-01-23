@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -208,7 +209,7 @@ class NotaPeriodikController extends Controller
                             $activeWorksheet->setCellValueExplicit(
                                 $startValueCol . $startValueRow,
                                 $colValue,
-                                NumberFormat::FORMAT_TEXT
+                                DataType::TYPE_STRING
                             );
                             $startValueCol++;
                         }

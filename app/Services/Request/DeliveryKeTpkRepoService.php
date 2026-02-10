@@ -406,31 +406,31 @@ class DeliveryKeTpkRepoService
                 ->get();
         } else {
             $historySub = DB::connection('uster')
-                ->table('HISTORY_CONTAINER')
-                ->select('*')
+                ->table('HISTORY_CONTAINER as h2')
                 ->selectRaw("
+                    h2.*,
                     ROW_NUMBER() OVER (
-                        PARTITION BY NO_CONTAINER, NO_BOOKING
-                        ORDER BY TGL_UPDATE DESC
+                        PARTITION BY h2.NO_CONTAINER, h2.NO_BOOKING
+                        ORDER BY h2.TGL_UPDATE DESC
                     ) AS rn
                 ")
-                ->whereNull('AKTIF')
-                ->whereIn('KEGIATAN', [
+                ->whereNull('h2.AKTIF')
+                ->whereIn('h2.KEGIATAN', [
                     'REALISASI STUFFING',
                     'REQUEST BATALMUAT'
                 ]);
 
             $stuffingSub = DB::connection('uster')
-                ->table('CONTAINER_STUFFING')
-                ->select('*')
+                ->table('CONTAINER_STUFFING as cs')
                 ->selectRaw("
+                    cs.*,
                     ROW_NUMBER() OVER (
-                        PARTITION BY NO_CONTAINER
-                        ORDER BY TGL_REALISASI DESC
+                        PARTITION BY cs.NO_CONTAINER
+                        ORDER BY cs.TGL_REALISASI DESC
                     ) AS rn
                 ")
-                ->where('AKTIF', 'T')
-                ->whereNotNull('TGL_REALISASI');
+                ->where('cs.AKTIF', 'T')
+                ->whereNotNull('cs.TGL_REALISASI');
 
             $result = DB::connection('uster')
                 ->table('MASTER_CONTAINER as m')
@@ -443,11 +443,13 @@ class DeliveryKeTpkRepoService
                     'h.STATUS_CONT as STATUS',
                     'h.NO_REQUEST'
                 )
+
                 ->joinSub($historySub, 'h', function ($join) {
                     $join->on('m.NO_CONTAINER', '=', 'h.NO_CONTAINER')
                         ->on('m.NO_BOOKING', '=', 'h.NO_BOOKING')
                         ->where('h.rn', 1);
                 })
+
                 ->joinSub($stuffingSub, 's', function ($join) {
                     $join->on('s.NO_CONTAINER', '=', 'm.NO_CONTAINER')
                         ->where('s.rn', 1);

@@ -405,8 +405,35 @@ class DeliveryKeTpkRepoService
                 ])
                 ->get();
         } else {
-            $result = DB::connection('uster')->table('MASTER_CONTAINER as m')
-                ->distinct()
+            $historySub = DB::connection('uster')
+                ->table('HISTORY_CONTAINER')
+                ->select('*')
+                ->selectRaw("
+                    ROW_NUMBER() OVER (
+                        PARTITION BY NO_CONTAINER, NO_BOOKING
+                        ORDER BY TGL_UPDATE DESC
+                    ) AS rn
+                ")
+                ->whereNull('AKTIF')
+                ->whereIn('KEGIATAN', [
+                    'REALISASI STUFFING',
+                    'REQUEST BATALMUAT'
+                ]);
+
+            $stuffingSub = DB::connection('uster')
+                ->table('CONTAINER_STUFFING')
+                ->select('*')
+                ->selectRaw("
+                    ROW_NUMBER() OVER (
+                        PARTITION BY NO_CONTAINER
+                        ORDER BY TGL_REALISASI DESC
+                    ) AS rn
+                ")
+                ->where('AKTIF', 'T')
+                ->whereNotNull('TGL_REALISASI');
+
+            $result = DB::connection('uster')
+                ->table('MASTER_CONTAINER as m')
                 ->select(
                     'm.NO_CONTAINER',
                     'm.SIZE_',
@@ -416,20 +443,18 @@ class DeliveryKeTpkRepoService
                     'h.STATUS_CONT as STATUS',
                     'h.NO_REQUEST'
                 )
-                ->join('HISTORY_CONTAINER as h', function ($join) use ($no_cont) {
+                ->joinSub($historySub, 'h', function ($join) {
                     $join->on('m.NO_CONTAINER', '=', 'h.NO_CONTAINER')
-                        ->on('m.NO_BOOKING', '=', 'h.NO_BOOKING');
+                        ->on('m.NO_BOOKING', '=', 'h.NO_BOOKING')
+                        ->where('h.rn', 1);
                 })
-                ->join('CONTAINER_STUFFING as s', function ($join) {
+                ->joinSub($stuffingSub, 's', function ($join) {
                     $join->on('s.NO_CONTAINER', '=', 'm.NO_CONTAINER')
-                        ->on('s.NO_CONTAINER', '=', 'h.NO_CONTAINER');
+                        ->where('s.rn', 1);
                 })
-                ->whereRaw("h.TGL_UPDATE = (SELECT DISTINCT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER LIKE ? AND NO_BOOKING = h.NO_BOOKING AND aktif is null and kegiatan in('REALISASI STUFFING','REQUEST BATALMUAT'))", ['%' . $no_cont . '%'])
+
                 ->where('m.LOCATION', 'IN_YARD')
                 ->where('m.NO_CONTAINER', 'like', '%' . $no_cont . '%')
-                ->where('s.AKTIF', 'T')
-                ->whereNull('h.aktif')
-                ->whereNotNull('s.TGL_REALISASI')
                 ->get();
         }
 

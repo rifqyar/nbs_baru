@@ -615,6 +615,16 @@
                         // Implement your AJAX settings for data retrieval here
                         url: '{!! route('uster.new_request.stuffing.stuffing_plan.getContainerTPKByName') !!}',
                         dataType: 'json',
+                        data: function(params) {
+                            return {
+                                NO_CONTAINER: params.term || $('#NO_CONT').val(),
+                                VOYAGE: $('#VOYAGE').val(),
+                                ID_VSB: $('#NO_UKK').val(),
+                                VOYIN: $('#VOYAGE_IN').val(),
+                                VOYOUT: $('#VOYAGE_OUT').val(),
+                                VESID: $('#KD_KAPAL').val()
+                            };
+                        },
                         processResults: function(data) {
                             const arrs = data;
                             console.log(data)
@@ -1049,7 +1059,126 @@
                         }
                     });
                     if ($("#YARD_STACK").val() == 'TPK') {
-                        console.log('TPK');
+                        $.ajax({
+                            url: '{!! route('uster.new_request.stuffing.stuffing_plan.getContainerTPKByName') !!}',
+                            type: 'GET',
+                            dataType: 'json',
+                            data: {
+                                NO_CONTAINER: $no_cont,
+                                VOYAGE: $('#VOYAGE').val(),
+                                ID_VSB: $('#ID_VSB_VOYAGE').val(),
+                                VOYIN: $('#VOYAGE_IN').val(),
+                                VOYOUT: $('#VOYAGE_OUT').val(),
+                                VESID: $('#KD_KAPAL').val()
+                            },
+                            success: function(json) {
+                                if (
+                                    json === null ||
+                                    !Array.isArray(json) ||
+                                    json.length === 0
+                                ) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Container Tidak Ditemukan',
+                                        text: 'Container tidak ditemukan di Praya.'
+                                    });
+
+                                    return false;
+                                }
+
+                                var container_praya = json[0];
+
+                                console.log('Container Praya:', container_praya);
+
+                                var no_req_ict_ = $("#NO_REQUEST2").val();
+                                var no_req_ict2_ = $("#NO_REQUEST3").val();
+                                var no_do = $("#NO_DO").val();
+                                var no_bl = $("#NO_BL").val();
+                                var no_booking_ = $("#NO_BOOKING").val();
+                                var sp2 = $("#SP2").val();
+                                var no_req = $("#no_req").val();
+                                var no_req_rec = `{{ $row_request->no_request_receiving }}`;
+                                var no_req_del = "{{ $row_request->no_request_delivery }}";
+                                var url =
+                                    '{{ route('uster.new_request.stuffing.stuffing_plan.containerApprove') }}';
+
+                                $.ajaxSetup({
+                                    headers: {
+                                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr(
+                                            'content')
+                                    }
+                                });
+                                $.post(url, {
+                                    NO_REQ_REC: no_req_rec,
+                                    NO_REQ_DEL: no_req_del,
+                                    tgl_approve: $tgl_approve,
+                                    no_cont: $no_cont,
+                                    no_req: no_req,
+                                    NO_REQ_ICT: no_req_ict_,
+                                    NO_REQ_ICT2: no_req_ict2_,
+                                    NO_DO: no_do,
+                                    NO_BL: no_bl,
+                                    SP2: sp2,
+                                    NO_BOOKING: no_booking_,
+                                    ASAL_CONT: 'TPK',
+                                    CONTAINER_SIZE: container_praya.containerSize,
+                                    CONTAINER_TYPE: container_praya.containerType,
+                                    CONTAINER_STATUS: container_praya.containerStatus,
+                                    CONTAINER_HZ: container_praya.hz,
+                                    CONTAINER_IMO: container_praya.imo,
+                                    CONTAINER_ISO_CODE: container_praya.isoCode,
+                                    CONTAINER_HEIGHT: container_praya.containerHeight,
+                                    CONTAINER_CARRIER: container_praya.carrier,
+                                    CONTAINER_REEFER_TEMP: container_praya.reeferTemp,
+                                    CONTAINER_BOOKING_SL: container_praya.bookingSl,
+                                    CONTAINER_OVER_WIDTH: container_praya.overWidth,
+                                    CONTAINER_OVER_LENGTH: container_praya.overLength,
+                                    CONTAINER_OVER_HEIGHT: container_praya.overHeight,
+                                    CONTAINER_OVER_FRONT: container_praya.overFront,
+                                    CONTAINER_OVER_REAR: container_praya.overRear,
+                                    CONTAINER_OVER_LEFT: container_praya.overLeft,
+                                    CONTAINER_OVER_RIGHT: container_praya.overRight,
+                                    CONTAINER_UN_NUMBER: container_praya.unNumber,
+                                    CONTAINER_POD: container_praya.pod,
+                                    CONTAINER_POL: container_praya.pol,
+                                    CONTAINER_VESSEL_CONFIRM: container_praya.dischargeDate,
+                                    CONTAINER_COMODITY_TYPE_CODE: container_praya.commodity,
+                                }, function(data) {
+                                    if (data == "OK") {
+                                        $('#service-table').DataTable().ajax
+                                            .reload();
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Berhasil Menambah kontainer ' +
+                                                $no_cont
+                                        });
+                                    } else {
+                                        $('#service-table').DataTable().ajax
+                                            .reload();
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Gagal menghapus kontainer ' +
+                                                $no_cont,
+                                            text: data
+                                        });
+                                    }
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Request container Praya gagal:', {
+                                    status: status,
+                                    error: error,
+                                    response: xhr.responseText
+                                });
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Gagal Mengambil Data',
+                                    text: xhr.responseJSON?.message ||
+                                        'Terjadi kesalahan saat mengambil data container dari Praya.'
+                                });
+                            }
+                        });
                     } else {
                         var no_req_ict_ = $("#NO_REQUEST2").val();
                         var no_req_ict2_ = $("#NO_REQUEST3").val();
@@ -1058,8 +1187,8 @@
                         var no_booking_ = $("#NO_BOOKING").val();
                         var sp2 = $("#SP2").val();
                         var no_req = $("#no_req").val();
-                        var no_req_rec = "REC0224000963";
-                        var no_req_del = "";
+                        var no_req_rec = `{{ $row_request->no_request_receiving }}`;
+                        var no_req_del = "{{ $row_request->no_request_delivery }}";
                         var url = '{{ route('uster.new_request.stuffing.stuffing_plan.containerApprove') }}';
 
                         $.ajaxSetup({

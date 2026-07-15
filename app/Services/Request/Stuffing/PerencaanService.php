@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Psr7\Request;
 use Exception;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Session;
 use PDO;
 
 class PerencaanService
@@ -1011,266 +1012,498 @@ class PerencaanService
         $tgl_approve = $request->input("tgl_approve");
         $no_cont = $request->input("no_cont");
         $no_req = $request->input("no_req");
+        $no_req_rec            = $request->input("NO_REQ_REC");
+        $id_user    = Session::get('LOGGED_STORAGE');
 
-
+        $asalcontstuff         = $request->ASAL_CONT;
+        $container_size                    = $request->CONTAINER_SIZE;
+        $container_type                    = $request->CONTAINER_TYPE;
+        $container_status                = $request->CONTAINER_STATUS;
+        $container_hz                    = $request->CONTAINER_HZ;
+        $container_imo                    = $request->CONTAINER_IMO;
+        $container_iso_code                = $request->CONTAINER_ISO_CODE;
+        $container_height                = $request->CONTAINER_HEIGHT;
+        $container_carrier                = $request->CONTAINER_CARRIER;
+        $container_reefer_temp            = $request->CONTAINER_REEFER_TEMP;
+        $container_booking_sl            = $request->CONTAINER_BOOKING_SL;
+        $container_over_width            = $request->CONTAINER_OVER_WIDTH;
+        $container_over_length            = $request->CONTAINER_OVER_LENGTH;
+        $container_over_height            = $request->CONTAINER_OVER_HEIGHT;
+        $container_over_front            = $request->CONTAINER_OVER_FRONT;
+        $container_over_rear            = $request->CONTAINER_OVER_REAR;
+        $container_over_left            = $request->CONTAINER_OVER_LEFT;
+        $container_over_right            = $request->CONTAINER_OVER_RIGHT;
+        $container_un_number            = $request->CONTAINER_UN_NUMBER;
+        $container_pod                    = $request->CONTAINER_POD;
+        $container_pol                    = $request->CONTAINER_POL;
+        $container_vessel_confirm        = $request->CONTAINER_VESSEL_CONFIRM;
+        $container_comodity_type_code    = $request->CONTAINER_COMODITY_TYPE_CODE;
 
         try {
-            DB::connection('uster')->beginTransaction();
 
+            if ($asalcontstuff == "TPK") {
+                $hz = $hz ?? $request->input('hz') ?? $container_hz ?? '';
+                $tgl_bongkar = $tgl_bongkar ?? $request->input('tgl_bongkar') ?? null;
+                $commodity = $commodity ?? $request->input('commodity') ?? $komoditi ?? '';
+                $depo_tujuan = $depo_tujuan ?? $request->input('depo_tujuan') ?? '';
+                $blok_tpk = $blok_tpk ?? $request->input('blok_tpk') ?? '';
+                $slot_tpk = $slot_tpk ?? $request->input('slot_tpk') ?? '';
+                $row_tpk = $row_tpk ?? $request->input('row_tpk') ?? '';
+                $tier_tpk = $tier_tpk ?? $request->input('tier_tpk') ?? '';
+                $id_yard = $id_yard ?? $request->input('id_yard') ?? '';
 
-            $query_cek1        = "SELECT tes.NO_REQUEST,
-								CASE SUBSTR(KEGIATAN,9)
-									WHEN 'RECEIVING' THEN (SELECT CONCAT('RECEIVING_',a.RECEIVING_DARI) FROM request_receiving a WHERE a.NO_REQUEST = tes.NO_REQUEST)
-									ELSE SUBSTR(KEGIATAN,9)
-								END KEGIATAN FROM (SELECT TGL_UPDATE, NO_REQUEST,KEGIATAN FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI')) tes
-								WHERE tes.TGL_UPDATE=(SELECT MAX(TGL_UPDATE) FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI'))";
-            $row_cek1 =  DB::connection('uster')->selectOne($query_cek1);
+                $db = DB::connection('uster');
+                $db->beginTransaction();
+                /* * Format vessel confirm dari YmdHis menjadi d-m-Y H:i:s. */
+                $formattedDateVesselConfirm = '';
+                if (!empty($container_vessel_confirm) && strtolower((string) $container_vessel_confirm) !== 'null') {
+                    $formattedDateVesselConfirm = Carbon::createFromFormat('YmdHis', $container_vessel_confirm)->format('d-m-Y H:i:s');
+                }
 
-            $no_request        = $row_cek1->no_request;
-            $kegiatan        = $row_cek1->kegiatan;
+                /* * ========================================================== * START SIMOP TPK * ========================================================== */ /* * Mengambil tanggal approve. */
+                $rpaid = $db->selectOne(' SELECT TGL_APPROVE FROM PLAN_CONTAINER_STUFFING WHERE NO_CONTAINER = :no_container AND NO_REQUEST = :no_request ', ['no_container' => $no_cont, 'no_request' => $no_req,]);
+                if (!$rpaid) {
+                    throw new \Exception('Data PLAN_CONTAINER_STUFFING tidak ditemukan.');
+                }
 
-
-            if ($kegiatan == 'RECEIVING_LUAR') {
-                $query_cek1        = "SELECT SUBSTR(TO_CHAR(b.TGL_IN, 'MM/DD/YYYY'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
-                $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                $asal_cont         = 'LUAR';
-            } else if ($kegiatan == 'RECEIVING_TPK') {
-                $query_cek1        = "SELECT TGL_BONGKAR START_STACK FROM container_receiving WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                $row_cek1    = DB::connection('uster')->selectOne($query_cek1);
-                $asal_cont         = 'TPK';
-            } else if ($kegiatan == 'STRIPPING') {
-                $query_cek1        = "SELECT SUBSTR(TO_CHAR(TGL_REALISASI,'MM/DD/YYYY'),1,9) START_STACK FROM container_stripping WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
-                $row_cek1    = DB::connection('uster')->selectOne($query_cek1);
-                $asal_cont         = 'DEPO';
-            }
-
-            $query_r = "SELECT * FROM PLAN_REQUEST_STUFFING WHERE NO_REQUEST = '$no_req'";
-            $row_r = DB::connection('uster')->selectOne($query_r);
-
-            $no_request = $row_r->no_request;
-            $id_yard = $row_r->id_yard;
-            $keterangan = $row_r->keterangan;
-            $no_book = $row_r->no_booking;
-            $tgl_req = $row_r->tgl_request;
-            $dokumen = $row_r->no_dokumen;
-            $jpb = $row_r->no_jpb;
-            $bprp = $row_r->bprp;
-            $rec = $row_r->no_request_receiving;
-            $id_user = $row_r->id_user;
-            $dev = $row_r->no_request_delivery;
-            $consig = $row_r->kd_consignee;
-            $tumpuk = $row_r->kd_penumpukan_oleh;
-            $kapal = $row_r->nm_kapal;
-            $peb = $row_r->no_peb;
-            $npe = $row_r->no_npe;
-            $voy = $row_r->voyage;
-            $query_c = "SELECT DISTINCT    PLAN_CONTAINER_STUFFING.NO_CONTAINER,
-								   PLAN_CONTAINER_STUFFING.HZ,
-								   PLAN_CONTAINER_STUFFING.AKTIF,
-								   PLAN_CONTAINER_STUFFING.TYPE_STUFFING,
-								   PLAN_CONTAINER_STUFFING.ASAL_CONT,
-								   PLAN_CONTAINER_STUFFING.NO_SEAL,
-								   PLAN_CONTAINER_STUFFING.BERAT,
-								   PLAN_CONTAINER_STUFFING.KETERANGAN,
-								   PLAN_CONTAINER_STUFFING.TGL_APPROVE,
-								   PLAN_CONTAINER_STUFFING.TGL_MULAI,
-								   TO_CHAR(PLAN_CONTAINER_STUFFING.START_STACK,'dd-mm-yyyy') STACK,
-								   PLAN_CONTAINER_STUFFING.COMMODITY,
-								   PLAN_CONTAINER_STUFFING.KD_COMMODITY,
-								   PLAN_CONTAINER_STUFFING.NO_REQ_SP2
-					   FROM PLAN_CONTAINER_STUFFING
-					   WHERE PLAN_CONTAINER_STUFFING.NO_REQUEST = '$no_req' AND PLAN_CONTAINER_STUFFING.NO_CONTAINER = '$no_cont'";
-            $row_c = DB::connection('uster')->select($query_c);
-
-            $no_req_stuf = str_replace('P', 'S', $no_req);
-            $query_cek_request = "SELECT * FROM REQUEST_STUFFING WHERE NO_REQUEST = '$no_req_stuf'";
-            $row_cek_request =  DB::connection('uster')->select($query_cek_request);
-
-
-            //query apakah kontainer telah ada di table cont stuffing
-            $query_cek_cont = "SELECT * FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_req_stuf' AND NO_CONTAINER = '$no_cont'";
-            $row_cek_cont =  DB::connection('uster')->select($query_cek_cont);
-
-            if (count($row_cek_request) > 0 && count($row_cek_cont) > 0) { //jika request telah ada dan container telah ada
-                // DB::connection('uster')->selectOne($query);
-
-                // DB::connection('uster')->selectOne($query_tgl_app);
-            } else if (count($row_cek_request) > 0 && count($row_cek_cont) == 0) {
                 $no_req_stuf = str_replace('P', 'S', $no_req);
-                foreach ($row_c as $rc) {
-                    $hz = $rc->hz;
-                    $cont = $rc->no_container ?? NULL;
+                /* * Oracle menganggap string kosong sebagai NULL. */
+                $container_size = (isset($container_size) && strtolower((string) $container_size) !== 'null') ? $container_size : '';
+                $container_type = (isset($container_type) && strtolower((string) $container_type) !== 'null') ? $container_type : '';
+                $container_status = (isset($container_status) && strtolower((string) $container_status) !== 'null') ? $container_status : '';
+                $container_hz = (isset($container_hz) && strtolower((string) $container_hz) !== 'null') ? $container_hz : '';
+                $container_imo = (isset($container_imo) && strtolower((string) $container_imo) !== 'null') ? $container_imo : '';
+                $container_iso_code = (isset($container_iso_code) && strtolower((string) $container_iso_code) !== 'null') ? $container_iso_code : '';
+                $container_height = (isset($container_height) && strtolower((string) $container_height) !== 'null') ? $container_height : '';
+                $container_carrier = (isset($container_carrier) && strtolower((string) $container_carrier) !== 'null') ? $container_carrier : '';
+                $container_reefer_temp = (isset($container_reefer_temp) && strtolower((string) $container_reefer_temp) !== 'null') ? $container_reefer_temp : '';
+                $container_booking_sl = (isset($container_booking_sl) && strtolower((string) $container_booking_sl) !== 'null') ? $container_booking_sl : '';
+                $container_over_width = (isset($container_over_width) && strtolower((string) $container_over_width) !== 'null') ? $container_over_width : '';
+                $container_over_length = (isset($container_over_length) && strtolower((string) $container_over_length) !== 'null') ? $container_over_length : '';
+                $container_over_height = (isset($container_over_height) && strtolower((string) $container_over_height) !== 'null') ? $container_over_height : '';
+                $container_over_front = (isset($container_over_front) && strtolower((string) $container_over_front) !== 'null') ? $container_over_front : '';
+                $container_over_rear = (isset($container_over_rear) && strtolower((string) $container_over_rear) !== 'null') ? $container_over_rear : '';
+                $container_over_left = (isset($container_over_left) && strtolower((string) $container_over_left) !== 'null') ? $container_over_left : '';
+                $container_over_right = (isset($container_over_right) && strtolower((string) $container_over_right) !== 'null') ? $container_over_right : '';
+                $container_un_number = (isset($container_un_number) && strtolower((string) $container_un_number) !== 'null') ? $container_un_number : '';
+                $container_pod = (isset($container_pod) && strtolower((string) $container_pod) !== 'null') ? $container_pod : '';
+                $container_pol = (isset($container_pol) && strtolower((string) $container_pol) !== 'null') ? $container_pol : '';
+                $komoditi = (isset($komoditi) && strtolower((string) $komoditi) !== 'null') ? trim($komoditi) : '';
+                $container_comodity_type_code = (isset($container_comodity_type_code) && strtolower((string) $container_comodity_type_code) !== 'null') ? $container_comodity_type_code : ''; /* * Memanggil stored procedure Oracle. * * p_ErrMsg merupakan parameter output. */
 
+                $pdo = $db->getPdo();
+                $opusQuery = ' BEGIN pack_create_req_stuffing.approve_stuf_praya( :in_nocont, :in_planreq, :in_req, :in_asalcont, :in_tglsp2, :in_container_size, :in_container_type, :in_container_status, :in_container_hz, :in_container_imo, :in_container_iso_code, :in_container_height, :in_container_carrier, :in_container_reefer_temp, :in_container_booking_sl, :in_container_over_width, :in_container_over_length, :in_container_over_height, :in_container_over_front, :in_container_over_rear, :in_container_over_left, :in_container_over_right, :in_container_un_number, :in_container_pod, :in_container_pol, :in_container_vessel_confirm, :in_container_comodity, :in_container_c_type_code, :p_ErrMsg ); END; ';
+                $statement = $pdo->prepare($opusQuery);
+                $statement->bindValue(':in_nocont', $no_cont);
+                $statement->bindValue(':in_planreq', $no_req);
+                $statement->bindValue(':in_req', $no_req_stuf);
+                $statement->bindValue(':in_asalcont', $asalcontstuff);
+                $statement->bindValue(':in_tglsp2', $rpaid->tgl_approve);
+                $statement->bindValue(':in_container_size', $container_size);
+                $statement->bindValue(':in_container_type', $container_type);
+                $statement->bindValue(':in_container_status', $container_status);
+                $statement->bindValue(':in_container_hz', $container_hz);
+                $statement->bindValue(':in_container_imo', $container_imo);
+                $statement->bindValue(':in_container_iso_code', $container_iso_code);
+                $statement->bindValue(':in_container_height', $container_height);
+                $statement->bindValue(':in_container_carrier', $container_carrier);
+                $statement->bindValue(':in_container_reefer_temp', $container_reefer_temp);
+                $statement->bindValue(':in_container_booking_sl', $container_booking_sl);
+                $statement->bindValue(':in_container_over_width', $container_over_width);
+                $statement->bindValue(':in_container_over_length', $container_over_length);
+                $statement->bindValue(':in_container_over_height', $container_over_height);
+                $statement->bindValue(':in_container_over_front', $container_over_front);
+                $statement->bindValue(':in_container_over_rear', $container_over_rear);
+                $statement->bindValue(':in_container_over_left', $container_over_left);
+                $statement->bindValue(':in_container_over_right', $container_over_right);
+                $statement->bindValue(':in_container_un_number', $container_un_number);
+                $statement->bindValue(':in_container_pod', $container_pod);
+                $statement->bindValue(':in_container_pol', $container_pol);
+                $statement->bindValue(':in_container_vessel_confirm', $formattedDateVesselConfirm);
+                $statement->bindValue(':in_container_comodity', $komoditi);
+                $statement->bindValue(':in_container_c_type_code', $container_comodity_type_code);
 
-                    //CEK TGL GATE
-                    $tes = "select TO_CHAR(TGL_UPDATE,'dd/mm/rrrr') TGL_GATE from history_container where no_container = '$cont' AND KEGIATAN = 'BORDER GATE IN' AND TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM history_container WHERE NO_CONTAINER = '$cont')";
-                    $gate = DB::connection('uster')->selectOne($tes);
-                    $tgl_gate = $gate->tgl_gate ?? '';
+                $msg = '';
+                $statement->bindParam(':p_ErrMsg', $msg, \PDO::PARAM_STR | \PDO::PARAM_INPUT_OUTPUT, 4000);
+                $statement->execute();
+                $msg = trim((string) $msg);
 
+                if (strtoupper($msg) !== 'OK') {
+                    throw new \Exception($msg !== '' ? $msg : 'Stored procedure approve stuffing gagal.');
+                }
+                /* * ========================================================== * END SIMOP TPK * ========================================================== */ /* * Insert CONTAINER_RECEIVING. */
 
+                $insertContainerReceiving = $db->insert(' INSERT INTO CONTAINER_RECEIVING ( NO_CONTAINER, NO_REQUEST, STATUS, AKTIF, HZ, TGL_BONGKAR, KOMODITI, DEPO_TUJUAN, BLOK_TPK, SLOT_TPK, ROW_TPK, TIER_TPK ) VALUES ( :no_container, :no_request, :status, :aktif, :hz, TO_DATE(:tgl_bongkar, \'DD-MM-RR\'), :komoditi, :depo_tujuan, :blok_tpk, :slot_tpk, :row_tpk, :tier_tpk ) ', ['no_container' => $no_cont, 'no_request' => $no_req_rec, 'status' => 'MTY', 'aktif' => 'Y', 'hz' => $container_hz, 'tgl_bongkar' => $tgl_bongkar, 'komoditi' => $commodity, 'depo_tujuan' => $depo_tujuan, 'blok_tpk' => $blok_tpk, 'slot_tpk' => $slot_tpk, 'row_tpk' => $row_tpk, 'tier_tpk' => $tier_tpk,]);
+                if (!$insertContainerReceiving) {
+                    throw new \Exception('Insert CONTAINER_RECEIVING gagal.');
+                }
 
-                    $start_stack = $rc->stack;
-                    $aktif = $rc->aktif;
-                    $comm = $rc->commodity;
-                    $type_st = $rc->type_stuffing;
-                    $asal = $rc->asal_cont;
-                    $seal = $rc->no_seal;
-                    $berat = $rc->berat;
-                    $keterangan = $rc->keterangan;
-                    $tgl_app = $rc->tgl_approve;
-                    $tgl_mulai = $rc->tgl_mulai;
-                    $req_sp2 = $rc->no_req_sp2;
-                    if ($req_sp2 == NULL) {
-                        $query_ic    = "INSERT INTO CONTAINER_STUFFING (	NO_CONTAINER, NO_REQUEST,
-															AKTIF, HZ, COMMODITY, TYPE_STUFFING,
-															START_STACK,
-															ASAL_CONT, NO_SEAL, BERAT, KETERANGAN,
-															TGL_APPROVE,
-															TGL_GATE,
-															START_PERP_PNKN)
-													VALUES(	'$cont',
-															'$no_req_stuf',
-															'$aktif',
-															'$hz',
-															'$comm',
-															'$type_st',
-															to_date('" . $start_stack . "','dd-mm-rrrr'),
-															'$asal',
-															'$seal',
-															'$berat',
-															'$keterangan',
-															SYSDATE,
-															TO_DATE('$tgl_gate','dd-mm-rrrr'),
-															TO_DATE('$tgl_app','YYYY-MM-DD HH24:MI:SS'))";
-                    } else {
-                        $query_ic    = "INSERT INTO CONTAINER_STUFFING (	NO_CONTAINER, NO_REQUEST,
-															AKTIF, HZ, COMMODITY, TYPE_STUFFING,
-															START_STACK,
-															ASAL_CONT, NO_SEAL, BERAT, KETERANGAN,
-															TGL_APPROVE,
-															TGL_GATE,
-															START_PERP_PNKN,
-															END_STACK_PNKN,
-															REMARK_SP2)
-													VALUES(	'$cont',
-															'$no_req_stuf',
-															'$aktif',
-															'$hz',
-															'$comm',
-															'$type_st',
-															'$tgl_mulai',
-															'$asal',
-															'$seal',
-															'$berat',
-															'$keterangan',
-															TO_DATE('$tgl_app','dd-mm-rrrr'),
-															TO_DATE('$tgl_gate','dd-mm-rrrr'),
-															TO_DATE('" . $start_stack . "','dd-mm-rrrr'),
-															TO_DATE('$tgl_approve','YYYY-MM-DD HH24:MI:SS'),
-															'Y')";
+                /* * Mengambil booking dan counter terakhir. * * Menggunakan ROWNUM agar kompatibel dengan Oracle 11g. */
+                $rw_getcounter1 = $db->selectOne(' SELECT NO_BOOKING, COUNTER FROM ( SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = :no_container ORDER BY COUNTER DESC ) WHERE ROWNUM = 1 ', ['no_container' => $no_cont,]);
+                $cur_booking1 = $rw_getcounter1->no_booking ?? null;
+                $cur_counter1 = $rw_getcounter1->counter ?? null; /* * Insert history receiving. */
+                $insertHistoryReceiving = $db->insert(' INSERT INTO HISTORY_CONTAINER ( NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, STATUS_CONT, NO_BOOKING, COUNTER ) VALUES ( :no_container, :no_request, :kegiatan, SYSDATE, :id_user, :id_yard, :status_cont, :no_booking, :counter ) ', ['no_container' => $no_cont, 'no_request' => $no_req_rec, 'kegiatan' => 'REQUEST RECEIVING', 'id_user' => $id_user, 'id_yard' => $id_yard, 'status_cont' => 'MTY', 'no_booking' => $cur_booking1, 'counter' => $cur_counter1,]);
+
+                if (!$insertHistoryReceiving) {
+                    throw new \Exception('Insert history REQUEST RECEIVING gagal.');
+                }
+
+                /* * Mengambil aktivitas container terakhir. */
+                $row_cek1 = $db->selectOne(' SELECT TES.NO_REQUEST, CASE SUBSTR(TES.KEGIATAN, 9) WHEN \'RECEIVING\' THEN ( SELECT \'RECEIVING_\' || A.RECEIVING_DARI FROM REQUEST_RECEIVING A WHERE A.NO_REQUEST = TES.NO_REQUEST ) ELSE SUBSTR(TES.KEGIATAN, 9) END AS KEGIATAN FROM ( SELECT TGL_UPDATE, NO_REQUEST, KEGIATAN FROM HISTORY_CONTAINER WHERE NO_CONTAINER = :no_container AND KEGIATAN IN ( \'REQUEST RECEIVING\', \'REQUEST STRIPPING\', \'REQUEST STUFFING\', \'REQUEST RELOKASI\' ) ) TES WHERE TES.TGL_UPDATE = ( SELECT MAX(TGL_UPDATE) FROM HISTORY_CONTAINER WHERE NO_CONTAINER = :no_container_max AND KEGIATAN IN ( \'REQUEST RECEIVING\', \'REQUEST STRIPPING\', \'REQUEST STUFFING\', \'REQUEST RELOKASI\' ) ) ', ['no_container' => $no_cont, 'no_container_max' => $no_cont,]);
+                $no_request_ = $row_cek1->no_request ?? null;
+                $kegiatan = strtoupper((string) ($row_cek1->kegiatan ?? ''));
+                $asal_cont = null;
+                if ($kegiatan === 'RECEIVING_LUAR') {
+                    $rowStartStack = $db->selectOne(' SELECT SUBSTR( TO_CHAR(TGL_IN + 5, \'DD/MM/YYYY\'), 1, 10 ) AS START_STACK FROM GATE_IN WHERE NO_CONTAINER = :no_container AND NO_REQUEST = :no_request ', ['no_container' => $no_cont, 'no_request' => $no_request_,]);
+                    $asal_cont = 'LUAR';
+                } elseif ($kegiatan === 'RECEIVING_TPK') {
+                    $rowStartStack = $db->selectOne(' SELECT TGL_BONGKAR AS START_STACK FROM CONTAINER_RECEIVING WHERE NO_CONTAINER = :no_container AND NO_REQUEST = :no_request ', ['no_container' => $no_cont, 'no_request' => $no_request_,]);
+                    $asal_cont = 'TPK';
+                } elseif ($kegiatan === 'STRIPPING') {
+                    $rowStartStack = $db->selectOne(' SELECT SUBSTR( TO_CHAR(TGL_REALISASI, \'MM/DD/YYYY\'), 1, 9 ) AS START_STACK FROM CONTAINER_STRIPPING WHERE NO_CONTAINER = :no_container AND NO_REQUEST = :no_request ', ['no_container' => $no_cont, 'no_request' => $no_request_,]);
+                    $asal_cont = 'DEPO';
+                }
+
+                /* * Mengambil header PLAN_REQUEST_STUFFING. * * NO_BOOKING ditambahkan karena pada kode lama digunakan, * tetapi tidak ikut dipilih di SELECT. */
+                $row_r = $db->selectOne(' SELECT NO_REQUEST, ID_YARD, TGL_REQUEST, NO_DOKUMEN, NO_JPB, BPRP, NO_REQUEST_RECEIVING, ID_USER, NO_REQUEST_DELIVERY, KD_CONSIGNEE, KD_PENUMPUKAN_OLEH, NM_KAPAL, NO_PEB, NO_NPE, VOYAGE, NO_BOOKING FROM PLAN_REQUEST_STUFFING WHERE NO_REQUEST = :no_request ', ['no_request' => $no_req,]);
+                if (!$row_r) {
+                    throw new \Exception('PLAN_REQUEST_STUFFING tidak ditemukan.');
+                }
+                $no_request = $row_r->no_request;
+                $id_yard = $row_r->id_yard;
+                $keterangan = $row_r->id_yard;
+                $no_book = $row_r->no_booking;
+                $tgl_req = $row_r->tgl_request;
+                $dokumen = $row_r->no_dokumen;
+                $jpb = $row_r->no_jpb;
+                $bprp = $row_r->bprp;
+                $rec = $row_r->no_request_receiving;
+                $id_user = $row_r->id_user;
+                $dev = $row_r->no_request_delivery;
+                $consig = $row_r->kd_consignee;
+                $tumpuk = $row_r->kd_penumpukan_oleh;
+                $kapal = $row_r->nm_kapal;
+                $peb = $row_r->no_peb;
+                $npe = $row_r->no_npe;
+                $voy = $row_r->voyage; /* * Mengambil detail plan container. */
+                $row_c = $db->select(' SELECT DISTINCT NO_CONTAINER, AKTIF, HZ, TYPE_STUFFING, ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, TGL_APPROVE, START_STACK, COMMODITY, KD_COMMODITY FROM PLAN_CONTAINER_STUFFING WHERE NO_REQUEST = :no_request AND NO_CONTAINER = :no_container ', ['no_request' => $no_req, 'no_container' => $no_cont,]);
+                $no_req_stuf = str_replace('P', 'S', $no_req);
+                $row_cek_request = $db->select(' SELECT NO_REQUEST FROM REQUEST_STUFFING WHERE NO_REQUEST = :no_request ', ['no_request' => $no_req_stuf,]);
+                $row_cek_cont = $db->select(' SELECT NO_CONTAINER FROM CONTAINER_STUFFING WHERE NO_REQUEST = :no_request AND NO_CONTAINER = :no_container ', ['no_request' => $no_req_stuf, 'no_container' => $no_cont,]);
+
+                $query_tgl_app = "UPDATE CONTAINER_STUFFING SET TGL_APPROVE = TO_DATE('$tgl_approve','dd-mm-rrrr')
+                WHERE NO_REQUEST = '$no_req_stuf' AND NO_CONTAINER = '$no_cont'";
+
+                if (count($row_cek_request) > 0 && count($row_cek_cont) > 0) {
+                    /* * Query tambahan dari kode sebelumnya. * Variabel ini harus sudah tersedia sebelum blok ini. */
+                    if (!empty($query)) {
+                        $db->statement($query);
                     }
-                    DB::connection('uster')->insert($query_ic);
+                    if (!empty($query_tgl_app)) {
+                        $db->statement($query_tgl_app);
+                    }
+                } elseif (count($row_cek_request) > 0 && count($row_cek_cont) === 0) {
+                    if (!empty($query)) {
+                        $db->statement($query);
+                    }
+
+                    foreach ($row_c as $rc) {
+                        $cont = $rc->no_container; /* * Mengambil tanggal gate terakhir. */
+                        $gate = $db->selectOne(' SELECT TGL_UPDATE AS TGL_GATE FROM ( SELECT TGL_UPDATE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = :no_container AND KEGIATAN = \'BORDER GATE IN\' ORDER BY TGL_UPDATE DESC ) WHERE ROWNUM = 1 ', ['no_container' => $cont,]);
+                        $tgl_gate = $gate->tgl_gate ?? null;
+                        $insertContainerStuffing = $db->insert(' INSERT INTO CONTAINER_STUFFING ( NO_CONTAINER, NO_REQUEST, AKTIF, HZ, COMMODITY, TYPE_STUFFING, START_STACK, ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, TGL_APPROVE, TGL_GATE, START_PERP_PNKN, KD_COMMODITY ) VALUES ( :no_container, :no_request, :aktif, :hz, :commodity, :type_stuffing, :start_stack, :asal_cont, :no_seal, :berat, :keterangan, SYSDATE, :tgl_gate, :start_perp_pnkn, :kd_commodity ) ', ['no_container' => $cont, 'no_request' => $no_req_stuf, 'aktif' => $rc->aktif, 'hz' => $rc->hz, 'commodity' => $rc->commodity, 'type_stuffing' => $rc->type_stuffing, 'start_stack' => $rc->start_stack, 'asal_cont' => $rc->asal_cont, 'no_seal' => $rc->no_seal, 'berat' => $rc->berat, 'keterangan' => $rc->keterangan, 'tgl_gate' => $tgl_gate, 'start_perp_pnkn' => $rc->tgl_approve, 'kd_commodity' => $rc->kd_commodity,]);
+                        if (!$insertContainerStuffing) {
+                            throw new \Exception('Insert CONTAINER_STUFFING gagal.');
+                        }
+                    }
+                } else {
+                    if (!empty($query)) {
+                        $db->statement($query);
+                    }
+
+                    /* * Insert REQUEST_STUFFING. * * Nilai tanggal dari database Oracle dapat langsung di-bind * karena berasal dari kolom DATE Oracle. */
+                    $insertRequestStuffing = $db->insert(' INSERT INTO REQUEST_STUFFING ( NO_REQUEST, ID_YARD, CETAK_KARTU_SPPS, KETERANGAN, NO_BOOKING, TGL_REQUEST, NO_DOKUMEN, NO_JPB, BPRP, ID_PEMILIK, ID_EMKL, NO_REQUEST_RECEIVING, ID_USER, NO_REQUEST_DELIVERY, KD_CONSIGNEE, KD_PENUMPUKAN_OLEH, NM_KAPAL, NO_PEB, NO_NPE, VOYAGE, STUFFING_DARI, NOTA ) VALUES ( :no_request, :id_yard, :cetak_kartu_spps, :keterangan, :no_booking, :tgl_request, :no_dokumen, :no_jpb, :bprp, :id_pemilik, :id_emkl, :no_request_receiving, :id_user, :no_request_delivery, :kd_consignee, :kd_penumpukan_oleh, :nm_kapal, :no_peb, :no_npe, :voyage, :stuffing_dari, :nota ) ', ['no_request' => $no_req_stuf, 'id_yard' => $id_yard, 'cetak_kartu_spps' => 0, 'keterangan' => $keterangan, 'no_booking' => $no_book, 'tgl_request' => $tgl_req, 'no_dokumen' => $dokumen, 'no_jpb' => $jpb, 'bprp' => $bprp, 'id_pemilik' => null, 'id_emkl' => null, 'no_request_receiving' => $rec, 'id_user' => $id_user, 'no_request_delivery' => $dev, 'kd_consignee' => $consig, 'kd_penumpukan_oleh' => $tumpuk, 'nm_kapal' => $kapal, 'no_peb' => $peb, 'no_npe' => $npe, 'voyage' => $voy, 'stuffing_dari' => 'TPK', 'nota' => 'T',]);
+                    if (!$insertRequestStuffing) {
+                        throw new \Exception('Insert REQUEST_STUFFING gagal.');
+                    }
+
+                    foreach ($row_c as $rc) {
+                        $cont = $rc->no_container; /* * Perbaikan dari kode lama: * $tgl_gate harus diambil pada setiap container. */
+                        $gate = $db->selectOne(' SELECT TGL_UPDATE AS TGL_GATE FROM ( SELECT TGL_UPDATE FROM HISTORY_CONTAINER WHERE NO_CONTAINER = :no_container AND KEGIATAN = \'BORDER GATE IN\' ORDER BY TGL_UPDATE DESC ) WHERE ROWNUM = 1 ', ['no_container' => $cont,]);
+                        $tgl_gate = $gate->tgl_gate ?? null;
+                        $insertContainerStuffing = $db->insert(' INSERT INTO CONTAINER_STUFFING ( NO_CONTAINER, NO_REQUEST, AKTIF, HZ, COMMODITY, TYPE_STUFFING, START_STACK, ASAL_CONT, NO_SEAL, BERAT, KETERANGAN, TGL_APPROVE, TGL_GATE, START_PERP_PNKN, KD_COMMODITY ) VALUES ( :no_container, :no_request, :aktif, :hz, :commodity, :type_stuffing, :start_stack, :asal_cont, :no_seal, :berat, :keterangan, SYSDATE, :tgl_gate, :start_perp_pnkn, :kd_commodity ) ', ['no_container' => $cont, 'no_request' => $no_req_stuf, 'aktif' => $rc->aktif, 'hz' => $rc->hz, 'commodity' => $rc->commodity, 'type_stuffing' => $rc->type_stuffing, 'start_stack' => $rc->start_stack, 'asal_cont' => $rc->asal_cont, 'no_seal' => $rc->no_seal, 'berat' => $rc->berat, 'keterangan' => $rc->keterangan, 'tgl_gate' => $tgl_gate, 'start_perp_pnkn' => $rc->tgl_approve, 'kd_commodity' => $rc->kd_commodity,]);
+                        if (!$insertContainerStuffing) {
+                            throw new \Exception('Insert CONTAINER_STUFFING gagal.');
+                        }
+                    }
                 }
+
+                /* * Mengambil booking dan counter terakhir untuk history stuffing. */
+                $rw_getcounter3 = $db->selectOne(' SELECT NO_BOOKING, COUNTER FROM ( SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = :no_container ORDER BY COUNTER DESC ) WHERE ROWNUM = 1 ', ['no_container' => $no_cont,]);
+                $cur_booking3 = $rw_getcounter3->no_booking ?? null;
+                $cur_counter3 = $rw_getcounter3->counter ?? null; /* * Cek history terlebih dahulu agar retry tidak menyebabkan * data REQUEST STUFFING duplikat. */
+                $historyStuffingExists = $db->table('HISTORY_CONTAINER')->where('NO_CONTAINER', $no_cont)->where('NO_REQUEST', $no_req_stuf)->where('KEGIATAN', 'REQUEST STUFFING')->exists();
+                if (!$historyStuffingExists) {
+                    $insertHistoryStuffing = $db->insert(' INSERT INTO HISTORY_CONTAINER ( NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, STATUS_CONT, NO_BOOKING, COUNTER ) VALUES ( :no_container, :no_request, :kegiatan, SYSDATE, :id_user, :id_yard, :status_cont, :no_booking, :counter ) ', ['no_container' => $no_cont, 'no_request' => $no_req_stuf, 'kegiatan' => 'REQUEST STUFFING', 'id_user' => $id_user, 'id_yard' => 46, 'status_cont' => 'MTY', 'no_booking' => $cur_booking3, 'counter' => $cur_counter3,]);
+                    if (!$insertHistoryStuffing) {
+                        throw new \Exception('Insert history REQUEST STUFFING gagal.');
+                    }
+                }
+                $db->commit();
+                return response()->json('OK');
             } else {
-                $no_req_stuf = str_replace('P', 'S', $no_req);
-                $query_ir = "INSERT INTO REQUEST_STUFFING(NO_REQUEST, ID_YARD, CETAK_KARTU_SPPS, KETERANGAN, NO_BOOKING,
-						TGL_REQUEST, NO_DOKUMEN, NO_JPB, BPRP, ID_PEMILIK, ID_EMKL, NO_REQUEST_RECEIVING, ID_USER,
-						NO_REQUEST_DELIVERY, KD_CONSIGNEE, KD_PENUMPUKAN_OLEH, NM_KAPAL, NO_PEB, NO_NPE, VOYAGE, STUFFING_DARI)
-						VALUES('$no_req_stuf',
-						'$id_yard',
-						0,
-						'$keterangan',
-						'$no_book',
-						'$tgl_req',
-						'$dokumen',
-						'$jpb',
-						'$bprp',
-						'',
-						'',
-						'$rec',
-						'$id_user',
-						'$dev',
-						'$consig',
-						'$tumpuk',
-						'$kapal',
-						'$peb',
-						'$npe',
-						'$voy',
-						'DEPO')";
-                DB::connection('uster')->insert($query_ir);
-
-                foreach ($row_c as $rc) {
-
-                    $start_stack = $rc->stack;
-                    $hz = $rc->hz;
-                    $cont = $rc->no_container;
-                    $aktif = $rc->aktif;
-                    $comm = $rc->commodity;
-                    $kd_comm = $rc->kd_commodity;
-                    $type_st = $rc->type_stuffing;
-                    $asal = $rc->asal_cont;
-                    $seal = $rc->no_seal;
-                    $berat = $rc->berat;
-                    $keterangan = $rc->keterangan;
-                    $stat_req = $rc->status_req ?? '';
-                    $tgl_app = $rc->tgl_approve;
-
-                    //CEK TGL GATE
-                    $tes = "select TO_CHAR(TGL_UPDATE,'dd/mm/rrrr') TGL_GATE from history_container where no_container = '$cont' AND KEGIATAN = 'BORDER GATE IN' AND TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM history_container WHERE NO_CONTAINER = '$cont')";
-                    $gate = DB::connection('uster')->selectOne($tes);
-                    $tgl_gate = $gate->tgl_gate ?? '';
-
-
-
-                    $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
-														   NO_REQUEST,
-														   AKTIF,
-														   HZ,
-														   COMMODITY,
-														   TYPE_STUFFING,
-														   START_STACK,
-														   ASAL_CONT,
-														   NO_SEAL,
-														   BERAT,
-														   KETERANGAN,
-														   STATUS_REQ,
-														   TGL_APPROVE,
-														   TGL_GATE,
-														   TGL_MULAI_FULL,
-														   TGL_SELESAI_FULL,
-														   KD_COMMODITY)
-													VALUES('$cont',
-														   '$no_req_stuf',
-														   '$aktif',
-														   '$hz',
-														   '$comm',
-														   '$type_st',
-														   to_date('" . $start_stack . "','dd-mm-rrrr'),
-														   '$asal',
-														   '$seal',
-														   '$berat',
-														   '$keterangan',
-														   '$stat_req',
-													       SYSDATE,
-													       TO_DATE('$tgl_gate','dd-mm-rrrr'),
-													       TO_DATE('$tgl_app','dd-mm-rrrr')+1,
-													       TO_DATE('$tgl_app','YYYY-MM-DD HH24:MI:SS')+5,
-														   '$kd_comm')";
-                    DB::connection('uster')->insert($query_ic);
+                DB::connection('uster')->beginTransaction();
+                $query_cek1        = "SELECT tes.NO_REQUEST,
+                        CASE SUBSTR(KEGIATAN,9)
+                            WHEN 'RECEIVING' THEN (SELECT CONCAT('RECEIVING_',a.RECEIVING_DARI) FROM request_receiving a WHERE a.NO_REQUEST = tes.NO_REQUEST)
+                            ELSE SUBSTR(KEGIATAN,9)
+                        END KEGIATAN FROM (SELECT TGL_UPDATE, NO_REQUEST,KEGIATAN FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI')) tes
+                        WHERE tes.TGL_UPDATE=(SELECT MAX(TGL_UPDATE) FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI'))";
+                $row_cek1 =  DB::connection('uster')->selectOne($query_cek1);
+                $no_request        = $row_cek1->no_request;
+                $kegiatan        = $row_cek1->kegiatan;
+                if ($kegiatan == 'RECEIVING_LUAR') {
+                    $query_cek1        = "SELECT SUBSTR(TO_CHAR(b.TGL_IN, 'MM/DD/YYYY'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";
+                    $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
+                    $asal_cont         = 'LUAR';
+                } else if ($kegiatan == 'RECEIVING_TPK') {
+                    $query_cek1        = "SELECT TGL_BONGKAR START_STACK FROM container_receiving WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
+                    $row_cek1    = DB::connection('uster')->selectOne($query_cek1);
+                    $asal_cont         = 'TPK';
+                } else if ($kegiatan == 'STRIPPING') {
+                    $query_cek1        = "SELECT SUBSTR(TO_CHAR(TGL_REALISASI,'MM/DD/YYYY'),1,9) START_STACK FROM container_stripping WHERE NO_CONTAINER = '$no_cont' AND NO_REQUEST = '$no_request'";
+                    $row_cek1    = DB::connection('uster')->selectOne($query_cek1);
+                    $asal_cont         = 'DEPO';
                 }
+
+                $query_r = "SELECT * FROM PLAN_REQUEST_STUFFING WHERE NO_REQUEST = '$no_req'";
+                $row_r = DB::connection('uster')->selectOne($query_r);
+
+                $no_request = $row_r->no_request;
+                $id_yard = $row_r->id_yard;
+                $keterangan = $row_r->keterangan;
+                $no_book = $row_r->no_booking;
+                $tgl_req = $row_r->tgl_request;
+                $dokumen = $row_r->no_dokumen;
+                $jpb = $row_r->no_jpb;
+                $bprp = $row_r->bprp;
+                $rec = $row_r->no_request_receiving;
+                $id_user = $row_r->id_user;
+                $dev = $row_r->no_request_delivery;
+                $consig = $row_r->kd_consignee;
+                $tumpuk = $row_r->kd_penumpukan_oleh;
+                $kapal = $row_r->nm_kapal;
+                $peb = $row_r->no_peb;
+                $npe = $row_r->no_npe;
+                $voy = $row_r->voyage;
+                $query_c = "SELECT DISTINCT    PLAN_CONTAINER_STUFFING.NO_CONTAINER,
+                           PLAN_CONTAINER_STUFFING.HZ,
+                           PLAN_CONTAINER_STUFFING.AKTIF,
+                           PLAN_CONTAINER_STUFFING.TYPE_STUFFING,
+                           PLAN_CONTAINER_STUFFING.ASAL_CONT,
+                           PLAN_CONTAINER_STUFFING.NO_SEAL,
+                           PLAN_CONTAINER_STUFFING.BERAT,
+                           PLAN_CONTAINER_STUFFING.KETERANGAN,
+                           PLAN_CONTAINER_STUFFING.TGL_APPROVE,
+                           PLAN_CONTAINER_STUFFING.TGL_MULAI,
+                           TO_CHAR(PLAN_CONTAINER_STUFFING.START_STACK,'dd-mm-yyyy') STACK,
+                           PLAN_CONTAINER_STUFFING.COMMODITY,
+                           PLAN_CONTAINER_STUFFING.KD_COMMODITY,
+                           PLAN_CONTAINER_STUFFING.NO_REQ_SP2
+               FROM PLAN_CONTAINER_STUFFING
+               WHERE PLAN_CONTAINER_STUFFING.NO_REQUEST = '$no_req' AND PLAN_CONTAINER_STUFFING.NO_CONTAINER = '$no_cont'";
+                $row_c = DB::connection('uster')->select($query_c);
+
+                $no_req_stuf = str_replace('P', 'S', $no_req);
+                $query_cek_request = "SELECT * FROM REQUEST_STUFFING WHERE NO_REQUEST = '$no_req_stuf'";
+                $row_cek_request =  DB::connection('uster')->select($query_cek_request);
+
+
+                //query apakah kontainer telah ada di table cont stuffing
+                $query_cek_cont = "SELECT * FROM CONTAINER_STUFFING WHERE NO_REQUEST = '$no_req_stuf' AND NO_CONTAINER = '$no_cont'";
+                $row_cek_cont =  DB::connection('uster')->select($query_cek_cont);
+
+                if (count($row_cek_request) > 0 && count($row_cek_cont) > 0) { //jika request telah ada dan container telah ada
+                    // DB::connection('uster')->selectOne($query);
+
+                    // DB::connection('uster')->selectOne($query_tgl_app);
+                } else if (count($row_cek_request) > 0 && count($row_cek_cont) == 0) {
+                    $no_req_stuf = str_replace('P', 'S', $no_req);
+                    foreach ($row_c as $rc) {
+                        $hz = $rc->hz;
+                        $cont = $rc->no_container ?? NULL;
+
+
+                        //CEK TGL GATE
+                        $tes = "select TO_CHAR(TGL_UPDATE,'dd/mm/rrrr') TGL_GATE from history_container where no_container = '$cont' AND KEGIATAN = 'BORDER GATE IN' AND TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM history_container WHERE NO_CONTAINER = '$cont')";
+                        $gate = DB::connection('uster')->selectOne($tes);
+                        $tgl_gate = $gate->tgl_gate ?? '';
+
+
+
+                        $start_stack = $rc->stack;
+                        $aktif = $rc->aktif;
+                        $comm = $rc->commodity;
+                        $type_st = $rc->type_stuffing;
+                        $asal = $rc->asal_cont;
+                        $seal = $rc->no_seal;
+                        $berat = $rc->berat;
+                        $keterangan = $rc->keterangan;
+                        $tgl_app = $rc->tgl_approve;
+                        $tgl_mulai = $rc->tgl_mulai;
+                        $req_sp2 = $rc->no_req_sp2;
+                        if ($req_sp2 == NULL) {
+                            $query_ic    = "INSERT INTO CONTAINER_STUFFING (	NO_CONTAINER, NO_REQUEST,
+                                                    AKTIF, HZ, COMMODITY, TYPE_STUFFING,
+                                                    START_STACK,
+                                                    ASAL_CONT, NO_SEAL, BERAT, KETERANGAN,
+                                                    TGL_APPROVE,
+                                                    TGL_GATE,
+                                                    START_PERP_PNKN)
+                                            VALUES(	'$cont',
+                                                    '$no_req_stuf',
+                                                    '$aktif',
+                                                    '$hz',
+                                                    '$comm',
+                                                    '$type_st',
+                                                    to_date('" . $start_stack . "','dd-mm-rrrr'),
+                                                    '$asal',
+                                                    '$seal',
+                                                    '$berat',
+                                                    '$keterangan',
+                                                    SYSDATE,
+                                                    TO_DATE('$tgl_gate','dd-mm-rrrr'),
+                                                    TO_DATE('$tgl_app','YYYY-MM-DD HH24:MI:SS'))";
+                        } else {
+                            $query_ic    = "INSERT INTO CONTAINER_STUFFING (	NO_CONTAINER, NO_REQUEST,
+                                                    AKTIF, HZ, COMMODITY, TYPE_STUFFING,
+                                                    START_STACK,
+                                                    ASAL_CONT, NO_SEAL, BERAT, KETERANGAN,
+                                                    TGL_APPROVE,
+                                                    TGL_GATE,
+                                                    START_PERP_PNKN,
+                                                    END_STACK_PNKN,
+                                                    REMARK_SP2)
+                                            VALUES(	'$cont',
+                                                    '$no_req_stuf',
+                                                    '$aktif',
+                                                    '$hz',
+                                                    '$comm',
+                                                    '$type_st',
+                                                    '$tgl_mulai',
+                                                    '$asal',
+                                                    '$seal',
+                                                    '$berat',
+                                                    '$keterangan',
+                                                    TO_DATE('$tgl_app','dd-mm-rrrr'),
+                                                    TO_DATE('$tgl_gate','dd-mm-rrrr'),
+                                                    TO_DATE('" . $start_stack . "','dd-mm-rrrr'),
+                                                    TO_DATE('$tgl_approve','YYYY-MM-DD HH24:MI:SS'),
+                                                    'Y')";
+                        }
+                        DB::connection('uster')->insert($query_ic);
+                    }
+                } else {
+                    $no_req_stuf = str_replace('P', 'S', $no_req);
+                    $query_ir = "INSERT INTO REQUEST_STUFFING(NO_REQUEST, ID_YARD, CETAK_KARTU_SPPS, KETERANGAN, NO_BOOKING,
+                TGL_REQUEST, NO_DOKUMEN, NO_JPB, BPRP, ID_PEMILIK, ID_EMKL, NO_REQUEST_RECEIVING, ID_USER,
+                NO_REQUEST_DELIVERY, KD_CONSIGNEE, KD_PENUMPUKAN_OLEH, NM_KAPAL, NO_PEB, NO_NPE, VOYAGE, STUFFING_DARI)
+                VALUES('$no_req_stuf',
+                '$id_yard',
+                0,
+                '$keterangan',
+                '$no_book',
+                '$tgl_req',
+                '$dokumen',
+                '$jpb',
+                '$bprp',
+                '',
+                '',
+                '$rec',
+                '$id_user',
+                '$dev',
+                '$consig',
+                '$tumpuk',
+                '$kapal',
+                '$peb',
+                '$npe',
+                '$voy',
+                'DEPO')";
+                    DB::connection('uster')->insert($query_ir);
+
+                    foreach ($row_c as $rc) {
+
+                        $start_stack = $rc->stack;
+                        $hz = $rc->hz;
+                        $cont = $rc->no_container;
+                        $aktif = $rc->aktif;
+                        $comm = $rc->commodity;
+                        $kd_comm = $rc->kd_commodity;
+                        $type_st = $rc->type_stuffing;
+                        $asal = $rc->asal_cont;
+                        $seal = $rc->no_seal;
+                        $berat = $rc->berat;
+                        $keterangan = $rc->keterangan;
+                        $stat_req = $rc->status_req ?? '';
+                        $tgl_app = $rc->tgl_approve;
+
+                        //CEK TGL GATE
+                        $tes = "select TO_CHAR(TGL_UPDATE,'dd/mm/rrrr') TGL_GATE from history_container where no_container = '$cont' AND KEGIATAN = 'BORDER GATE IN' AND TGL_UPDATE = (SELECT MAX(TGL_UPDATE) FROM history_container WHERE NO_CONTAINER = '$cont')";
+                        $gate = DB::connection('uster')->selectOne($tes);
+                        $tgl_gate = $gate->tgl_gate ?? '';
+
+
+
+                        $query_ic    = "INSERT INTO CONTAINER_STUFFING (NO_CONTAINER,
+                                                   NO_REQUEST,
+                                                   AKTIF,
+                                                   HZ,
+                                                   COMMODITY,
+                                                   TYPE_STUFFING,
+                                                   START_STACK,
+                                                   ASAL_CONT,
+                                                   NO_SEAL,
+                                                   BERAT,
+                                                   KETERANGAN,
+                                                   STATUS_REQ,
+                                                   TGL_APPROVE,
+                                                   TGL_GATE,
+                                                   TGL_MULAI_FULL,
+                                                   TGL_SELESAI_FULL,
+                                                   KD_COMMODITY)
+                                            VALUES('$cont',
+                                                   '$no_req_stuf',
+                                                   '$aktif',
+                                                   '$hz',
+                                                   '$comm',
+                                                   '$type_st',
+                                                   to_date('" . $start_stack . "','dd-mm-rrrr'),
+                                                   '$asal',
+                                                   '$seal',
+                                                   '$berat',
+                                                   '$keterangan',
+                                                   '$stat_req',
+                                                   SYSDATE,
+                                                   TO_DATE('$tgl_gate','dd-mm-rrrr'),
+                                                   TO_DATE('$tgl_app','dd-mm-rrrr')+1,
+                                                   TO_DATE('$tgl_app','YYYY-MM-DD HH24:MI:SS')+5,
+                                                   '$kd_comm')";
+                        DB::connection('uster')->insert($query_ic);
+                    }
+                }
+
+                $q_getcounter4 = "SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont' ORDER BY COUNTER DESC";
+                $rw_getcounter4 = DB::connection('uster')->selectOne($q_getcounter4);
+
+                $cur_booking4  = $rw_getcounter4->no_booking;
+                $cur_counter4  = $rw_getcounter4->counter;
+
+                $history_stuf        = "INSERT INTO history_container(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, STATUS_CONT, NO_BOOKING, COUNTER)
+                                                  VALUES ('$no_cont','$no_req_stuf','REQUEST STUFFING',SYSDATE,'$id_user', '46', 'MTY', '$cur_booking4', '$cur_counter4')";
+                DB::connection('uster')->insert($history_stuf);
+                DB::connection('uster')->commit();
+                return response()->json('OK');
             }
-
-            $q_getcounter4 = "SELECT NO_BOOKING, COUNTER FROM MASTER_CONTAINER WHERE NO_CONTAINER = '$no_cont' ORDER BY COUNTER DESC";
-            $rw_getcounter4 = DB::connection('uster')->selectOne($q_getcounter4);
-
-            $cur_booking4  = $rw_getcounter4->no_booking;
-            $cur_counter4  = $rw_getcounter4->counter;
-
-            $history_stuf        = "INSERT INTO history_container(NO_CONTAINER, NO_REQUEST, KEGIATAN, TGL_UPDATE, ID_USER, ID_YARD, STATUS_CONT, NO_BOOKING, COUNTER)
-        												  VALUES ('$no_cont','$no_req_stuf','REQUEST STUFFING',SYSDATE,'$id_user', '46', 'MTY', '$cur_booking4', '$cur_counter4')";
-            DB::connection('uster')->insert($history_stuf);
-            DB::connection('uster')->commit();
-            return response()->json('OK');
         } catch (Exception $e) {
             DB::connection('uster')->rollBack();
             return response()->json($e->getMessage());

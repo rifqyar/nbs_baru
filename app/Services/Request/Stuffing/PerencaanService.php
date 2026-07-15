@@ -1066,6 +1066,13 @@ class PerencaanService
                     throw new \Exception('Data PLAN_CONTAINER_STUFFING tidak ditemukan.');
                 }
 
+                $tglSp2 = null;
+                if (!empty($rpaid->tgl_approve)) {
+                    $tglSp2 = \Carbon\Carbon::parse(
+                        $rpaid->tgl_approve
+                    )->format('d/m/Y');
+                }
+
                 $no_req_stuf = str_replace('P', 'S', $no_req);
                 /* * Oracle menganggap string kosong sebagai NULL. */
                 $container_size = (isset($container_size) && strtolower((string) $container_size) !== 'null') ? $container_size : '';
@@ -1098,7 +1105,7 @@ class PerencaanService
                 $statement->bindValue(':in_planreq', $no_req);
                 $statement->bindValue(':in_req', $no_req_stuf);
                 $statement->bindValue(':in_asalcont', $asalcontstuff);
-                $statement->bindValue(':in_tglsp2', $rpaid->tgl_approve);
+                $statement->bindValue(':in_tglsp2', $tglSp2);
                 $statement->bindValue(':in_container_size', $container_size);
                 $statement->bindValue(':in_container_type', $container_type);
                 $statement->bindValue(':in_container_status', $container_status);

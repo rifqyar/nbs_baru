@@ -127,7 +127,7 @@ class PerencanaanStuffingController extends Controller
 
     public function getContainerTPKByName(Request $request): JsonResponse
     {
-        $viewData = $this->stuffing->getVesselPalapa($request);
+        $viewData = getStuffingContainer($request);
         return response()->json($viewData);
     }
 

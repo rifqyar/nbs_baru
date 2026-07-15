@@ -617,6 +617,8 @@
                         dataType: 'json',
                         processResults: function(data) {
                             const arrs = data;
+                            console.log(data)
+                            console.log(arrs)
                             return {
                                 results: arrs.map((arr, i) => ({
                                     id: arr.no_container,

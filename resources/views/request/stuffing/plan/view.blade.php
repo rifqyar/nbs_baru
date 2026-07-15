@@ -631,8 +631,8 @@
                             console.log(arrs)
                             return {
                                 results: arrs.map((arr, i) => ({
-                                    id: arr.no_container,
-                                    text: arr.no_container + ' | ' + arr.status,
+                                    id: arr.containerNo,
+                                    text: arr.containerNo + ' | ' + arr.containerStatus,
                                     ...arr
                                 }))
                             };

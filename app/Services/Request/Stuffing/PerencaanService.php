@@ -1672,8 +1672,8 @@ class PerencaanService
                                     END KEGIATAN FROM (SELECT TGL_UPDATE, NO_REQUEST,KEGIATAN FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI')) tes
                                     WHERE tes.TGL_UPDATE=(SELECT MAX(TGL_UPDATE) FROM history_container WHERE no_container = '$no_cont' and kegiatan IN ('REQUEST RECEIVING','REQUEST STRIPPING','REQUEST STUFFING','REQUEST RELOKASI'))";
                     $row_cek1        = DB::connection('uster')->selectOne($query_cek1);
-                    $no_request        = $row_cek1->no_request;
-                    $kegiatan        = $row_cek1->kegiatan;
+                    $no_request        = $row_cek1->no_request ?? null;
+                    $kegiatan        = $row_cek1->kegiatan ?? null;
 
                     if ($kegiatan == 'RECEIVING_LUAR') {
                         $query_cek1        = " SELECT SUBSTR(TO_CHAR(b.TGL_IN+5,'dd/mm/rrrr'),1,10) START_STACK FROM GATE_IN b WHERE b.NO_CONTAINER = '$no_cont' AND b.NO_REQUEST = '$no_request'";

@@ -249,7 +249,7 @@
                             </div>
                             <div class="col-md-4">
                                 <input class="form-control" type="text" name="YARD_STACK" id="YARD_STACK"
-                                    value="{{ $row_request->stuffing_dari }}" readonly="1">
+                                    value="{{ $row_request->stuffing_dari ?? 'MTI'}}" readonly="1">
                             </div>
 
                             <div class="col-md-2 py-2">

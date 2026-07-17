@@ -88,21 +88,30 @@ class ResendPrayaController extends Controller
                     }
                     break;
                 case 'STUFFING':
+                case 'PERP_STUF':
                     $result = DB::connection('uster')->table('nota_stuffing')
                         ->select('tanggal_lunas', 'lunas')
                         ->where('no_request', $id_req)
                         ->first();
 
-                    $result_pnkn = DB::connection('uster')->table('nota_pnkn_stuf')
-                        ->select('tanggal_lunas', 'lunas')
-                        ->where('no_request', $id_req)
-                        ->first();
+                    if ($jenis != 'PERP_STUF') {
+                        $result_pnkn = DB::connection('uster')->table('nota_pnkn_stuf')
+                            ->select('tanggal_lunas', 'lunas')
+                            ->where('no_request', $id_req)
+                            ->first();
 
-                    if (
-                        $result && !empty($result->tanggal_lunas) && $result->lunas == 'YES' &&
-                        $result_pnkn && !empty($result_pnkn->tanggal_lunas) && $result_pnkn->lunas == 'YES'
-                    ) {
-                        $lunas = true;
+                        if (
+                            $result && !empty($result->tanggal_lunas) && $result->lunas == 'YES' &&
+                            $result_pnkn && !empty($result_pnkn->tanggal_lunas) && $result_pnkn->lunas == 'YES'
+                        ) {
+                            $lunas = true;
+                        }
+                    } else {
+                        if (
+                            $result && !empty($result->tanggal_lunas) && $result->lunas == 'YES'
+                        ) {
+                            $lunas = true;
+                        }
                     }
                     break;
                 case 'STRIPPING':
@@ -182,31 +191,31 @@ class ResendPrayaController extends Controller
         $url = env('PRAYA_API_INTEGRATION');
         if (empty($url)) {
             return response()->json([
-            'code' => '0',
-            'msg' => 'PRAYA_API_INTEGRATION environment variable is not set'
+                'code' => '0',
+                'msg' => 'PRAYA_API_INTEGRATION environment variable is not set'
             ]);
         }
 
         try {
             $response = Http::get($url);
             if ($response->successful()) {
-            return response()->json([
-                'code' => '1',
-                'msg' => 'Connection to PRAYA API successful',
-                'data' => $response->json()
-            ]);
+                return response()->json([
+                    'code' => '1',
+                    'msg' => 'Connection to PRAYA API successful',
+                    'data' => $response->json()
+                ]);
             } else {
-            return response()->json([
-                'code' => '0',
-                'msg' => 'Failed to connect to PRAYA API',
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
+                return response()->json([
+                    'code' => '0',
+                    'msg' => 'Failed to connect to PRAYA API',
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
             }
         } catch (\Exception $e) {
             return response()->json([
-            'code' => '0',
-            'msg' => 'Error connecting to PRAYA API: ' . $e->getMessage()
+                'code' => '0',
+                'msg' => 'Error connecting to PRAYA API: ' . $e->getMessage()
             ]);
         }
     }

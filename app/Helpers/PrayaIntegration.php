@@ -1465,7 +1465,7 @@ if (!function_exists('savePaymentExternal')) {
                             "componentName" => $v->keterangan,
                             "startDate" => $v->awal_penumpukan,
                             "endDate" => $v->akhir_penumpukan,
-                            "quantity" => $v->jml_cont,
+                            "quantity" => $v->jumlah_cont,
                             "tarif" => $v->tarif,
                             "basicTarif" => $v->tarif,
                             "containerList" => $strContList,

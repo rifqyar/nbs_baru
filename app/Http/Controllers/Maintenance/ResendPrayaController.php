@@ -88,7 +88,7 @@ class ResendPrayaController extends Controller
                     }
                     break;
                 case 'STUFFING':
-                case 'PERP_STUF':
+                    $jenis = substr($id_req, 0, 3) === 'SFP' ? 'PERP_STUF' : 'STUFFING';
                     $result = DB::connection('uster')->table('nota_stuffing')
                         ->select('tanggal_lunas', 'lunas')
                         ->where('no_request', $id_req)

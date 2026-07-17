@@ -1214,13 +1214,14 @@ if (!function_exists('savePaymentExternal')) {
                     }
                 }
 
+                $idReqAwal = substr($id_req, 0, 3) === 'SFP' ? 'rs.PERP_DARI' : 'rs.NO_REQUEST';
                 $fetchStuffing = DB::connection('uster')
                     ->table('REQUEST_STUFFING as rs')
                     ->leftJoin('V_PKK_CONT as vpc', 'rs.NO_BOOKING', '=', 'vpc.NO_BOOKING')
                     ->join('NOTA_STUFFING as ns', 'ns.NO_REQUEST', '=', 'rs.NO_REQUEST')
                     ->join('V_MST_PBM as vmp', 'vmp.KD_PBM', '=', 'ns.KD_EMKL')
                     ->join('CONTAINER_STUFFING as cs', 'cs.NO_REQUEST', '=', 'rs.NO_REQUEST')
-                    ->join('PLAN_REQUEST_STUFFING as prs', 'prs.NO_REQUEST_APP', '=', 'rs.NO_REQUEST')
+                    ->join('PLAN_REQUEST_STUFFING as prs', 'prs.NO_REQUEST_APP', '=', $idReqAwal)
                     ->join('PLAN_CONTAINER_STUFFING as pcs', 'pcs.NO_REQUEST', '=', 'prs.NO_REQUEST')
                     ->select([
                         'rs.NO_BOOKING',

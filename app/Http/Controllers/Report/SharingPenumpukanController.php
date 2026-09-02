@@ -424,7 +424,7 @@ class SharingPenumpukanController extends Controller
                                             CONTAINER_DELIVERY A
                                             JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
                                             JOIN REQUEST_DELIVERY C ON A.NO_REQUEST = C.NO_REQUEST
-                                            LEFT JOIN BORDER_GATE_OUT D  ON A.NO_CONTAINER = D.NO_CONTAINER AND A.NO_REQUEST = D.NO_REQUEST
+                                            LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                         WHERE					
                                             C.DELIVERY_KE = 'TPK'
                                             AND C.NOTA = 'Y'
@@ -1091,7 +1091,7 @@ class SharingPenumpukanController extends Controller
                                         CONTAINER_STRIPPING A
                                         JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
                                         JOIN REQUEST_STRIPPING C ON A.NO_REQUEST = C.NO_REQUEST
-                                        LEFT JOIN BORDER_GATE_IN D  ON A.NO_CONTAINER = D.NO_CONTAINER AND C.NO_REQUEST_RECEIVING = D.NO_REQUEST
+                                        LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                     WHERE
                                         --A.NO_REQUEST IN ('STR0119000107','STP0119000085')
                                         C.NOTA = 'Y'
@@ -1758,7 +1758,7 @@ class SharingPenumpukanController extends Controller
                                         CONTAINER_STUFFING A
                                         JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
                                         JOIN REQUEST_STUFFING C ON A.NO_REQUEST = C.NO_REQUEST
-                                        LEFT JOIN BORDER_GATE_IN D  ON A.NO_CONTAINER = D.NO_CONTAINER AND C.NO_REQUEST_RECEIVING = D.NO_REQUEST
+                                        LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                     WHERE
                                         C.NOTA = 'Y'
                                         --AND A.ASAL_CONT = 'TPK'
@@ -2179,7 +2179,7 @@ class SharingPenumpukanController extends Controller
                                             CONTAINER_DELIVERY A
                                             JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
                                             JOIN REQUEST_DELIVERY C ON A.NO_REQUEST = C.NO_REQUEST
-                                            LEFT JOIN BORDER_GATE_OUT D  ON A.NO_CONTAINER = D.NO_CONTAINER AND A.NO_REQUEST = D.NO_REQUEST
+                                            LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                         WHERE					
                                             C.DELIVERY_KE = 'TPK'
                                             AND C.NOTA = 'Y'
@@ -2846,7 +2846,7 @@ class SharingPenumpukanController extends Controller
                                         CONTAINER_STRIPPING A
                                         JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
                                         JOIN REQUEST_STRIPPING C ON A.NO_REQUEST = C.NO_REQUEST
-                                        LEFT JOIN BORDER_GATE_IN D  ON A.NO_CONTAINER = D.NO_CONTAINER AND C.NO_REQUEST_RECEIVING = D.NO_REQUEST
+                                        LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                     WHERE
                                         --A.NO_REQUEST IN ('STR0119000107','STP0119000085')
                                         C.NOTA = 'Y'
@@ -3512,8 +3512,8 @@ class SharingPenumpukanController extends Controller
                                     FROM
                                         CONTAINER_STUFFING A
                                         JOIN MASTER_CONTAINER B ON A.NO_CONTAINER = B.NO_CONTAINER
-                                        JOIN REQUEST_STUFFING C ON A.NO_REQUEST = C.NO_REQUEST
-                                        LEFT JOIN BORDER_GATE_IN D  ON A.NO_CONTAINER = D.NO_CONTAINER AND C.NO_REQUEST_RECEIVING = D.NO_REQUEST
+                                        JOIN REQUEST_STUFFING C ON A.NO_REQUEST = C.NO_REQUES
+                                        LEFT JOIN BORDER_GATE_IN D ON A.NO_CONTAINER = D.NO_CONTAINER AND (C.NO_REQUEST = D.NO_REQUEST OR C.NO_REQUEST_RECEIVING = D.NO_REQUEST)
                                     WHERE
                                         C.NOTA = 'Y'
                                         --AND A.ASAL_CONT = 'TPK'

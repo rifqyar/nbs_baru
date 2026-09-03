@@ -1138,7 +1138,7 @@ Route::group(['middleware' => 'csrfVerify'], function () {
             Route::get('/report', [SharingPenumpukanController::class, 'report'])->name('.report');
         });
 
-        Route::group(['prefix' => 'pass-truck', 'as' => 'report_pass_truck'], function () {
+        Route::group(['prefix' => 'pass-truck', 'as' => 'pass_truck'], function () {
             Route::get('/', [PassTruckController::class, 'index'])->name('');
             Route::get('/generate-report', [PassTruckController::class, 'generateReport'])->name('.generateReport');
             Route::get('/generate-excel', [PassTruckController::class, 'generateExcel'])->name('.generateExcel');

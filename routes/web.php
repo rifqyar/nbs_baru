@@ -1138,8 +1138,16 @@ Route::group(['middleware' => 'csrfVerify'], function () {
             Route::get('/report', [SharingPenumpukanController::class, 'report'])->name('.report');
         });
 
+        Route::group(['prefix' => 'produksi', 'as' => 'produksi.'], function () {
+            Route::group(['prefix' => 'pass-truck', 'as' => 'pass_truck.'], function () {
+                Route::get('/', [PassTruckController::class, 'index'])->name('index');
+            });
+            Route::get('/pass-truck', [PassTruckController::class, 'index'])->name('pass_truck');
+        });
+
         Route::group(['prefix' => 'pass-truck', 'as' => 'pass_truck'], function () {
             Route::get('/', [PassTruckController::class, 'index'])->name('');
+            Route::get('/index', [PassTruckController::class, 'index'])->name('.index');
             Route::get('/generate-report', [PassTruckController::class, 'generateReport'])->name('.generateReport');
             Route::get('/generate-excel', [PassTruckController::class, 'generateExcel'])->name('.generateExcel');
         });

@@ -11,119 +11,25 @@ class PassTruckService
     public function getDataReport($data)
     {
         try {
-            $tgl_awal = isset($data['tgl_awal']) ? Carbon::parse($data['tgl_awal'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
-            $tgl_akhir = isset($data['tgl_akhir']) ? Carbon::parse($data['tgl_akhir'])->format('Y-m-d') : Carbon::now()->format('Y-m-d');
+            $tgl_awal = isset($data['tgl_awal']) ? Carbon::parse($data['tgl_awal'])->format('d-m-Y') : Carbon::now()->format('d-m-Y');
+            $tgl_akhir = isset($data['tgl_akhir']) ? Carbon::parse($data['tgl_akhir'])->format('d-m-Y') : Carbon::now()->format('d-m-Y');
             $kegiatan = strtoupper($data['option_kegiatan'] ?? 'ALL');
 
-            $queries = [];
-
-            // 1. RECEIVING
-            if ($kegiatan === 'ALL' || $kegiatan === 'RECEIVING') {
-                $queries[] = "
-                    SELECT 
-                        h.NO_REQUEST,
-                        TO_CHAR(h.TGL_NOTA, 'YYYY-MM-DD') AS TANGGAL,
-                        NVL(h.NO_NOTA_MTI, h.NO_NOTA) AS NO_NOTA,
-                        NVL(h.NO_FAKTUR_MTI, h.NO_FAKTUR) AS NO_FAKTUR,
-                        d.KETERANGAN,
-                        NVL(d.COA, 'RUPA') AS COA,
-                        'RECEIVING' AS KEGIATAN,
-                        d.TARIF,
-                        CASE WHEN NVL(d.TARIF, 0) > 0 AND NVL(d.BIAYA, 0) > 0 THEN ROUND(d.BIAYA / d.TARIF) ELSE 1 END AS JUMLAH_PASS,
-                        d.BIAYA,
-                        TRUNC(h.TGL_NOTA) AS TGL_NOTA
-                    FROM NOTA_RECEIVING h
-                    JOIN NOTA_RECEIVING_D d ON h.NO_NOTA = d.NO_NOTA
-                    WHERE UPPER(d.KETERANGAN) LIKE '%PASS TRUCK%' 
-                      AND NVL(h.STATUS, 'NEW') <> 'BATAL'
-                      AND UPPER(NVL(h.LUNAS, 'NO')) = 'YES'
-                ";
+            $whereKegiatan = "";
+            if ($kegiatan !== 'ALL') {
+                $whereKegiatan = " AND UPPER(CASE 
+                    WHEN h.no_request LIKE 'REC%' THEN 'RECEIVING'
+                    WHEN h.no_request LIKE 'STR%' THEN 'STRIPPING'
+                    WHEN h.no_request LIKE 'DEL%' THEN 'DELIVERY'
+                    WHEN h.no_request LIKE 'STF%' THEN 'STUFFING'
+                    ELSE 'LAINNYA'
+                END) = '$kegiatan'";
             }
-
-            // 2. STRIPPING
-            if ($kegiatan === 'ALL' || $kegiatan === 'STRIPPING') {
-                $queries[] = "
-                    SELECT 
-                        h.NO_REQUEST,
-                        TO_CHAR(h.TGL_NOTA, 'YYYY-MM-DD') AS TANGGAL,
-                        NVL(h.NO_NOTA_MTI, h.NO_NOTA) AS NO_NOTA,
-                        NVL(h.NO_FAKTUR_MTI, h.NO_FAKTUR) AS NO_FAKTUR,
-                        d.KETERANGAN,
-                        NVL(d.COA, 'RUPA') AS COA,
-                        'STRIPPING' AS KEGIATAN,
-                        d.TARIF,
-                        CASE WHEN NVL(d.TARIF, 0) > 0 AND NVL(d.BIAYA, 0) > 0 THEN ROUND(d.BIAYA / d.TARIF) ELSE 1 END AS JUMLAH_PASS,
-                        d.BIAYA,
-                        TRUNC(h.TGL_NOTA) AS TGL_NOTA
-                    FROM NOTA_STRIPPING h
-                    JOIN NOTA_STRIPPING_D d ON h.NO_NOTA = d.NO_NOTA
-                    WHERE UPPER(d.KETERANGAN) LIKE '%PASS TRUCK%' 
-                      AND NVL(h.STATUS, 'NEW') <> 'BATAL'
-                      AND UPPER(NVL(h.LUNAS, 'NO')) = 'YES'
-                ";
-            }
-
-            // 3. DELIVERY
-            if ($kegiatan === 'ALL' || $kegiatan === 'DELIVERY') {
-                $queries[] = "
-                    SELECT 
-                        h.NO_REQUEST,
-                        TO_CHAR(h.TGL_NOTA, 'YYYY-MM-DD') AS TANGGAL,
-                        NVL(h.NO_NOTA_MTI, h.NO_NOTA) AS NO_NOTA,
-                        NVL(h.NO_FAKTUR_MTI, h.NO_FAKTUR) AS NO_FAKTUR,
-                        d.KETERANGAN,
-                        NVL(d.COA, 'RUPA') AS COA,
-                        'DELIVERY' AS KEGIATAN,
-                        d.TARIF,
-                        CASE WHEN NVL(d.TARIF, 0) > 0 AND NVL(d.BIAYA, 0) > 0 THEN ROUND(d.BIAYA / d.TARIF) ELSE 1 END AS JUMLAH_PASS,
-                        d.BIAYA,
-                        TRUNC(h.TGL_NOTA) AS TGL_NOTA
-                    FROM NOTA_DELIVERY h
-                    JOIN NOTA_DELIVERY_D d ON h.NO_NOTA = d.ID_NOTA
-                    WHERE UPPER(d.KETERANGAN) LIKE '%PASS TRUCK%' 
-                      AND NVL(h.STATUS, 'NEW') <> 'BATAL'
-                      AND UPPER(NVL(h.LUNAS, 'NO')) = 'YES'
-                ";
-            }
-
-            // 4. STUFFING
-            if ($kegiatan === 'ALL' || $kegiatan === 'STUFFING') {
-                $queries[] = "
-                    SELECT 
-                        h.NO_REQUEST,
-                        TO_CHAR(h.TGL_NOTA, 'YYYY-MM-DD') AS TANGGAL,
-                        NVL(h.NO_NOTA_MTI, h.NO_NOTA) AS NO_NOTA,
-                        NVL(h.NO_FAKTUR_MTI, h.NO_FAKTUR) AS NO_FAKTUR,
-                        d.KETERANGAN,
-                        NVL(d.COA, 'RUPA') AS COA,
-                        'STUFFING' AS KEGIATAN,
-                        d.TARIF,
-                        CASE WHEN NVL(d.TARIF, 0) > 0 AND NVL(d.BIAYA, 0) > 0 THEN ROUND(d.BIAYA / d.TARIF) ELSE 1 END AS JUMLAH_PASS,
-                        d.BIAYA,
-                        TRUNC(h.TGL_NOTA) AS TGL_NOTA
-                    FROM NOTA_STUFFING h
-                    JOIN NOTA_STUFFING_D d ON h.NO_NOTA = d.NO_NOTA
-                    WHERE UPPER(d.KETERANGAN) LIKE '%PASS TRUCK%' 
-                      AND NVL(h.STATUS, 'NEW') <> 'BATAL'
-                      AND UPPER(NVL(h.LUNAS, 'NO')) = 'YES'
-                ";
-            }
-
-            if (empty($queries)) {
-                return response()->json([
-                    'status' => ['msg' => 'OK', 'code' => 200],
-                    'data' => [],
-                    'total_pass' => 0,
-                    'total_biaya' => 0
-                ], 200);
-            }
-
-            $unionQuery = implode(" UNION ALL ", $queries);
 
             // Sorting handler
-            $orderBy = "TGL_NOTA DESC, NO_REQUEST ASC";
+            $orderBy = "tgl ASC, no_request ASC";
             if (!empty($data['menu2']) && is_array($data['menu2'])) {
-                $allowedCols = ['NO_REQUEST', 'NO_NOTA', 'KEGIATAN', 'JUMLAH_PASS', 'TANGGAL', 'BIAYA'];
+                $allowedCols = ['NO_REQUEST', 'NO_NOTA', 'KEGIATAN', 'JUMLAH_PASS', 'JUMLAH', 'TANGGAL', 'BIAYA', 'TGL'];
                 $validOrders = [];
                 foreach ($data['menu2'] as $orderCol) {
                     $cleanCol = strtoupper(trim(str_replace(['ASC', 'DESC'], '', $orderCol)));
@@ -138,10 +44,30 @@ class PassTruckService
             }
 
             $finalSql = "
-                SELECT * FROM (
-                    $unionQuery
-                )
-                WHERE TGL_NOTA BETWEEN TO_DATE('$tgl_awal', 'YYYY-MM-DD') AND TO_DATE('$tgl_akhir', 'YYYY-MM-DD')
+                SELECT 
+                    h.no_request,
+                    h.no_nota_mti AS no_nota,
+                    h.no_faktur_mti AS no_faktur,
+                    'PASS TRUCK' AS keterangan,
+                    'RUPA' AS coa,
+                    CASE 
+                        WHEN h.no_request LIKE 'REC%' THEN 'RECEIVING'
+                        WHEN h.no_request LIKE 'STR%' THEN 'STRIPPING'
+                        WHEN h.no_request LIKE 'DEL%' THEN 'DELIVERY'
+                        WHEN h.no_request LIKE 'STF%' THEN 'STUFFING'
+                        ELSE 'LAINNYA'
+                    END AS kegiatan,
+                    d.tarif,
+                    d.boxes AS jumlah,
+                    d.boxes AS jumlah_pass,
+                    d.amount AS biaya,
+                    NVL(h.tgl_pelunasan, h.trx_date) AS tgl,
+                    TO_CHAR(NVL(h.tgl_pelunasan, h.trx_date), 'YYYY-MM-DD') AS tanggal
+                FROM itpk_nota_detail d
+                JOIN itpk_nota_header h ON d.trx_number = h.trx_number
+                WHERE UPPER(d.line_description) = 'PASTR RUPA'
+                  AND TRUNC(NVL(h.tgl_pelunasan, h.trx_date)) BETWEEN TO_DATE('$tgl_awal', 'DD-MM-YYYY') AND TO_DATE('$tgl_akhir', 'DD-MM-YYYY')
+                  $whereKegiatan
                 ORDER BY $orderBy
             ";
 
@@ -151,7 +77,7 @@ class PassTruckService
             $totalBiaya = 0;
 
             foreach ($results as $item) {
-                $totalPass += intval($item->jumlah_pass ?? 0);
+                $totalPass += intval($item->jumlah_pass ?? $item->jumlah ?? 0);
                 $totalBiaya += floatval($item->biaya ?? 0);
             }
 

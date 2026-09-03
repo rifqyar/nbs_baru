@@ -71,6 +71,7 @@ use App\Http\Controllers\Report\GatePeriodikController;
 use App\Http\Controllers\Report\NotaPeriodikController;
 use App\Http\Controllers\Report\RealisasiController;
 use App\Http\Controllers\Report\StuffingStrippingController;
+use App\Http\Controllers\Report\PassTruckController;
 use App\Http\Controllers\Tca\TcaByCancelationController;
 use App\Http\Controllers\Tca\TcaByContainerController;
 use App\Http\Controllers\Maintenance\PelangganController;
@@ -1135,6 +1136,12 @@ Route::group(['middleware' => 'csrfVerify'], function () {
             Route::get('/', [SharingPenumpukanController::class, 'index']);
             Route::post('/datatable', [SharingPenumpukanController::class, 'dataTable'])->name('.datatable');
             Route::get('/report', [SharingPenumpukanController::class, 'report'])->name('.report');
+        });
+
+        Route::group(['prefix' => 'pass-truck', 'as' => 'report_pass_truck'], function () {
+            Route::get('/', [PassTruckController::class, 'index'])->name('');
+            Route::get('/generate-report', [PassTruckController::class, 'generateReport'])->name('.generateReport');
+            Route::get('/generate-excel', [PassTruckController::class, 'generateExcel'])->name('.generateExcel');
         });
     });
 

@@ -46,6 +46,7 @@ use App\Http\Controllers\Request\BatalSPPS\BatalMuatController;
 use App\Http\Controllers\Request\BatalSPPS\BatalStuffingController;
 use App\Http\Controllers\Monitoring\HistoryContainerController;
 use App\Http\Controllers\Monitoring\ListContainerStatusContoller;
+use App\Http\Controllers\Monitoring\GateInNoPlacementController;
 use App\Http\Controllers\Operation\Gate\GateInController;
 use App\Http\Controllers\Report\EmateraiController;
 use App\Http\Controllers\Operation\Gate\GateOutController;
@@ -673,6 +674,16 @@ Route::group(['middleware' => 'csrfVerify'], function () {
 
             Route::get('/ContainerVessel', [HistoryContainerController::class, 'ContainerVessel'])
                 ->name('ContainerVessel');
+        });
+
+        // Gate In No Placement - data dari view V_GATEIN_NOPLACEMENT (USTER DB)
+        Route::group(['prefix' => 'gate-in-no-placement', 'as' => 'monitoring.gatein_noplacement.'], function () {
+            Route::get('/', [GateInNoPlacementController::class, 'index'])
+                ->name('index');
+            Route::get('/data', [GateInNoPlacementController::class, 'data'])
+                ->name('data');
+            Route::get('/export', [GateInNoPlacementController::class, 'export'])
+                ->name('export');
         });
     });
 

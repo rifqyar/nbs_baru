@@ -61,9 +61,9 @@
                     <button class="btn btn-sm btn-primary" id="btn-refresh" onclick="refreshTable()">
                         <i class="mdi mdi-refresh"></i> Refresh
                     </button>
-                    <a hidden href="{{ route('uster.monitoring.gatein_noplacement.export') }}"
+                    <a href="{{ route('uster.monitoring.gatein_noplacement.export') }}"
                        class="btn btn-sm btn-success ml-1" target="_blank">
-                        <i class="mdi mdi-file-excel"></i> Export CSV
+                        <i class="mdi mdi-file-excel"></i> Export Excel
                     </a>
                 </div>
 

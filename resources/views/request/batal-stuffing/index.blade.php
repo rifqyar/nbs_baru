@@ -35,7 +35,7 @@
 
 
                             <!-- Button on the right -->
-                            <a href="{{ route('uster.koreksi.batal_muat.add') }}"
+                            <a href="{{ route('uster.request.batal_stuffing.add') }}"
                                 class="btn btn-primary float-right"><i class="fas fa-plus"></i> Batal Stuffing</a>
 
                         </div>

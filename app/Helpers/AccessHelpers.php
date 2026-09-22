@@ -6,40 +6,41 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
 if (!function_exists('getmenu')) {
-    $blade = '';
     // function to render parent menu
     function getmenu()
     {
         $id_group = Session::get('id_group');
-        $cacheKey = 'menu_' . $id_group;
-
-        if (Cache::has($cacheKey)) {
-            $menu = Cache::get($cacheKey);
-        } else {
-            $menu = Cache::rememberForever($cacheKey, function () {
-                $blade = '';
-                $menu = DB::connection('default')->select("SELECT * FROM TB_MENU WHERE OTORISASI LIKE '%" . Session::get('id_group') . "%' ORDER BY PARENT_ID, MENU_ORDER");
-                for ($i = 0; $i < count($menu); $i++) {
-                    if ($menu[$i]->menu == 'Home') {
-                        $link = route('home');
-                    } else {
-                        $link = $menu[$i]->linknya == null ? 'javascript:void(0)' : (Route::has($menu[$i]->linknya) ? route($menu[$i]->linknya) : 'javascript:void(0)');
-                    }
-
-                    if ($menu[$i]->parent_id == 0) {
-                        $blade .= "<li><a class='has-arrow' href='" . $link . "' aria-expanded='false'>" . $menu[$i]->menu . "</a>" . getMenuChild($menu, $menu[$i]->id_menu) . "</li>";
-                    }
-                }
-                return $blade;
-            });
+        $oldCacheKey = 'menu_' . $id_group;
+        
+        // Hapus cache lama yang tersimpan permanen agar merender route terbaru
+        if (Cache::has($oldCacheKey)) {
+            Cache::forget($oldCacheKey);
         }
 
-        return $menu;
+        $cacheKeyData = 'menu_raw_data_' . $id_group;
+
+        $menu = Cache::remember($cacheKeyData, 60, function () use ($id_group) {
+            return DB::connection('default')->select("SELECT * FROM TB_MENU WHERE OTORISASI LIKE '%" . $id_group . "%' ORDER BY PARENT_ID, MENU_ORDER");
+        });
+
+        $blade = '';
+        for ($i = 0; $i < count($menu); $i++) {
+            if ($menu[$i]->menu == 'Home') {
+                $link = Route::has('home') ? route('home') : url('/home');
+            } else {
+                $link = $menu[$i]->linknya == null ? 'javascript:void(0)' : (Route::has($menu[$i]->linknya) ? route($menu[$i]->linknya) : (isset($menu[$i]->route) && Route::has($menu[$i]->route) ? route($menu[$i]->route) : 'javascript:void(0)'));
+            }
+
+            if ($menu[$i]->parent_id == 0) {
+                $blade .= "<li><a class='has-arrow' href='" . $link . "' aria-expanded='false'>" . $menu[$i]->menu . "</a>" . getMenuChild($menu, $menu[$i]->id_menu) . "</li>";
+            }
+        }
+
+        return $blade;
     }
 }
 
 if (!function_exists('getHistoryNotification')) {
-    $blade = '';
     // function to render parent menu
     function getHistoryNotification()
     {
@@ -59,8 +60,7 @@ if (!function_exists('getHistoryNotification')) {
     }
 }
 
-
-// function to render child menu (invinite child)
+// function to render child menu (infinite child)
 function getMenuChild($menu, $parent_id)
 {
     $childData = DB::connection('default')
@@ -82,24 +82,9 @@ function getMenuChild($menu, $parent_id)
             }
         }
         $child .= '</ul>';
-    }
-    if (count($childData) > 0) {
-        $child = '<ul aria-expanded="false" class="collapse">';
-        for ($i = 0; $i < count($menu); $i++) {
-            if ($menu[$i]->parent_id != 0) {
-                if ($menu[$i]->parent_id == $parent_id) {
-                    $link = $menu[$i]->linknya == null ?
-                        'javascript:void(0)' : (Route::has($menu[$i]->linknya) ?
-                            route($menu[$i]->linknya) : (isset($menu[$i]->route) && Route::has($menu[$i]->route) ?
-                                route($menu[$i]->route) : 'javascript:void(0)')
-                        );
-
-                    $child .= "<li><a aria-expanded='false' class='text-wrap' href='" . $link . "'>" . $menu[$i]->menu . "</a>" . getMenuChild($menu, $menu[$i]->id_menu) . "</li>";
-                }
-            }
-        }
-        $child .= '</ul>';
 
         return $child;
     }
+
+    return '';
 }

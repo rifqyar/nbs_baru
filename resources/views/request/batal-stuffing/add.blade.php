@@ -18,11 +18,11 @@
 @section('content')
     <div class="row page-titles">
         <div class="col-md-5 col-8 align-self-center">
-            <h3 class="text-themecolor">Request Batal Muat</h3>
+            <h3 class="text-themecolor">Request Batal Stuffing</h3>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">New Request</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('uster.koreksi.batal_muat') }}">Batal Muat</a></li>
-                <li class="breadcrumb-item active">Add Request Batal Muat</li>
+                <li class="breadcrumb-item"><a href="{{ route('uster.new_request.batal_stuffing') }}">Batal Stuffing</a></li>
+                <li class="breadcrumb-item active">Add Request Batal Stuffing</li>
             </ol>
         </div>
         <div class="col-md-7 col-4 align-self-center">
@@ -189,7 +189,7 @@
                 time: false
             });
 
-           
+
         })
 
 

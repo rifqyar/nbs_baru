@@ -31,7 +31,7 @@ class BatalStuffingController extends Controller
         $data['Container'] = $this->batalStuffing->getContainer($request->search);
         return response()->json($data['Container']);
     }
-    
+
     public function store(Request $request)
     {
         DB::beginTransaction();

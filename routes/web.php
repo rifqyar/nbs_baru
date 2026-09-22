@@ -204,7 +204,7 @@ Route::group(['middleware' => 'csrfVerify'], function () {
         Route::group(['prefix' => 'batal-stuffing', 'as' => 'batal_stuffing'], function () {
             Route::get('/', [BatalStuffingController::class, 'index'])->name('');
             Route::get('/add', [BatalStuffingController::class, 'add'])->name('.add');
-            Route::get('/store', [BatalStuffingController::class, 'store'])->name('.store');
+            Route::post('/store', [BatalStuffingController::class, 'store'])->name('.store');
             Route::get('/data-container', [BatalStuffingController::class, 'getContData'])->name('.getContData');
         });
 

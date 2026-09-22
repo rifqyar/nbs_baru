@@ -95,8 +95,18 @@ $("#NO_CONT").autocomplete({
         $("#KETERANGAN").val(ui.item.KETERANGAN);
 
         return false;
-    },
+    }
 });
+
+var autocompleteInst = $("#NO_CONT").data("ui-autocomplete") || $("#NO_CONT").data("autocomplete");
+if (autocompleteInst) {
+    autocompleteInst._renderItem = function(ul, item) {
+        return $("<li style='border-bottom: 1px solid #f3f3f3; padding: 6px 10px; cursor: pointer; white-space: nowrap;'></li>")
+            .data("item.autocomplete", item)
+            .append("<div style='font-size: 14px; font-weight: 500; color: #333;'>" + item.NO_CONTAINER + " <span style='color: #888;'>|</span> " + item.SIZE_ + " " + item.TYPE_ + "</div>")
+            .appendTo(ul);
+    };
+}
 
 function batal() {
     Swal.fire({

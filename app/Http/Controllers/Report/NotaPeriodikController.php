@@ -254,10 +254,21 @@ class NotaPeriodikController extends Controller
 
                 $writer = new Xlsx($spreadsheet);
                 $writer->setPreCalculateFormulas(false);
-                $writer->setUseDiskCaching(true, storage_path('app/cache'));
+
+                // Auto-create folder cache & output jika belum ada
+                $cachePath = storage_path('app/cache');
+                if (!is_dir($cachePath)) {
+                    mkdir($cachePath, 0777, true);
+                }
+                $outputDir = public_path() . "/storage/report/nota_periodik/";
+                if (!is_dir($outputDir)) {
+                    mkdir($outputDir, 0777, true);
+                }
+
+                $writer->setUseDiskCaching(true, $cachePath);
                 $fileName = "LAPORAN NOTA PER PERIODIK " . $request->tgl_awal . ' - ' . $request->tgl_akhir;
                 $file = $fileName . '.xlsx';
-                $path = public_path() . "/storage/report/nota_periodik/" . $file;
+                $path = $outputDir . $file;
                 $writer->save($path);
                 $spreadsheet->disconnectWorksheets();
                 unset($spreadsheet);

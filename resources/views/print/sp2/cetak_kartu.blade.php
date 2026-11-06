@@ -148,7 +148,7 @@
                 <td height="45">&nbsp;</td>
                 <td>&nbsp;</td>
                 <td colspan="2">&nbsp;</td>
-                <td colspan="3"> &nbsp;<span style="padding-left:10px"><strong>SUWANDA</strong></span></td>
+                <td colspan="3"> &nbsp;<span style="padding-left:10px"><strong>Febriora Noordiansyah</strong></span></td>
             </tr>
         </table>
     </div>
